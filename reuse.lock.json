@@ -1,0 +1,27 @@
+{
+  "schema": "reuse-lock/v1",
+  "entries": [
+    {
+      "id": "pll-pfd",
+      "source": "2AMLogic/sg13g2-pll",
+      "source_commit": "83e59fe81db0b09dbefcff35a55965bea0c2a76f",
+      "path": "design/pfd.sch",
+      "export": "design/netlist/pfd.spice",
+      "decision": "adopt",
+      "mode": "stamped copy at first schematic issue, pinned to source_commit",
+      "conditions": "Must be re-simulated at 1 GHz inputs across the corner set before use; sibling's operating frequency is unverified for a DLL. Failure is recorded in a new decision record, not patched silently.",
+      "record": "spec/decisions/DR-004-pfd-cp-reuse.md"
+    },
+    {
+      "id": "pll-cp",
+      "source": "2AMLogic/sg13g2-pll",
+      "source_commit": "83e59fe81db0b09dbefcff35a55965bea0c2a76f",
+      "path": "design/cp.sch",
+      "export": "design/netlist/cp.spice",
+      "decision": "adopt",
+      "mode": "stamped copy at first schematic issue, pinned to source_commit",
+      "conditions": "Output current is re-derived for the DLL's first-order loop; the topology is adopted, the bias currents are not.",
+      "record": "spec/decisions/DR-004-pfd-cp-reuse.md"
+    }
+  ]
+}

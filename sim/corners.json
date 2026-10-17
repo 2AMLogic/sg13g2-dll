@@ -1,0 +1,22 @@
+{
+  "schema": "sg13g2-dll/corners/v1",
+  "ratified_by": "spec/decisions/DR-001-spec-ratification.md",
+  "status": "proposed-pending-human-merge",
+  "note": "MOS corner names follow the IHP SG13G2 model-library section convention. The exact section names and library path are pinned by issue #3; the runner (#4) resolves them from this file, it does not invent them.",
+  "device_flavor": "sg13_hv (3.3 V thick-oxide)",
+  "axes": {
+    "mos": ["mos_tt", "mos_ss", "mos_ff", "mos_sf", "mos_fs"],
+    "vdd_v": [2.97, 3.30, 3.63],
+    "temp_c": [-40, 27, 125]
+  },
+  "count": 45,
+  "reduced_set": {
+    "use": "fast iteration only; never recorded as a result",
+    "corners": [
+      {"mos": "mos_tt", "vdd_v": 3.30, "temp_c": 27},
+      {"mos": "mos_ss", "vdd_v": 2.97, "temp_c": 125},
+      {"mos": "mos_ff", "vdd_v": 3.63, "temp_c": -40}
+    ]
+  },
+  "narrowing": "none: full MOS x +/-10% supply x -40..125 C cross product"
+}
