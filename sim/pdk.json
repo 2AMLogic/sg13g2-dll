@@ -1,0 +1,45 @@
+{
+  "_comment": "Pinned SG13G2 PDK revision this repo's sim/ evidence is generated against. Shape follows 2AMLogic/sg13g2-bandgap sim/pdk.json (pinned in reuse.lock.json). sim/check-pins.sh checks this file against the installed tree. Not otherwise consumed by tooling.",
+  "source": "IHP-GmbH/IHP-Open-PDK",
+  "fetch_method": "klayout-tools scripts/fetch-ihp-sg13g2.sh (2AMLogic/klayout-tools)",
+  "release_tag": "v0.3.0",
+  "release_url": "https://github.com/IHP-GmbH/IHP-Open-PDK/archive/refs/tags/v0.3.0.tar.gz",
+  "tarball_sha256": "f6afb7a8d2adf3e40acd3fd2c7892fc93510e6f760565409a8df2b5b242254fc",
+  "tarball_sha256_source": "copied from 2AMLogic/sg13g2-bandgap sim/pdk.json at b16eb968473856b26185b05fbb49146731b8ad13; not re-derived here",
+  "pdk_root_layout": "PDK_ROOT/ihp-sg13g2 (open_pdks-shaped install, klt pdk find/list convention)",
+  "variant": "ihp-sg13g2",
+  "installed_tree_must_contain": [
+    "libs.tech/ngspice/models/cornerMOSlv.lib",
+    "libs.tech/ngspice/models/cornerMOShv.lib",
+    "libs.tech/ngspice/models/cornerHBT.lib",
+    "libs.tech/ngspice/models/sg13g2_hbt_mod.lib",
+    "libs.tech/verilog-a/psp103",
+    "libs.tech/ngspice/osdi/psp103.osdi",
+    "libs.tech/ngspice/osdi/psp103_nqs.osdi",
+    "libs.tech/ngspice/osdi/r3_cmc.osdi",
+    "libs.tech/ngspice/osdi/mosvar.osdi"
+  ],
+  "installed_tree_as_checked": {
+    "path": "~/share/pdk/ihp-sg13g2 on the AWS dispatch worker, 2026-10-17",
+    "fetched_version_file": "0.3.0",
+    "fleet_pdk_store_bundle_sha256": "b3943b5757f106b62bf54d3477f76e4ea6deed9ff3e9772dab598e03b9f4b863",
+    "note": "the installed tree is the fleet PDK store's bundle of v0.3.0 (a repacked artifact), so its bundle hash differs from the upstream release tarball hash above"
+  },
+  "ngspice": {
+    "pdk_documented": "43",
+    "needed_for_openvaf_reloaded_osdi": ">=44 (OSDI v0.4)",
+    "local_dispatch_worker": "42 -- cannot load the v0.4 OSDI binaries; local runs fail with osdi_abi_mismatch",
+    "batch_fleet_used_by_pdk_smoke": "see environment.engine_version in sim/pdk-smoke/results/*/record.md"
+  },
+  "osdi_toolchain": {
+    "approach": "source-compile the PDK's own Verilog-A models with a checksum-pinned prebuilt OpenVAF-Reloaded compiler",
+    "build_script": "sim/harness/common/build-osdi.sh (vendored, see reuse.lock.json)",
+    "compiler_repo": "OpenVAF/OpenVAF-Reloaded",
+    "compiler_tag": "v24.0.1mob",
+    "models_built": ["psp103.osdi", "psp103_nqs.osdi", "r3_cmc.osdi", "mosvar.osdi"],
+    "install_dir": "PDK_ROOT/ihp-sg13g2/libs.tech/ngspice/osdi (PDK-install territory, not tracked in this repo; no .osdi is committed)",
+    "pins_authority": "the script itself; compiler asset and libLLVM hashes are in sim/harness/common/build-osdi.sh",
+    "built_by_this_repo": false,
+    "built_by_this_repo_note": "the .osdi files in the installed tree were provisioned with the PDK store bundle; pdk-smoke records their sha256 per run. Rebuild with the script on a host of your own."
+  }
+}

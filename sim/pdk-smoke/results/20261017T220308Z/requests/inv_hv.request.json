@@ -1,0 +1,74 @@
+{
+  "_comment": [
+    "sg13g2-dll pdk-smoke: HV inverter transient at typ/fast/slow MOS corners (issue #3).",
+    "Device-family load check; limits are sanity gates, NOT spec numbers. Results are simulated, never measured.",
+    "/home/ubuntu/share/pdk/ihp-sg13g2/libs.tech/ngspice/osdi is substituted by sim/pdk-smoke/run.sh."
+  ],
+  "engine": "ngspice",
+  "netlist": "../decks/inv_hv.spice",
+  "netlist_source": "schematic",
+  "models": {
+    "pdk": "ihp-sg13g2",
+    "lib": "libs.tech/ngspice/models/cornerMOShv.lib"
+  },
+  "corners": {
+    "process": [
+      "mos_tt",
+      "mos_ff",
+      "mos_ss"
+    ],
+    "temperature_c": [
+      27
+    ]
+  },
+  "analysis": {
+    "kind": "tran",
+    "args": "5p 6n"
+  },
+  "measurements": [
+    {
+      "name": "voh",
+      "spice": ".meas tran voh find v(out) at=0.9n",
+      "unit": "V",
+      "limits": {
+        "min": 3.135
+      }
+    },
+    {
+      "name": "vol",
+      "spice": ".meas tran vol find v(out) at=2.0n",
+      "unit": "V",
+      "limits": {
+        "max": 0.165
+      }
+    },
+    {
+      "name": "tphl",
+      "spice": ".meas tran tphl trig v(in) val=1.65 rise=1 targ v(out) val=1.65 fall=1",
+      "unit": "s",
+      "limits": {
+        "min": 0,
+        "max": 2e-09
+      }
+    },
+    {
+      "name": "tplh",
+      "spice": ".meas tran tplh trig v(in) val=1.65 fall=1 targ v(out) val=1.65 rise=1",
+      "unit": "s",
+      "limits": {
+        "min": 0,
+        "max": 2e-09
+      }
+    }
+  ],
+  "options": {
+    "osdi_preload": [
+      "/home/ubuntu/share/pdk/ihp-sg13g2/libs.tech/ngspice/osdi/psp103.osdi",
+      "/home/ubuntu/share/pdk/ihp-sg13g2/libs.tech/ngspice/osdi/psp103_nqs.osdi",
+      "/home/ubuntu/share/pdk/ihp-sg13g2/libs.tech/ngspice/osdi/r3_cmc.osdi",
+      "/home/ubuntu/share/pdk/ihp-sg13g2/libs.tech/ngspice/osdi/mosvar.osdi"
+    ],
+    "stage_model_inputs": true,
+    "keep_artifacts": true
+  }
+}

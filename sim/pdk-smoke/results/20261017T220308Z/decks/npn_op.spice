@@ -1,0 +1,6 @@
+* pdk-smoke: one npn13G2 DC operating point (Vbe = 0.8 V, Vce = 1.0 V).
+* Device-family load check only; nothing here is a design.
+* klt sim netlist body: no .lib/.temp/analysis/.end.
+Vc c 0 1.0
+Vb b 0 0.8
+XQ1 c b 0 0 npn13G2 Nx=1
