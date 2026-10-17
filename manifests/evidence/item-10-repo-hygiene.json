@@ -1,0 +1,100 @@
+{
+  "schema_version": 1,
+  "kind": "generic",
+  "status": "pass",
+  "t1_item": 10,
+  "summary": "T1 item 10 (Repo hygiene): 7/7 attestation checks passed (klt signoff --attest)",
+  "source": "manifests/item-10-inventory.json",
+  "attestation": {
+    "producer": "klt signoff --attest",
+    "inventory_schema_version": 1,
+    "hash_algorithm": "sha256-raw-bytes",
+    "check_count": 7,
+    "passed_count": 7,
+    "checks": [
+      {
+        "check": "present",
+        "role": "hygiene",
+        "path": ".github/workflows/signoff.yml",
+        "passed": true,
+        "content_hash": "sha256:a7536626976cc8ce52cdd5bac8eabd1de7aa97be27232a9f7a129f1c4d7852e6"
+      },
+      {
+        "check": "present",
+        "role": "hygiene",
+        "path": "LICENSE",
+        "passed": true,
+        "content_hash": "sha256:cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+      },
+      {
+        "check": "present",
+        "role": "hygiene",
+        "path": "README.md",
+        "passed": true,
+        "content_hash": "sha256:8a01c41a8e3a56a6ee1ebee866c0f057d56a35f82466233a9baa11e8827d1f4c"
+      },
+      {
+        "check": "present",
+        "role": "hygiene",
+        "path": "scripts/check-signoff.sh",
+        "passed": true,
+        "content_hash": "sha256:3715f32cd4de32aeeec3ecba8aa4b9b48bd46abea0697779f511bcc4143aa2f1"
+      },
+      {
+        "check": "command",
+        "role": "audit",
+        "name": "readme-cites-spec-issue",
+        "argv": [
+          "grep",
+          "-q",
+          "issue #2",
+          "README.md"
+        ],
+        "cwd": ".",
+        "exit_status": 0,
+        "passed": true
+      },
+      {
+        "check": "command",
+        "role": "audit",
+        "name": "ci-runs-signoff-check",
+        "argv": [
+          "grep",
+          "-q",
+          "scripts/check-signoff.sh",
+          ".github/workflows/signoff.yml"
+        ],
+        "cwd": ".",
+        "exit_status": 0,
+        "passed": true
+      },
+      {
+        "check": "command",
+        "role": "audit",
+        "name": "no-placeholder-scripts",
+        "argv": [
+          "python3",
+          "-I",
+          "-c",
+          "import sys; sys.exit('configured' in open('package.json').read())"
+        ],
+        "cwd": ".",
+        "exit_status": 0,
+        "passed": true
+      }
+    ]
+  },
+  "provenance": {
+    "klt_version": "0.7.1.dev1772+gfc02bdf0b6aa",
+    "klayout_version": null,
+    "pdk": null,
+    "deck": null,
+    "input": {
+      "path": {
+        "path": "manifests/item-10-inventory.json",
+        "scope": "repo"
+      },
+      "content_hash": "sha256:9de4f2bd08274353c43d003b574891f560cc99af0fb4767646b1b6deb1da874c"
+    }
+  }
+}
