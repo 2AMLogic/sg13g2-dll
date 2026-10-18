@@ -1,0 +1,12 @@
+{
+  "_comment": [
+    "PVT corner set consumed by sim/harness/gridspec.py. Schema only: this file carries NO corner values until the ratified spec (issue #2) fills it.",
+    "An empty set is refused by the runner so a bench can never claim PVT coverage from an unfilled file.",
+    "process[]: klt sim corners.process entries (a bare .lib section name, or {name, sections:[...]}). temperature_c[]: degrees C. supply_v: optional {source: [volts,...]} zipped by index, as in klt sim."
+  ],
+  "schema": 1,
+  "ratified_by": null,
+  "process": [],
+  "temperature_c": [],
+  "supply_v": {}
+}

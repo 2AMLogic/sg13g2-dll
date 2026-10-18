@@ -1,0 +1,83 @@
+{
+  "_comment": [
+    "harness-example start-state / PVT bench on the pdk-smoke inverter (issue #4).",
+    "Base request: no corners / monte_carlo (sim/harness/gridspec.py adds them). Limits are sanity gates, NOT spec numbers. Simulated, never measured.",
+    "/home/ubuntu/share/pdk/ihp-sg13g2/libs.tech/ngspice/osdi is substituted by run.sh."
+  ],
+  "engine": "ngspice",
+  "netlist": "../decks/inv_ic.spice",
+  "netlist_source": "schematic",
+  "models": {
+    "pdk": "ihp-sg13g2",
+    "lib": "libs.tech/ngspice/models/cornerMOSlv.lib"
+  },
+  "analysis": {
+    "kind": "tran",
+    "args": "5p 6n"
+  },
+  "measurements": [
+    {
+      "name": "v0",
+      "spice": ".meas tran v0 find v(out) at=50p",
+      "unit": "V",
+      "limits": {
+        "min": -0.01,
+        "max": 1.21
+      }
+    },
+    {
+      "name": "voh",
+      "spice": ".meas tran voh find v(out) at=0.9n",
+      "unit": "V",
+      "limits": {
+        "min": 1.14
+      }
+    },
+    {
+      "name": "vol",
+      "spice": ".meas tran vol find v(out) at=2.0n",
+      "unit": "V",
+      "limits": {
+        "max": 0.06
+      }
+    },
+    {
+      "name": "tphl",
+      "spice": ".meas tran tphl trig v(in) val=0.6 rise=1 targ v(out) val=0.6 fall=1",
+      "unit": "s",
+      "limits": {
+        "min": 0,
+        "max": 2e-09
+      }
+    }
+  ],
+  "options": {
+    "osdi_preload": [
+      "/home/ubuntu/share/pdk/ihp-sg13g2/libs.tech/ngspice/osdi/psp103.osdi",
+      "/home/ubuntu/share/pdk/ihp-sg13g2/libs.tech/ngspice/osdi/psp103_nqs.osdi",
+      "/home/ubuntu/share/pdk/ihp-sg13g2/libs.tech/ngspice/osdi/r3_cmc.osdi",
+      "/home/ubuntu/share/pdk/ihp-sg13g2/libs.tech/ngspice/osdi/mosvar.osdi"
+    ],
+    "stage_model_inputs": true,
+    "keep_artifacts": true
+  },
+  "corners": {
+    "process": [
+      "mos_tt",
+      "mos_ff",
+      "mos_ss"
+    ],
+    "temperature_c": [
+      27
+    ],
+    "supply_v": {
+      "vic": [
+        0.0,
+        0.3,
+        0.6,
+        0.9,
+        1.2
+      ]
+    }
+  }
+}

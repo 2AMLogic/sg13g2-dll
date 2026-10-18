@@ -14,5 +14,28 @@
       ]
     }
   ],
-  "in_tree": []
+  "in_tree": [],
+  "not_adopted": [
+    {
+      "from": "2AMLogic/sg13g2-bandgap",
+      "paths": [
+        "sim/harness/klt_corner_bundle.py",
+        "sim/harness/klt_sim_evidence.py",
+        "sim/harness/merge_batch_shards.py"
+      ],
+      "decision": "kept thin; revisit klt_corner_bundle.py when #2's corner set needs HBT and resistor sections",
+      "record": "spec/decisions/0003-sim-harness-reuse.md"
+    },
+    {
+      "from": "2AMLogic/sky130-pll",
+      "paths": [
+        "sim/harness/montecarlo.py",
+        "sim/harness/checkpoint.py",
+        "sim/harness/corners.py",
+        "sim/harness/executor.py"
+      ],
+      "decision": "not adopted; klt sim provides monte_carlo, --resume and the batch backend natively",
+      "record": "spec/decisions/0003-sim-harness-reuse.md"
+    }
+  ]
 }

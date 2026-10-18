@@ -1,0 +1,10 @@
+* harness-example: the same inverter for the Monte Carlo mode.
+* SG13G2 draws device mismatch from ngspice's own RNG (agauss) inside the
+* *_mismatch model sections; the plain sections draw nothing, which is what the
+* negative control relies on (sim/harness/gridspec.py negative_control).
+* klt sim netlist body: no .lib/.temp/analysis/.end.
+Vdd vdd 0 1.2
+Vin in 0 PULSE(0 1.2 1n 50p 50p 1n 2.5n)
+XMP out in vdd vdd sg13_lv_pmos w=0.15u l=0.13u ng=1 m=1
+XMN out in 0 0 sg13_lv_nmos w=0.15u l=0.13u ng=1 m=1
+Cl out 0 2f

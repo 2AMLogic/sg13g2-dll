@@ -1,0 +1,15 @@
+* harness-example: minimum-size LV inverter with a settable start state.
+* Example for the grid harness (issue #4) on the pdk-smoke circuit; not a design.
+* The start state of `out` is the voltage of source `vic`. The harness sweeps
+* it through klt sim's corners.supply_v (an `alter`), and `sinit` ties `out`
+* to it until 100 ps, then releases it. No `.ic`/`uic` is needed.
+* klt sim netlist body: no .lib/.temp/analysis/.end.
+Vdd vdd 0 1.2
+Vin in 0 PULSE(0 1.2 1n 50p 50p 1n 2.5n)
+XMP out in vdd vdd sg13_lv_pmos w=0.15u l=0.13u ng=1 m=1
+XMN out in 0 0 sg13_lv_nmos w=0.15u l=0.13u ng=1 m=1
+Cl out 0 10f
+vic icn 0 0.6
+vrel g 0 PULSE(1 0 100p 10p 10p 1 1)
+sinit out icn g 0 swinit
+.model swinit SW(Vt=0.5 Vh=0.1 Ron=10 Roff=1e12)

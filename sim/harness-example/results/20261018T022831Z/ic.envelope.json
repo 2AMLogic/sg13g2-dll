@@ -1,0 +1,1227 @@
+{
+  "schema_version": 3,
+  "netlist": {
+    "path": "sim/harness-example/results/20261018T022831Z/decks/inv_ic.spice",
+    "scope": "repo"
+  },
+  "status": "pass",
+  "corner_count": 15,
+  "passed": 15,
+  "failed": 0,
+  "errored": 0,
+  "inconclusive": 0,
+  "diagnostic_counts": {
+    "by_code": {},
+    "by_severity": {},
+    "corners_with_diagnostics": 0
+  },
+  "metrics": {
+    "sim__corner__count": 15,
+    "sim__corner__passed_count": 15,
+    "sim__corner__failed_count": 0,
+    "sim__corner__errored_count": 0,
+    "sim__corner__inconclusive_count": 0
+  },
+  "environment": {
+    "engine": "ngspice",
+    "engine_version": "46",
+    "ngspice_binary": "/usr/local/bin/ngspice",
+    "engine_build": {
+      "version_banner": "******\n** ngspice-42 : Circuit level simulation program\n** Compiled with KLU Direct Linear Solver\n** The U. C. Berkeley CAD Group\n** Copyright 1985-1994, Regents of the University of California.\n** Copyright 2001-2023, The ngspice team.\n** Please get your ngspice manual from https://ngspice.sourceforge.io/docs.html\n** Please file your bug-reports at http://ngspice.sourceforge.net/bugrep.html\n** Creation Date: Sun Mar 31 20:15:14 UTC 2024\n******",
+      "binary_sha256": "820658317b0b54035208da41936fd6871ce924036e5ea4113a4168b821b7fc45",
+      "probe": "ok",
+      "reason": null
+    },
+    "models_lib": {
+      "path": null,
+      "scope": "external"
+    },
+    "models_lib_sha256": "03d505847c880d233b341be115a1e5460edf4d8e9b3e8a7df791a52fa4455d67",
+    "models_lib_sha256_scope": "client",
+    "netlist_sha256": "e617ad088a1152fe30289a457f536d9e8d2131a5f1e11439bcb41a7061a6a118",
+    "netlist_closure": [
+      {
+        "path": "sim/harness-example/results/20261018T022831Z/decks/inv_ic.spice",
+        "scope": "repo",
+        "sha256": "e617ad088a1152fe30289a457f536d9e8d2131a5f1e11439bcb41a7061a6a118"
+      }
+    ],
+    "netlist_identity": "sha256:e496b5f8cfcb6729bf3183ad1e5b860dcb740379156aa637401724f6eebd31d4",
+    "netlist_source": "schematic",
+    "osdi_preload": [
+      {
+        "name": "psp103.osdi",
+        "path": null,
+        "scope": "external",
+        "sha256": "2e4299c4683997e26469410dc1ab36b02ced924b1ac0972d6c4eae360e1fc796"
+      },
+      {
+        "name": "psp103_nqs.osdi",
+        "path": null,
+        "scope": "external",
+        "sha256": "839b164483205601c09032951f6c41d3580f15e506dc40a7202950d3afbdfc7d"
+      },
+      {
+        "name": "r3_cmc.osdi",
+        "path": null,
+        "scope": "external",
+        "sha256": "4fead17bc2e9cbfe3df6f106e9dbd6f2cdcd48c002af9c56c2ca0b0712fce350"
+      },
+      {
+        "name": "mosvar.osdi",
+        "path": null,
+        "scope": "external",
+        "sha256": "25e64a374ab523dbfeb7ffed75dcb8b086ee10f06120a9074bd68b92d7b0fb41"
+      }
+    ],
+    "staged_model_inputs": [
+      {
+        "name": "cornerMOSlv.lib",
+        "field": "models.lib",
+        "kind": "library",
+        "sha256": "07f15f24b990ab9eff8e1000457ad180a5199b48fc17217ac3572bdcdfbf5f72",
+        "rewritten": true,
+        "source_sha256": "03d505847c880d233b341be115a1e5460edf4d8e9b3e8a7df791a52fa4455d67"
+      },
+      {
+        "name": "psp103.osdi",
+        "field": "options.osdi_preload[0]",
+        "kind": "osdi",
+        "sha256": "2e4299c4683997e26469410dc1ab36b02ced924b1ac0972d6c4eae360e1fc796",
+        "rewritten": false,
+        "source_sha256": "2e4299c4683997e26469410dc1ab36b02ced924b1ac0972d6c4eae360e1fc796"
+      },
+      {
+        "name": "psp103_nqs.osdi",
+        "field": "options.osdi_preload[1]",
+        "kind": "osdi",
+        "sha256": "839b164483205601c09032951f6c41d3580f15e506dc40a7202950d3afbdfc7d",
+        "rewritten": false,
+        "source_sha256": "839b164483205601c09032951f6c41d3580f15e506dc40a7202950d3afbdfc7d"
+      },
+      {
+        "name": "r3_cmc.osdi",
+        "field": "options.osdi_preload[2]",
+        "kind": "osdi",
+        "sha256": "4fead17bc2e9cbfe3df6f106e9dbd6f2cdcd48c002af9c56c2ca0b0712fce350",
+        "rewritten": false,
+        "source_sha256": "4fead17bc2e9cbfe3df6f106e9dbd6f2cdcd48c002af9c56c2ca0b0712fce350"
+      },
+      {
+        "name": "mosvar.osdi",
+        "field": "options.osdi_preload[3]",
+        "kind": "osdi",
+        "sha256": "25e64a374ab523dbfeb7ffed75dcb8b086ee10f06120a9074bd68b92d7b0fb41",
+        "rewritten": false,
+        "source_sha256": "25e64a374ab523dbfeb7ffed75dcb8b086ee10f06120a9074bd68b92d7b0fb41"
+      },
+      {
+        "name": "sg13g2_moslv_mod.lib",
+        "field": "models.lib",
+        "kind": "dependency",
+        "sha256": "0aa1a5630a7c8fb8ae896c57c475954ff5885c4831311f8cd9c9e64d6cbb8332",
+        "rewritten": true,
+        "source_sha256": "124c48af28aee8f4788170b50dbb4d798e7d830c6bb37516f749e16f676fa9db"
+      },
+      {
+        "name": "sg13g2_moslv_mismatch.lib",
+        "field": "models.lib",
+        "kind": "dependency",
+        "sha256": "2d3251e2d42eadb0f8af152a4915fdc60a68bceb95a2d17a52f90cfb34b7e63e",
+        "rewritten": false,
+        "source_sha256": "2d3251e2d42eadb0f8af152a4915fdc60a68bceb95a2d17a52f90cfb34b7e63e"
+      },
+      {
+        "name": "sg13g2_moslv_mod_mismatch.lib",
+        "field": "models.lib",
+        "kind": "dependency",
+        "sha256": "28f681005831113ad5377f1b867d8869b78f329a7f52aa821ff56aa1e648b68b",
+        "rewritten": true,
+        "source_sha256": "67672ffa1f224294a90270f687d11b804a24dbf268071c5cd98923ab1b3e2f84"
+      },
+      {
+        "name": "sg13g2_moslv_stat.lib",
+        "field": "models.lib",
+        "kind": "dependency",
+        "sha256": "7f4cf8df714e327348ba3975a2630e9d7dd7ae1a7a88817df4890e82745f0f52",
+        "rewritten": false,
+        "source_sha256": "7f4cf8df714e327348ba3975a2630e9d7dd7ae1a7a88817df4890e82745f0f52"
+      },
+      {
+        "name": "sg13g2_moslv_parm.lib",
+        "field": "models.lib",
+        "kind": "dependency",
+        "sha256": "cbf10b8453a18bb70b8ad0d6e40faa0937338e699b5460947a94900db6c92a6e",
+        "rewritten": false,
+        "source_sha256": "cbf10b8453a18bb70b8ad0d6e40faa0937338e699b5460947a94900db6c92a6e"
+      }
+    ],
+    "remote": {
+      "provider": "aws-batch-fleet",
+      "job_id": "klt-sim-31ca5e090a11",
+      "bucket": "2am-batch-jobs-221082181346",
+      "region": "us-east-1",
+      "instance_id": "i-03fefaae5d333c80a",
+      "instance_type": "m7i.4xlarge",
+      "availability_zone": "us-east-1c",
+      "ami_id": "ami-0e0bec04ad8e81877",
+      "lifecycle": "spot",
+      "spot": true,
+      "state": "done",
+      "exit_code": "0",
+      "concurrency": "1",
+      "physical_cores": "8",
+      "elapsed_seconds": 145,
+      "client_submitted_at": "2026-10-18T02:29:30.195074Z",
+      "client_launched_at": "2026-10-18T02:29:53.948133Z",
+      "client_status_terminal_at": "2026-10-18T02:32:58.677939Z",
+      "client_collected_at": "2026-10-18T02:32:59.562499Z",
+      "runner_klt_version": "0.7.0",
+      "client_klt_version": "0.7.1.dev1828+gfb8fd111b919",
+      "runner_compatibility": "match",
+      "runner_request_features": {
+        "required": [
+          "options.osdi_preload"
+        ],
+        "missing": [],
+        "status": "supported"
+      },
+      "worker_environment": {
+        "capture": "ok",
+        "simulator": {
+          "requested_binary": "ngspice",
+          "binary_source": "PATH",
+          "selected_path": "/usr/local/bin/ngspice",
+          "version_banner": "******\n** ngspice-46 : Circuit level simulation program\n** Compiled with KLU Direct Linear Solver\n** The U. C. Berkeley CAD Group\n** Copyright 1985-1994, Regents of the University of California.\n** Copyright 2001-2025, The ngspice team.\n** Please get your ngspice manual from https://ngspice.sourceforge.io/docs.html\n** Please file your bug-reports at http://ngspice.sourceforge.net/bugrep.html\n** Creation Date: Thu Oct  1 23:51:59 UTC 2026\n******\n",
+          "version_probe": "ok"
+        },
+        "pdk": {
+          "variant": "ihp-sg13g2",
+          "root": "/opt/pdk",
+          "stamp_scheme": null,
+          "stamp_sha256": null,
+          "stamp_text": null,
+          "models_staged": true
+        },
+        "cpu_model": "Intel(R) Xeon(R) Platinum 8488C",
+        "omp_num_threads": null,
+        "image_manifest": null,
+        "model_inputs": [
+          {
+            "name": "cornerMOSlv.lib",
+            "sha256": "07f15f24b990ab9eff8e1000457ad180a5199b48fc17217ac3572bdcdfbf5f72"
+          },
+          {
+            "name": "psp103.osdi",
+            "sha256": "2e4299c4683997e26469410dc1ab36b02ced924b1ac0972d6c4eae360e1fc796"
+          },
+          {
+            "name": "psp103_nqs.osdi",
+            "sha256": "839b164483205601c09032951f6c41d3580f15e506dc40a7202950d3afbdfc7d"
+          },
+          {
+            "name": "r3_cmc.osdi",
+            "sha256": "4fead17bc2e9cbfe3df6f106e9dbd6f2cdcd48c002af9c56c2ca0b0712fce350"
+          },
+          {
+            "name": "mosvar.osdi",
+            "sha256": "25e64a374ab523dbfeb7ffed75dcb8b086ee10f06120a9074bd68b92d7b0fb41"
+          },
+          {
+            "name": "sg13g2_moslv_mod.lib",
+            "sha256": "0aa1a5630a7c8fb8ae896c57c475954ff5885c4831311f8cd9c9e64d6cbb8332"
+          },
+          {
+            "name": "sg13g2_moslv_mismatch.lib",
+            "sha256": "2d3251e2d42eadb0f8af152a4915fdc60a68bceb95a2d17a52f90cfb34b7e63e"
+          },
+          {
+            "name": "sg13g2_moslv_mod_mismatch.lib",
+            "sha256": "28f681005831113ad5377f1b867d8869b78f329a7f52aa821ff56aa1e648b68b"
+          },
+          {
+            "name": "sg13g2_moslv_stat.lib",
+            "sha256": "7f4cf8df714e327348ba3975a2630e9d7dd7ae1a7a88817df4890e82745f0f52"
+          },
+          {
+            "name": "sg13g2_moslv_parm.lib",
+            "sha256": "cbf10b8453a18bb70b8ad0d6e40faa0937338e699b5460947a94900db6c92a6e"
+          }
+        ],
+        "diagnostics": [
+          "pdk stamp unreadable: FileNotFoundError"
+        ],
+        "pdk_stamp_comparison": {
+          "status": "not_comparable"
+        },
+        "engine_build_comparison": {
+          "status": "mismatch",
+          "warning": "the worker's ngspice --version banner differs from the local binary's; build options (e.g. FFT linkage) may differ, so results derived from them can differ from a local run"
+        }
+      },
+      "runner_model_inputs": [
+        {
+          "name": "cornerMOSlv.lib",
+          "sha256": "07f15f24b990ab9eff8e1000457ad180a5199b48fc17217ac3572bdcdfbf5f72"
+        },
+        {
+          "name": "psp103.osdi",
+          "sha256": "2e4299c4683997e26469410dc1ab36b02ced924b1ac0972d6c4eae360e1fc796"
+        },
+        {
+          "name": "psp103_nqs.osdi",
+          "sha256": "839b164483205601c09032951f6c41d3580f15e506dc40a7202950d3afbdfc7d"
+        },
+        {
+          "name": "r3_cmc.osdi",
+          "sha256": "4fead17bc2e9cbfe3df6f106e9dbd6f2cdcd48c002af9c56c2ca0b0712fce350"
+        },
+        {
+          "name": "mosvar.osdi",
+          "sha256": "25e64a374ab523dbfeb7ffed75dcb8b086ee10f06120a9074bd68b92d7b0fb41"
+        },
+        {
+          "name": "sg13g2_moslv_mod.lib",
+          "sha256": "0aa1a5630a7c8fb8ae896c57c475954ff5885c4831311f8cd9c9e64d6cbb8332"
+        },
+        {
+          "name": "sg13g2_moslv_mismatch.lib",
+          "sha256": "2d3251e2d42eadb0f8af152a4915fdc60a68bceb95a2d17a52f90cfb34b7e63e"
+        },
+        {
+          "name": "sg13g2_moslv_mod_mismatch.lib",
+          "sha256": "28f681005831113ad5377f1b867d8869b78f329a7f52aa821ff56aa1e648b68b"
+        },
+        {
+          "name": "sg13g2_moslv_stat.lib",
+          "sha256": "7f4cf8df714e327348ba3975a2630e9d7dd7ae1a7a88817df4890e82745f0f52"
+        },
+        {
+          "name": "sg13g2_moslv_parm.lib",
+          "sha256": "cbf10b8453a18bb70b8ad0d6e40faa0937338e699b5460947a94900db6c92a6e"
+        }
+      ],
+      "job_ceiling": {
+        "basis": "conservative_serial_bound",
+        "unit_count": 15,
+        "per_unit_timeout_s": 120,
+        "overhead_s": 120.0,
+        "job_bound_s": 1920.0,
+        "max_job_seconds": 3600.0,
+        "max_job_seconds_source": "fleet_config",
+        "exceeds_ceiling": false,
+        "check": "warn",
+        "max_units_per_job": 29,
+        "recommended_hosts": 1
+      }
+    },
+    "engine_host": "worker",
+    "client_ngspice_binary": "/usr/bin/ngspice",
+    "backend": {
+      "resolved": "batch",
+      "source": "env",
+      "requested": "batch"
+    }
+  },
+  "coverage": {
+    "corners_simulated": 15,
+    "measurements_declared": 4,
+    "measurements_with_limits": 4,
+    "unrecognized_limit_keys": [],
+    "schema_version": 1,
+    "known": true,
+    "checked": [
+      "limit:[0,\"mos_tt/0.000V/27C\",\"tphl\",\"max\"]",
+      "limit:[0,\"mos_tt/0.000V/27C\",\"tphl\",\"min\"]",
+      "limit:[0,\"mos_tt/0.000V/27C\",\"v0\",\"max\"]",
+      "limit:[0,\"mos_tt/0.000V/27C\",\"v0\",\"min\"]",
+      "limit:[0,\"mos_tt/0.000V/27C\",\"voh\",\"min\"]",
+      "limit:[0,\"mos_tt/0.000V/27C\",\"vol\",\"max\"]",
+      "limit:[1,\"mos_tt/0.300V/27C\",\"tphl\",\"max\"]",
+      "limit:[1,\"mos_tt/0.300V/27C\",\"tphl\",\"min\"]",
+      "limit:[1,\"mos_tt/0.300V/27C\",\"v0\",\"max\"]",
+      "limit:[1,\"mos_tt/0.300V/27C\",\"v0\",\"min\"]",
+      "limit:[1,\"mos_tt/0.300V/27C\",\"voh\",\"min\"]",
+      "limit:[1,\"mos_tt/0.300V/27C\",\"vol\",\"max\"]",
+      "limit:[10,\"mos_ss/0.000V/27C\",\"tphl\",\"max\"]",
+      "limit:[10,\"mos_ss/0.000V/27C\",\"tphl\",\"min\"]",
+      "limit:[10,\"mos_ss/0.000V/27C\",\"v0\",\"max\"]",
+      "limit:[10,\"mos_ss/0.000V/27C\",\"v0\",\"min\"]",
+      "limit:[10,\"mos_ss/0.000V/27C\",\"voh\",\"min\"]",
+      "limit:[10,\"mos_ss/0.000V/27C\",\"vol\",\"max\"]",
+      "limit:[11,\"mos_ss/0.300V/27C\",\"tphl\",\"max\"]",
+      "limit:[11,\"mos_ss/0.300V/27C\",\"tphl\",\"min\"]",
+      "limit:[11,\"mos_ss/0.300V/27C\",\"v0\",\"max\"]",
+      "limit:[11,\"mos_ss/0.300V/27C\",\"v0\",\"min\"]",
+      "limit:[11,\"mos_ss/0.300V/27C\",\"voh\",\"min\"]",
+      "limit:[11,\"mos_ss/0.300V/27C\",\"vol\",\"max\"]",
+      "limit:[12,\"mos_ss/0.600V/27C\",\"tphl\",\"max\"]",
+      "limit:[12,\"mos_ss/0.600V/27C\",\"tphl\",\"min\"]",
+      "limit:[12,\"mos_ss/0.600V/27C\",\"v0\",\"max\"]",
+      "limit:[12,\"mos_ss/0.600V/27C\",\"v0\",\"min\"]",
+      "limit:[12,\"mos_ss/0.600V/27C\",\"voh\",\"min\"]",
+      "limit:[12,\"mos_ss/0.600V/27C\",\"vol\",\"max\"]",
+      "limit:[13,\"mos_ss/0.900V/27C\",\"tphl\",\"max\"]",
+      "limit:[13,\"mos_ss/0.900V/27C\",\"tphl\",\"min\"]",
+      "limit:[13,\"mos_ss/0.900V/27C\",\"v0\",\"max\"]",
+      "limit:[13,\"mos_ss/0.900V/27C\",\"v0\",\"min\"]",
+      "limit:[13,\"mos_ss/0.900V/27C\",\"voh\",\"min\"]",
+      "limit:[13,\"mos_ss/0.900V/27C\",\"vol\",\"max\"]",
+      "limit:[14,\"mos_ss/1.200V/27C\",\"tphl\",\"max\"]",
+      "limit:[14,\"mos_ss/1.200V/27C\",\"tphl\",\"min\"]",
+      "limit:[14,\"mos_ss/1.200V/27C\",\"v0\",\"max\"]",
+      "limit:[14,\"mos_ss/1.200V/27C\",\"v0\",\"min\"]",
+      "limit:[14,\"mos_ss/1.200V/27C\",\"voh\",\"min\"]",
+      "limit:[14,\"mos_ss/1.200V/27C\",\"vol\",\"max\"]",
+      "limit:[2,\"mos_tt/0.600V/27C\",\"tphl\",\"max\"]",
+      "limit:[2,\"mos_tt/0.600V/27C\",\"tphl\",\"min\"]",
+      "limit:[2,\"mos_tt/0.600V/27C\",\"v0\",\"max\"]",
+      "limit:[2,\"mos_tt/0.600V/27C\",\"v0\",\"min\"]",
+      "limit:[2,\"mos_tt/0.600V/27C\",\"voh\",\"min\"]",
+      "limit:[2,\"mos_tt/0.600V/27C\",\"vol\",\"max\"]",
+      "limit:[3,\"mos_tt/0.900V/27C\",\"tphl\",\"max\"]",
+      "limit:[3,\"mos_tt/0.900V/27C\",\"tphl\",\"min\"]",
+      "limit:[3,\"mos_tt/0.900V/27C\",\"v0\",\"max\"]",
+      "limit:[3,\"mos_tt/0.900V/27C\",\"v0\",\"min\"]",
+      "limit:[3,\"mos_tt/0.900V/27C\",\"voh\",\"min\"]",
+      "limit:[3,\"mos_tt/0.900V/27C\",\"vol\",\"max\"]",
+      "limit:[4,\"mos_tt/1.200V/27C\",\"tphl\",\"max\"]",
+      "limit:[4,\"mos_tt/1.200V/27C\",\"tphl\",\"min\"]",
+      "limit:[4,\"mos_tt/1.200V/27C\",\"v0\",\"max\"]",
+      "limit:[4,\"mos_tt/1.200V/27C\",\"v0\",\"min\"]",
+      "limit:[4,\"mos_tt/1.200V/27C\",\"voh\",\"min\"]",
+      "limit:[4,\"mos_tt/1.200V/27C\",\"vol\",\"max\"]",
+      "limit:[5,\"mos_ff/0.000V/27C\",\"tphl\",\"max\"]",
+      "limit:[5,\"mos_ff/0.000V/27C\",\"tphl\",\"min\"]",
+      "limit:[5,\"mos_ff/0.000V/27C\",\"v0\",\"max\"]",
+      "limit:[5,\"mos_ff/0.000V/27C\",\"v0\",\"min\"]",
+      "limit:[5,\"mos_ff/0.000V/27C\",\"voh\",\"min\"]",
+      "limit:[5,\"mos_ff/0.000V/27C\",\"vol\",\"max\"]",
+      "limit:[6,\"mos_ff/0.300V/27C\",\"tphl\",\"max\"]",
+      "limit:[6,\"mos_ff/0.300V/27C\",\"tphl\",\"min\"]",
+      "limit:[6,\"mos_ff/0.300V/27C\",\"v0\",\"max\"]",
+      "limit:[6,\"mos_ff/0.300V/27C\",\"v0\",\"min\"]",
+      "limit:[6,\"mos_ff/0.300V/27C\",\"voh\",\"min\"]",
+      "limit:[6,\"mos_ff/0.300V/27C\",\"vol\",\"max\"]",
+      "limit:[7,\"mos_ff/0.600V/27C\",\"tphl\",\"max\"]",
+      "limit:[7,\"mos_ff/0.600V/27C\",\"tphl\",\"min\"]",
+      "limit:[7,\"mos_ff/0.600V/27C\",\"v0\",\"max\"]",
+      "limit:[7,\"mos_ff/0.600V/27C\",\"v0\",\"min\"]",
+      "limit:[7,\"mos_ff/0.600V/27C\",\"voh\",\"min\"]",
+      "limit:[7,\"mos_ff/0.600V/27C\",\"vol\",\"max\"]",
+      "limit:[8,\"mos_ff/0.900V/27C\",\"tphl\",\"max\"]",
+      "limit:[8,\"mos_ff/0.900V/27C\",\"tphl\",\"min\"]",
+      "limit:[8,\"mos_ff/0.900V/27C\",\"v0\",\"max\"]",
+      "limit:[8,\"mos_ff/0.900V/27C\",\"v0\",\"min\"]",
+      "limit:[8,\"mos_ff/0.900V/27C\",\"voh\",\"min\"]",
+      "limit:[8,\"mos_ff/0.900V/27C\",\"vol\",\"max\"]",
+      "limit:[9,\"mos_ff/1.200V/27C\",\"tphl\",\"max\"]",
+      "limit:[9,\"mos_ff/1.200V/27C\",\"tphl\",\"min\"]",
+      "limit:[9,\"mos_ff/1.200V/27C\",\"v0\",\"max\"]",
+      "limit:[9,\"mos_ff/1.200V/27C\",\"v0\",\"min\"]",
+      "limit:[9,\"mos_ff/1.200V/27C\",\"voh\",\"min\"]",
+      "limit:[9,\"mos_ff/1.200V/27C\",\"vol\",\"max\"]"
+    ],
+    "skipped": [],
+    "inapplicable": [],
+    "unknown": [],
+    "nothing_checked": false,
+    "nothing_checked_reasons": []
+  },
+  "provenance": {
+    "klt_version": "0.7.1.dev1828+gfb8fd111b919",
+    "klayout_version": "0.30.12",
+    "pdk": {
+      "name": "ihp-sg13g2",
+      "source": "PDK_ROOT environment variable",
+      "version": "fetched:0.3.0"
+    },
+    "deck": {
+      "name": "cornerMOSlv.lib",
+      "content_hash": "sha256:03d505847c880d233b341be115a1e5460edf4d8e9b3e8a7df791a52fa4455d67",
+      "released": false
+    },
+    "input": {
+      "content_hash": "sha256:e617ad088a1152fe30289a457f536d9e8d2131a5f1e11439bcb41a7061a6a118",
+      "role": "netlist"
+    }
+  },
+  "measurements": [
+    {
+      "name": "v0",
+      "unit": "V",
+      "limits": {
+        "min": -0.01,
+        "max": 1.21
+      },
+      "status": "pass",
+      "worst_case": {
+        "corner_id": "mos_tt/1.200V/27C",
+        "value": 1.2,
+        "margin": 0.010000000000000009
+      }
+    },
+    {
+      "name": "voh",
+      "unit": "V",
+      "limits": {
+        "min": 1.14
+      },
+      "status": "pass",
+      "worst_case": {
+        "corner_id": "mos_ss/0.000V/27C",
+        "value": 1.19835,
+        "margin": 0.058350000000000124
+      }
+    },
+    {
+      "name": "vol",
+      "unit": "V",
+      "limits": {
+        "max": 0.06
+      },
+      "status": "pass",
+      "worst_case": {
+        "corner_id": "mos_ff/1.200V/27C",
+        "value": 1.7566e-07,
+        "margin": 0.05999982434
+      }
+    },
+    {
+      "name": "tphl",
+      "unit": "s",
+      "limits": {
+        "min": 0,
+        "max": 2e-09
+      },
+      "status": "pass",
+      "worst_case": {
+        "corner_id": "mos_ff/0.000V/27C",
+        "value": 7.76767e-11,
+        "margin": 7.76767e-11
+      }
+    }
+  ],
+  "corners": [
+    {
+      "corner_id": "mos_tt/0.000V/27C",
+      "process": "mos_tt",
+      "supply_v": {
+        "vic": 0.0
+      },
+      "temperature_c": 27,
+      "status": "pass",
+      "runtime_s": 72.995,
+      "measurements": [
+        {
+          "name": "v0",
+          "value": 0.000476156,
+          "unit": "V",
+          "status": "pass",
+          "margin": 0.010476156
+        },
+        {
+          "name": "voh",
+          "value": 1.19978,
+          "unit": "V",
+          "status": "pass",
+          "margin": 0.059780000000000166
+        },
+        {
+          "name": "vol",
+          "value": 8.13055e-09,
+          "unit": "V",
+          "status": "pass",
+          "margin": 0.05999999186945
+        },
+        {
+          "name": "tphl",
+          "value": 9.47716e-11,
+          "unit": "s",
+          "status": "pass",
+          "margin": 9.47716e-11
+        }
+      ],
+      "diagnostics": [],
+      "artifacts": {
+        "log": "/home/ubuntu/GitHub/sg13g2-dll/.loom/worktrees/issue-4/sim/harness-example/results/20261018T022831Z/artifacts/ic/mos_tt_0p000V_27C/ngspice.log",
+        "raw": null,
+        "waveform": null,
+        "deck": "/home/ubuntu/GitHub/sg13g2-dll/.loom/worktrees/issue-4/sim/harness-example/results/20261018T022831Z/artifacts/ic/mos_tt_0p000V_27C/corner.cir"
+      },
+      "monte_carlo": null
+    },
+    {
+      "corner_id": "mos_tt/0.300V/27C",
+      "process": "mos_tt",
+      "supply_v": {
+        "vic": 0.3
+      },
+      "temperature_c": 27,
+      "status": "pass",
+      "runtime_s": 73.203,
+      "measurements": [
+        {
+          "name": "v0",
+          "value": 0.300451,
+          "unit": "V",
+          "status": "pass",
+          "margin": 0.31045100000000003
+        },
+        {
+          "name": "voh",
+          "value": 1.19991,
+          "unit": "V",
+          "status": "pass",
+          "margin": 0.05991000000000013
+        },
+        {
+          "name": "vol",
+          "value": 8.9996e-09,
+          "unit": "V",
+          "status": "pass",
+          "margin": 0.059999991000399995
+        },
+        {
+          "name": "tphl",
+          "value": 9.47751e-11,
+          "unit": "s",
+          "status": "pass",
+          "margin": 9.47751e-11
+        }
+      ],
+      "diagnostics": [],
+      "artifacts": {
+        "log": "/home/ubuntu/GitHub/sg13g2-dll/.loom/worktrees/issue-4/sim/harness-example/results/20261018T022831Z/artifacts/ic/mos_tt_0p300V_27C/ngspice.log",
+        "raw": null,
+        "waveform": null,
+        "deck": "/home/ubuntu/GitHub/sg13g2-dll/.loom/worktrees/issue-4/sim/harness-example/results/20261018T022831Z/artifacts/ic/mos_tt_0p300V_27C/corner.cir"
+      },
+      "monte_carlo": null
+    },
+    {
+      "corner_id": "mos_tt/0.600V/27C",
+      "process": "mos_tt",
+      "supply_v": {
+        "vic": 0.6
+      },
+      "temperature_c": 27,
+      "status": "pass",
+      "runtime_s": 74.465,
+      "measurements": [
+        {
+          "name": "v0",
+          "value": 0.600407,
+          "unit": "V",
+          "status": "pass",
+          "margin": 0.6095929999999999
+        },
+        {
+          "name": "voh",
+          "value": 1.19996,
+          "unit": "V",
+          "status": "pass",
+          "margin": 0.05996000000000001
+        },
+        {
+          "name": "vol",
+          "value": 9.86865e-09,
+          "unit": "V",
+          "status": "pass",
+          "margin": 0.059999990131349996
+        },
+        {
+          "name": "tphl",
+          "value": 9.47767e-11,
+          "unit": "s",
+          "status": "pass",
+          "margin": 9.47767e-11
+        }
+      ],
+      "diagnostics": [],
+      "artifacts": {
+        "log": "/home/ubuntu/GitHub/sg13g2-dll/.loom/worktrees/issue-4/sim/harness-example/results/20261018T022831Z/artifacts/ic/mos_tt_0p600V_27C/ngspice.log",
+        "raw": null,
+        "waveform": null,
+        "deck": "/home/ubuntu/GitHub/sg13g2-dll/.loom/worktrees/issue-4/sim/harness-example/results/20261018T022831Z/artifacts/ic/mos_tt_0p600V_27C/corner.cir"
+      },
+      "monte_carlo": null
+    },
+    {
+      "corner_id": "mos_tt/0.900V/27C",
+      "process": "mos_tt",
+      "supply_v": {
+        "vic": 0.9
+      },
+      "temperature_c": 27,
+      "status": "pass",
+      "runtime_s": 72.155,
+      "measurements": [
+        {
+          "name": "v0",
+          "value": 0.900296,
+          "unit": "V",
+          "status": "pass",
+          "margin": 0.309704
+        },
+        {
+          "name": "voh",
+          "value": 1.19999,
+          "unit": "V",
+          "status": "pass",
+          "margin": 0.05998999999999999
+        },
+        {
+          "name": "vol",
+          "value": 1.07377e-08,
+          "unit": "V",
+          "status": "pass",
+          "margin": 0.0599999892623
+        },
+        {
+          "name": "tphl",
+          "value": 9.47773e-11,
+          "unit": "s",
+          "status": "pass",
+          "margin": 9.47773e-11
+        }
+      ],
+      "diagnostics": [],
+      "artifacts": {
+        "log": "/home/ubuntu/GitHub/sg13g2-dll/.loom/worktrees/issue-4/sim/harness-example/results/20261018T022831Z/artifacts/ic/mos_tt_0p900V_27C/ngspice.log",
+        "raw": null,
+        "waveform": null,
+        "deck": "/home/ubuntu/GitHub/sg13g2-dll/.loom/worktrees/issue-4/sim/harness-example/results/20261018T022831Z/artifacts/ic/mos_tt_0p900V_27C/corner.cir"
+      },
+      "monte_carlo": null
+    },
+    {
+      "corner_id": "mos_tt/1.200V/27C",
+      "process": "mos_tt",
+      "supply_v": {
+        "vic": 1.2
+      },
+      "temperature_c": 27,
+      "status": "pass",
+      "runtime_s": 69.964,
+      "measurements": [
+        {
+          "name": "v0",
+          "value": 1.2,
+          "unit": "V",
+          "status": "pass",
+          "margin": 0.010000000000000009
+        },
+        {
+          "name": "voh",
+          "value": 1.2,
+          "unit": "V",
+          "status": "pass",
+          "margin": 0.06000000000000005
+        },
+        {
+          "name": "vol",
+          "value": 1.16068e-08,
+          "unit": "V",
+          "status": "pass",
+          "margin": 0.0599999883932
+        },
+        {
+          "name": "tphl",
+          "value": 9.47776e-11,
+          "unit": "s",
+          "status": "pass",
+          "margin": 9.47776e-11
+        }
+      ],
+      "diagnostics": [],
+      "artifacts": {
+        "log": "/home/ubuntu/GitHub/sg13g2-dll/.loom/worktrees/issue-4/sim/harness-example/results/20261018T022831Z/artifacts/ic/mos_tt_1p200V_27C/ngspice.log",
+        "raw": null,
+        "waveform": null,
+        "deck": "/home/ubuntu/GitHub/sg13g2-dll/.loom/worktrees/issue-4/sim/harness-example/results/20261018T022831Z/artifacts/ic/mos_tt_1p200V_27C/corner.cir"
+      },
+      "monte_carlo": null
+    },
+    {
+      "corner_id": "mos_ff/0.000V/27C",
+      "process": "mos_ff",
+      "supply_v": {
+        "vic": 0.0
+      },
+      "temperature_c": 27,
+      "status": "pass",
+      "runtime_s": 71.088,
+      "measurements": [
+        {
+          "name": "v0",
+          "value": 0.00058609,
+          "unit": "V",
+          "status": "pass",
+          "margin": 0.01058609
+        },
+        {
+          "name": "voh",
+          "value": 1.19997,
+          "unit": "V",
+          "status": "pass",
+          "margin": 0.05997000000000008
+        },
+        {
+          "name": "vol",
+          "value": 1.72222e-07,
+          "unit": "V",
+          "status": "pass",
+          "margin": 0.059999827777999996
+        },
+        {
+          "name": "tphl",
+          "value": 7.76767e-11,
+          "unit": "s",
+          "status": "pass",
+          "margin": 7.76767e-11
+        }
+      ],
+      "diagnostics": [],
+      "artifacts": {
+        "log": "/home/ubuntu/GitHub/sg13g2-dll/.loom/worktrees/issue-4/sim/harness-example/results/20261018T022831Z/artifacts/ic/mos_ff_0p000V_27C/ngspice.log",
+        "raw": null,
+        "waveform": null,
+        "deck": "/home/ubuntu/GitHub/sg13g2-dll/.loom/worktrees/issue-4/sim/harness-example/results/20261018T022831Z/artifacts/ic/mos_ff_0p000V_27C/corner.cir"
+      },
+      "monte_carlo": null
+    },
+    {
+      "corner_id": "mos_ff/0.300V/27C",
+      "process": "mos_ff",
+      "supply_v": {
+        "vic": 0.3
+      },
+      "temperature_c": 27,
+      "status": "pass",
+      "runtime_s": 71.621,
+      "measurements": [
+        {
+          "name": "v0",
+          "value": 0.300557,
+          "unit": "V",
+          "status": "pass",
+          "margin": 0.310557
+        },
+        {
+          "name": "voh",
+          "value": 1.19999,
+          "unit": "V",
+          "status": "pass",
+          "margin": 0.05998999999999999
+        },
+        {
+          "name": "vol",
+          "value": 1.73081e-07,
+          "unit": "V",
+          "status": "pass",
+          "margin": 0.059999826919
+        },
+        {
+          "name": "tphl",
+          "value": 7.76769e-11,
+          "unit": "s",
+          "status": "pass",
+          "margin": 7.76769e-11
+        }
+      ],
+      "diagnostics": [],
+      "artifacts": {
+        "log": "/home/ubuntu/GitHub/sg13g2-dll/.loom/worktrees/issue-4/sim/harness-example/results/20261018T022831Z/artifacts/ic/mos_ff_0p300V_27C/ngspice.log",
+        "raw": null,
+        "waveform": null,
+        "deck": "/home/ubuntu/GitHub/sg13g2-dll/.loom/worktrees/issue-4/sim/harness-example/results/20261018T022831Z/artifacts/ic/mos_ff_0p300V_27C/corner.cir"
+      },
+      "monte_carlo": null
+    },
+    {
+      "corner_id": "mos_ff/0.600V/27C",
+      "process": "mos_ff",
+      "supply_v": {
+        "vic": 0.6
+      },
+      "temperature_c": 27,
+      "status": "pass",
+      "runtime_s": 71.448,
+      "measurements": [
+        {
+          "name": "v0",
+          "value": 0.600502,
+          "unit": "V",
+          "status": "pass",
+          "margin": 0.609498
+        },
+        {
+          "name": "voh",
+          "value": 1.2,
+          "unit": "V",
+          "status": "pass",
+          "margin": 0.06000000000000005
+        },
+        {
+          "name": "vol",
+          "value": 1.73941e-07,
+          "unit": "V",
+          "status": "pass",
+          "margin": 0.059999826059
+        },
+        {
+          "name": "tphl",
+          "value": 7.7677e-11,
+          "unit": "s",
+          "status": "pass",
+          "margin": 7.7677e-11
+        }
+      ],
+      "diagnostics": [],
+      "artifacts": {
+        "log": "/home/ubuntu/GitHub/sg13g2-dll/.loom/worktrees/issue-4/sim/harness-example/results/20261018T022831Z/artifacts/ic/mos_ff_0p600V_27C/ngspice.log",
+        "raw": null,
+        "waveform": null,
+        "deck": "/home/ubuntu/GitHub/sg13g2-dll/.loom/worktrees/issue-4/sim/harness-example/results/20261018T022831Z/artifacts/ic/mos_ff_0p600V_27C/corner.cir"
+      },
+      "monte_carlo": null
+    },
+    {
+      "corner_id": "mos_ff/0.900V/27C",
+      "process": "mos_ff",
+      "supply_v": {
+        "vic": 0.9
+      },
+      "temperature_c": 27,
+      "status": "pass",
+      "runtime_s": 62.619,
+      "measurements": [
+        {
+          "name": "v0",
+          "value": 0.900362,
+          "unit": "V",
+          "status": "pass",
+          "margin": 0.30963799999999997
+        },
+        {
+          "name": "voh",
+          "value": 1.2,
+          "unit": "V",
+          "status": "pass",
+          "margin": 0.06000000000000005
+        },
+        {
+          "name": "vol",
+          "value": 1.748e-07,
+          "unit": "V",
+          "status": "pass",
+          "margin": 0.059999825199999995
+        },
+        {
+          "name": "tphl",
+          "value": 7.76771e-11,
+          "unit": "s",
+          "status": "pass",
+          "margin": 7.76771e-11
+        }
+      ],
+      "diagnostics": [],
+      "artifacts": {
+        "log": "/home/ubuntu/GitHub/sg13g2-dll/.loom/worktrees/issue-4/sim/harness-example/results/20261018T022831Z/artifacts/ic/mos_ff_0p900V_27C/ngspice.log",
+        "raw": null,
+        "waveform": null,
+        "deck": "/home/ubuntu/GitHub/sg13g2-dll/.loom/worktrees/issue-4/sim/harness-example/results/20261018T022831Z/artifacts/ic/mos_ff_0p900V_27C/corner.cir"
+      },
+      "monte_carlo": null
+    },
+    {
+      "corner_id": "mos_ff/1.200V/27C",
+      "process": "mos_ff",
+      "supply_v": {
+        "vic": 1.2
+      },
+      "temperature_c": 27,
+      "status": "pass",
+      "runtime_s": 61.157,
+      "measurements": [
+        {
+          "name": "v0",
+          "value": 1.2,
+          "unit": "V",
+          "status": "pass",
+          "margin": 0.010000000000000009
+        },
+        {
+          "name": "voh",
+          "value": 1.2,
+          "unit": "V",
+          "status": "pass",
+          "margin": 0.06000000000000005
+        },
+        {
+          "name": "vol",
+          "value": 1.7566e-07,
+          "unit": "V",
+          "status": "pass",
+          "margin": 0.05999982434
+        },
+        {
+          "name": "tphl",
+          "value": 7.76771e-11,
+          "unit": "s",
+          "status": "pass",
+          "margin": 7.76771e-11
+        }
+      ],
+      "diagnostics": [],
+      "artifacts": {
+        "log": "/home/ubuntu/GitHub/sg13g2-dll/.loom/worktrees/issue-4/sim/harness-example/results/20261018T022831Z/artifacts/ic/mos_ff_1p200V_27C/ngspice.log",
+        "raw": null,
+        "waveform": null,
+        "deck": "/home/ubuntu/GitHub/sg13g2-dll/.loom/worktrees/issue-4/sim/harness-example/results/20261018T022831Z/artifacts/ic/mos_ff_1p200V_27C/corner.cir"
+      },
+      "monte_carlo": null
+    },
+    {
+      "corner_id": "mos_ss/0.000V/27C",
+      "process": "mos_ss",
+      "supply_v": {
+        "vic": 0.0
+      },
+      "temperature_c": 27,
+      "status": "pass",
+      "runtime_s": 64.05,
+      "measurements": [
+        {
+          "name": "v0",
+          "value": 0.000359615,
+          "unit": "V",
+          "status": "pass",
+          "margin": 0.010359615
+        },
+        {
+          "name": "voh",
+          "value": 1.19835,
+          "unit": "V",
+          "status": "pass",
+          "margin": 0.058350000000000124
+        },
+        {
+          "name": "vol",
+          "value": 8.78628e-10,
+          "unit": "V",
+          "status": "pass",
+          "margin": 0.059999999121372
+        },
+        {
+          "name": "tphl",
+          "value": 1.20537e-10,
+          "unit": "s",
+          "status": "pass",
+          "margin": 1.20537e-10
+        }
+      ],
+      "diagnostics": [],
+      "artifacts": {
+        "log": "/home/ubuntu/GitHub/sg13g2-dll/.loom/worktrees/issue-4/sim/harness-example/results/20261018T022831Z/artifacts/ic/mos_ss_0p000V_27C/ngspice.log",
+        "raw": null,
+        "waveform": null,
+        "deck": "/home/ubuntu/GitHub/sg13g2-dll/.loom/worktrees/issue-4/sim/harness-example/results/20261018T022831Z/artifacts/ic/mos_ss_0p000V_27C/corner.cir"
+      },
+      "monte_carlo": null
+    },
+    {
+      "corner_id": "mos_ss/0.300V/27C",
+      "process": "mos_ss",
+      "supply_v": {
+        "vic": 0.3
+      },
+      "temperature_c": 27,
+      "status": "pass",
+      "runtime_s": 63.606,
+      "measurements": [
+        {
+          "name": "v0",
+          "value": 0.300342,
+          "unit": "V",
+          "status": "pass",
+          "margin": 0.310342
+        },
+        {
+          "name": "voh",
+          "value": 1.19937,
+          "unit": "V",
+          "status": "pass",
+          "margin": 0.059370000000000145
+        },
+        {
+          "name": "vol",
+          "value": 1.82898e-09,
+          "unit": "V",
+          "status": "pass",
+          "margin": 0.059999998171019996
+        },
+        {
+          "name": "tphl",
+          "value": 1.20584e-10,
+          "unit": "s",
+          "status": "pass",
+          "margin": 1.20584e-10
+        }
+      ],
+      "diagnostics": [],
+      "artifacts": {
+        "log": "/home/ubuntu/GitHub/sg13g2-dll/.loom/worktrees/issue-4/sim/harness-example/results/20261018T022831Z/artifacts/ic/mos_ss_0p300V_27C/ngspice.log",
+        "raw": null,
+        "waveform": null,
+        "deck": "/home/ubuntu/GitHub/sg13g2-dll/.loom/worktrees/issue-4/sim/harness-example/results/20261018T022831Z/artifacts/ic/mos_ss_0p300V_27C/corner.cir"
+      },
+      "monte_carlo": null
+    },
+    {
+      "corner_id": "mos_ss/0.600V/27C",
+      "process": "mos_ss",
+      "supply_v": {
+        "vic": 0.6
+      },
+      "temperature_c": 27,
+      "status": "pass",
+      "runtime_s": 63.341,
+      "measurements": [
+        {
+          "name": "v0",
+          "value": 0.600312,
+          "unit": "V",
+          "status": "pass",
+          "margin": 0.609688
+        },
+        {
+          "name": "voh",
+          "value": 1.19978,
+          "unit": "V",
+          "status": "pass",
+          "margin": 0.059780000000000166
+        },
+        {
+          "name": "vol",
+          "value": 2.77932e-09,
+          "unit": "V",
+          "status": "pass",
+          "margin": 0.059999997220679994
+        },
+        {
+          "name": "tphl",
+          "value": 1.20603e-10,
+          "unit": "s",
+          "status": "pass",
+          "margin": 1.20603e-10
+        }
+      ],
+      "diagnostics": [],
+      "artifacts": {
+        "log": "/home/ubuntu/GitHub/sg13g2-dll/.loom/worktrees/issue-4/sim/harness-example/results/20261018T022831Z/artifacts/ic/mos_ss_0p600V_27C/ngspice.log",
+        "raw": null,
+        "waveform": null,
+        "deck": "/home/ubuntu/GitHub/sg13g2-dll/.loom/worktrees/issue-4/sim/harness-example/results/20261018T022831Z/artifacts/ic/mos_ss_0p600V_27C/corner.cir"
+      },
+      "monte_carlo": null
+    },
+    {
+      "corner_id": "mos_ss/0.900V/27C",
+      "process": "mos_ss",
+      "supply_v": {
+        "vic": 0.9
+      },
+      "temperature_c": 27,
+      "status": "pass",
+      "runtime_s": 62.481,
+      "measurements": [
+        {
+          "name": "v0",
+          "value": 0.900236,
+          "unit": "V",
+          "status": "pass",
+          "margin": 0.30976399999999993
+        },
+        {
+          "name": "voh",
+          "value": 1.19993,
+          "unit": "V",
+          "status": "pass",
+          "margin": 0.05993000000000004
+        },
+        {
+          "name": "vol",
+          "value": 3.72965e-09,
+          "unit": "V",
+          "status": "pass",
+          "margin": 0.05999999627035
+        },
+        {
+          "name": "tphl",
+          "value": 1.2061e-10,
+          "unit": "s",
+          "status": "pass",
+          "margin": 1.2061e-10
+        }
+      ],
+      "diagnostics": [],
+      "artifacts": {
+        "log": "/home/ubuntu/GitHub/sg13g2-dll/.loom/worktrees/issue-4/sim/harness-example/results/20261018T022831Z/artifacts/ic/mos_ss_0p900V_27C/ngspice.log",
+        "raw": null,
+        "waveform": null,
+        "deck": "/home/ubuntu/GitHub/sg13g2-dll/.loom/worktrees/issue-4/sim/harness-example/results/20261018T022831Z/artifacts/ic/mos_ss_0p900V_27C/corner.cir"
+      },
+      "monte_carlo": null
+    },
+    {
+      "corner_id": "mos_ss/1.200V/27C",
+      "process": "mos_ss",
+      "supply_v": {
+        "vic": 1.2
+      },
+      "temperature_c": 27,
+      "status": "pass",
+      "runtime_s": 62.164,
+      "measurements": [
+        {
+          "name": "v0",
+          "value": 1.2,
+          "unit": "V",
+          "status": "pass",
+          "margin": 0.010000000000000009
+        },
+        {
+          "name": "voh",
+          "value": 1.2,
+          "unit": "V",
+          "status": "pass",
+          "margin": 0.06000000000000005
+        },
+        {
+          "name": "vol",
+          "value": 4.67997e-09,
+          "unit": "V",
+          "status": "pass",
+          "margin": 0.059999995320029996
+        },
+        {
+          "name": "tphl",
+          "value": 1.20613e-10,
+          "unit": "s",
+          "status": "pass",
+          "margin": 1.20613e-10
+        }
+      ],
+      "diagnostics": [],
+      "artifacts": {
+        "log": "/home/ubuntu/GitHub/sg13g2-dll/.loom/worktrees/issue-4/sim/harness-example/results/20261018T022831Z/artifacts/ic/mos_ss_1p200V_27C/ngspice.log",
+        "raw": null,
+        "waveform": null,
+        "deck": "/home/ubuntu/GitHub/sg13g2-dll/.loom/worktrees/issue-4/sim/harness-example/results/20261018T022831Z/artifacts/ic/mos_ss_1p200V_27C/corner.cir"
+      },
+      "monte_carlo": null
+    }
+  ]
+}

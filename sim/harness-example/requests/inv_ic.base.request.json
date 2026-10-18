@@ -1,0 +1,64 @@
+{
+  "_comment": [
+    "harness-example start-state / PVT bench on the pdk-smoke inverter (issue #4).",
+    "Base request: no corners / monte_carlo (sim/harness/gridspec.py adds them). Limits are sanity gates, NOT spec numbers. Simulated, never measured.",
+    "@OSDI_DIR@ is substituted by run.sh."
+  ],
+  "engine": "ngspice",
+  "netlist": "../decks/inv_ic.spice",
+  "netlist_source": "schematic",
+  "models": {
+    "pdk": "ihp-sg13g2",
+    "lib": "libs.tech/ngspice/models/cornerMOSlv.lib"
+  },
+  "analysis": {
+    "kind": "tran",
+    "args": "5p 6n"
+  },
+  "measurements": [
+    {
+      "name": "v0",
+      "spice": ".meas tran v0 find v(out) at=50p",
+      "unit": "V",
+      "limits": {
+        "min": -0.01,
+        "max": 1.21
+      }
+    },
+    {
+      "name": "voh",
+      "spice": ".meas tran voh find v(out) at=0.9n",
+      "unit": "V",
+      "limits": {
+        "min": 1.14
+      }
+    },
+    {
+      "name": "vol",
+      "spice": ".meas tran vol find v(out) at=2.0n",
+      "unit": "V",
+      "limits": {
+        "max": 0.06
+      }
+    },
+    {
+      "name": "tphl",
+      "spice": ".meas tran tphl trig v(in) val=0.6 rise=1 targ v(out) val=0.6 fall=1",
+      "unit": "s",
+      "limits": {
+        "min": 0,
+        "max": 2e-09
+      }
+    }
+  ],
+  "options": {
+    "osdi_preload": [
+      "@OSDI_DIR@/psp103.osdi",
+      "@OSDI_DIR@/psp103_nqs.osdi",
+      "@OSDI_DIR@/r3_cmc.osdi",
+      "@OSDI_DIR@/mosvar.osdi"
+    ],
+    "stage_model_inputs": true,
+    "keep_artifacts": true
+  }
+}
