@@ -48,3 +48,57 @@ limits in the requests are sanity gates, not spec numbers.
 
 `record.md` names the repo commit, PDK pin, OSDI binary hashes, ngspice
 version and batch jobs of the run.
+
+## Grid harness (`sim/harness/`, `sim/corners.json`)
+
+Testbenches are graded over PVT corners, start states and Monte Carlo draws by
+building **one `klt sim` request** per grid; nothing here launches `ngspice`
+itself, so multi-unit grids go to the batch fleet and a failed submit is an
+error, never a local fallback.
+
+- `sim/harness/gridspec.py` builds a grid request from a base request (netlist,
+  models, analysis, measurements; no `corners`/`monte_carlo`) plus:
+  - **corners**: `sim/corners.json` (or `--corners`). It is a schema with **no
+    values** until the ratified spec (#2) fills it, and the runner refuses an
+    empty set.
+  - **start states**: `--ic SOURCE=v1,v2,...` (repeatable, equal lengths; one row
+    per start state). `SOURCE` is a voltage source in the deck whose value is
+    swept through `corners.supply_v`; the deck ties a node to it through a
+    switch for the first picoseconds, then releases it (see
+    `sim/harness-example/decks/inv_ic.spice`). The axis is crossed with the
+    corner file's own `supply_v` rows. `corners.params` is not used because the
+    fleet runner image can lag the client and refuses it
+    (`params_unsupported_worker`), and `klt sim` has no `.ic`/`uic` axis (tool
+    gaps, see `spec/decisions/0003-sim-harness-reuse.md`).
+  - **Monte Carlo**: `--mc-n --mc-seed --mc-vary [--mc-seed-scope]`, crossed
+    with the corners (`corner_count * n` runs). Seed and `n` are echoed in the
+    envelope's `environment.monte_carlo`. `--control-process mos_tt` (repeatable)
+    also writes the **negative control**: the same request, seed and `n` on
+    the non-mismatch model sections, which must give sigma exactly 0 and
+    repeat identically.
+- `sim/harness/evidence.py` grades envelopes (diagnostics, recorded seed/`n`,
+  start-state axis took effect, negative control, repeat identity) and writes
+  `record.md`.
+- Unit tests (no simulator): `python3 -I -m unittest discover -s sim/harness/tests`
+
+### Cold start: example bench (`sim/harness-example/`)
+
+The `pdk-smoke` inverter through all three modes (corner sweep, start-state
+sweep, Monte Carlo with negative control). Corner sets there are smoke-only,
+not the DLL's. Same prerequisites as the device smoke (PDK, OSDI built):
+
+```
+sim/harness-example/run.sh
+```
+
+It writes `sim/harness-example/results/<UTC stamp>/` (requests, envelopes,
+`record.md`) and exits non-zero on any diagnostic, a missing seed/`n`, a
+start-state axis that did not take effect, or a negative control with nonzero
+sigma. `EXAMPLE_MC_SEED` / `EXAMPLE_MC_N` override the draw; the committed
+result uses the defaults. Results are simulated, never measured.
+
+The committed run is `sim/harness-example/results/20261018T022831Z/`: seed
+`20261018`, `n=8` per process corner, negative control (`ctl.envelope.json`,
+repeated in `ctl_repeat.envelope.json`) with sigma exactly 0 within every
+corner. The pooled sigma over several corners is not zero (it contains the
+corner-to-corner spread), so the checks read the per-corner block.

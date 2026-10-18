@@ -1,0 +1,9 @@
+{
+  "_comment": [
+    "SMOKE-ONLY corner set for the harness example (issue #4). NOT the DLL's corner set and NOT spec numbers; sim/corners.json is the real one and issue #2 fills it.",
+    "Same file schema as sim/corners.json."
+  ],
+  "schema": 1,
+  "process": ["mos_tt", "mos_ff", "mos_ss"],
+  "temperature_c": [27]
+}
