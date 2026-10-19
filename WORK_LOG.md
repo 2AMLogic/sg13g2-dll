@@ -13,4 +13,5 @@ Chronological record of merged PRs and closed issues. Maintained by the Guide ro
 - **PR #10**: Consumer requirements from sg13g2-aib: lock at 500/250 MHz, 16 phases per period, DCC scope
 - **PR #9**: feat(sim): pin SG13G2 PDK, vendor OSDI build, add device smoke
 - **PR #1**: chore(loom): Install Loom 0.19.1181
+- **Issue #10** (closed): Consumer requirements from sg13g2-aib: lock at 500/250 MHz, 16 phases per period, DCC scope
 - **Issue #3** (closed): Pin the SG13G2 PDK, port the OSDI build step, and commit a device smoke simulation
