@@ -22,32 +22,12 @@ SIM_DIR="$(cd "${HERE}/.." && pwd)"
 REPO_ROOT="$(cd "${SIM_DIR}/.." && pwd)"
 
 # shellcheck source=/dev/null
-source "${SIM_DIR}/harness/env.sh"
-
-if [[ -z "${PDK_ROOT:-}" || ! -d "${SG13G2_OSDI_DIR:-/nonexistent}" ]]; then
-  echo "run.sh: FAIL -- no SG13G2 install / OSDI directory (${SG13G2_OSDI_DIR:-unset})." >&2
-  echo "run.sh: build the models first: sim/harness/common/build-osdi.sh" >&2
-  exit 3
-fi
-for m in psp103.osdi psp103_nqs.osdi r3_cmc.osdi mosvar.osdi; do
-  if [[ ! -f "${SG13G2_OSDI_DIR}/${m}" ]]; then
-    echo "run.sh: FAIL -- OSDI model ${SG13G2_OSDI_DIR}/${m} is missing; refusing to fall back to any other model." >&2
-    echo "run.sh: build the models first: sim/harness/common/build-osdi.sh" >&2
-    exit 3
-  fi
-done
-command -v klt >/dev/null || { echo "run.sh: FAIL -- klt not on PATH" >&2; exit 3; }
-
-"${SIM_DIR}/check-pins.sh"
+source "${SIM_DIR}/harness/preflight.sh"
+sim_preflight
 
 STAMP="$(date -u +%Y%m%dT%H%M%SZ)"
 OUT="${SMOKE_RESULTS_DIR:-${HERE}/results/${STAMP}}"
-[[ ! -e "${OUT}" ]] || { echo "run.sh: FAIL -- ${OUT} exists; results are append-only." >&2; exit 3; }
-mkdir -p "${OUT}/requests"
-cp -r "${HERE}/decks" "${OUT}/decks"
-for r in "${HERE}"/requests/*.request.json; do
-  sed "s#@OSDI_DIR@#${SG13G2_OSDI_DIR}#g" "${r}" > "${OUT}/requests/$(basename "${r}")"
-done
+sim_stage_inputs "${HERE}" "${OUT}" requests
 
 BACKEND_ARGS=()
 [[ -z "${SMOKE_BACKEND:-}" ]] || BACKEND_ARGS=(--backend "${SMOKE_BACKEND}")
@@ -66,7 +46,10 @@ for tag in inv_lv inv_hv npn_op; do
   tail -3 "${OUT}/${tag}.stderr" >&2 || true
 done
 
-python3 -I "${HERE}/summarize.py" "${OUT}" "${REPO_ROOT}" || rc=$?
+python3 -I "${SIM_DIR}/harness/evidence.py" --out "${OUT}/record.md" \
+    --title "pdk-smoke record" --provenance "${REPO_ROOT}" \
+    --expect inv_lv=3 --expect inv_hv=3 --expect npn_op=1 \
+    "${OUT}/inv_lv.envelope.json" "${OUT}/inv_hv.envelope.json" "${OUT}/npn_op.envelope.json" || rc=$?
 if [[ ${rc} -ne 0 ]]; then
   echo "run.sh: FAIL (exit ${rc}) -- see ${OUT}" >&2
   exit "${rc}"

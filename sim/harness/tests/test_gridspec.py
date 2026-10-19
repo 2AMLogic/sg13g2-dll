@@ -250,6 +250,21 @@ class Evidence(unittest.TestCase):
         one = {"corners": [corner("a", {"vic": 0.0}, v0=0.0)]}
         self.assertTrue(evidence.check_ic_applied("i", one, "vic", "v0"))
 
+    def test_expected_count(self):
+        ok = {"corner_count": 3, "passed": 3}
+        self.assertEqual(evidence.check_expected_count("inv_lv.envelope.json", ok, 3), [])
+        self.assertTrue(evidence.check_expected_count("x", {"corner_count": 3, "passed": 2}, 3))
+        self.assertTrue(evidence.check_expected_count("x", ok, 1))
+        self.assertEqual(evidence.tag_of("/a/b/inv_lv.envelope.json"), "inv_lv")
+
+    def test_measurement_rows(self):
+        env = {"corners": [dict(corner(c, None, v=v), status="pass") for c, v in (("tt", 1.5), ("ss", None))]}
+        rows = evidence.measurement_rows([("d/inv_lv.envelope.json", env)])
+        self.assertEqual(len(rows), 4)
+        self.assertIn("| inv_lv | tt |", rows[2])
+        self.assertIn("v=1.5", rows[2])
+        self.assertIn("v=none", rows[3])
+
     def test_kind_and_basic_problems(self):
         self.assertEqual(evidence.kind(mc_env({"a": 1})), "mc")
         self.assertEqual(evidence.kind({"corners": [corner("a", {"vic": 1})]}, "vic"), "ic")

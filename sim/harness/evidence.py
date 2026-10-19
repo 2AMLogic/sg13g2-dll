@@ -7,7 +7,8 @@ envelope is: corner sweep, initial-condition sweep, or Monte Carlo (with
 seed, sample count and the negative-control verdict). All numbers are
 simulated, never measured.
 
-usage: evidence.py --out record.md [--expect-ic SOURCE=MEAS]
+usage: evidence.py --out record.md [--title T] [--expect-ic SOURCE=MEAS]
+           [--expect TAG=N ...] [--provenance REPO_ROOT]
            [--control CONTROL.json [--control-repeat CONTROL2.json]] ENVELOPE.json...
 Exit 1 if any problem is found.
 """
@@ -17,6 +18,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import subprocess
 import sys
 
 
@@ -45,6 +47,18 @@ def basic_problems(name, env):
         for d in c.get("diagnostics", []):
             out.append(f"{name} {c['corner_id']}: [{d.get('code')}] {str(d.get('message'))[:120]}")
     return out
+
+
+def tag_of(path):
+    """Bench tag from an envelope file name: inv_lv.envelope.json -> inv_lv."""
+    return os.path.basename(path).split(".")[0]
+
+
+def check_expected_count(name, env, n):
+    """Every one of the `n` expected corners ran and passed."""
+    if "error" in env or (env.get("corner_count") == n and env.get("passed") == n):
+        return []
+    return [f"{name}: expected {n}/{n} pass, got passed={env.get('passed')}/{env.get('corner_count')}"]
 
 
 def mc_facts(env):
@@ -132,8 +146,8 @@ def check_ic_applied(name, env, source, meas, tol=0.02):
     return problems
 
 
-def render(items, ic_source=None):
-    lines = ["# Harness evidence record", "", "SIMULATED results, never measured.", ""]
+def render(items, ic_source=None, title="Harness evidence record"):
+    lines = [f"# {title}", "", "SIMULATED results, never measured.", ""]
     for path, env in items:
         name = os.path.basename(path)
         if "error" in env:
@@ -157,18 +171,67 @@ def render(items, ic_source=None):
     return "\n".join(lines)
 
 
+def _git(root, *args):
+    return subprocess.run(["git", "-C", root, *args], capture_output=True, text=True).stdout.strip()
+
+
+def provenance_lines(root, items):
+    """Commit, PDK pin, OSDI hashes, tool versions and batch jobs for a record."""
+    with open(os.path.join(root, "sim", "pdk.json"), encoding="utf-8") as fh:
+        pin = json.load(fh)
+    envs = {tag_of(p): e.get("environment") or {} for p, e in items if "error" not in e}
+    first = next(iter(envs.values()), {})
+    engines = sorted({f"{v.get('engine')} {v.get('engine_version')}" for v in envs.values()})
+    osdi = {o["name"]: o["sha256"] for o in first.get("osdi_preload", [])}
+    remote = {t: {k: (v.get("remote") or {}).get(k) for k in ("job_id", "instance_type", "ami_id", "lifecycle")} for t, v in envs.items()}
+    dirty = bool(_git(root, "status", "--porcelain", "--", "sim", "reuse.lock.json"))
+    klt = subprocess.run(["klt", "--version"], capture_output=True, text=True).stdout.strip()
+    return [
+        f"- sg13g2-dll commit: `{_git(root, 'rev-parse', 'HEAD')}`" + (" (working tree dirty under sim/)" if dirty else ""),
+        f"- PDK pin: IHP-Open-PDK `{pin['release_tag']}` (`sim/pdk.json`)",
+        "- OSDI models (sha256 of the binaries the run loaded): " + "; ".join(f"`{k}` {v[:16]}…" for k, v in osdi.items()),
+        f"- OSDI build: `sim/harness/common/build-osdi.sh` (OpenVAF-Reloaded {pin['osdi_toolchain']['compiler_tag']}), see `reuse.lock.json`",
+        f"- ngspice (as run, on the batch fleet): {', '.join(engines)}; the dispatch worker's local ngspice 42 cannot load these OSDI v0.4 models",
+        f"- klt: {klt}",
+        f"- backend: batch fleet; jobs: {json.dumps(remote)}",
+    ]
+
+
+def measurement_rows(items):
+    """One table row per corner: request tag, corner, status, measurement values."""
+    rows = ["| request | corner | status | measurements (V, s, A) |", "|---|---|---|---|"]
+    for path, env in items:
+        for c in env.get("corners", []) if "error" not in env else []:
+            vals = ", ".join(
+                f"{m['name']}={m['value']:.4g}" if m.get("value") is not None else f"{m['name']}=none"
+                for m in c.get("measurements", [])
+            )
+            rows.append(f"| {tag_of(path)} | {c['corner_id']} | {c['status']} | {vals} |")
+    return rows
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     ap.add_argument("envelopes", nargs="+")
     ap.add_argument("--out", required=True)
     ap.add_argument("--expect-ic", metavar="SOURCE=MEAS", help="envelopes sweeping this source are start-state sweeps; MEAS must equal the source value")
+    ap.add_argument("--title", default="Harness evidence record", help="record heading")
+    ap.add_argument("--expect", action="append", default=[], metavar="TAG=N", help="envelope TAG must have N/N corners passing (repeatable)")
+    ap.add_argument("--provenance", metavar="REPO_ROOT", help="add commit, pin, OSDI hashes, tool versions, batch jobs and a measurement table")
     ap.add_argument("--control", help="negative-control envelope (mismatch switch off)")
     ap.add_argument("--control-repeat", help="second run of the same control request")
     args = ap.parse_args(argv)
     ic_source, _, ic_meas = (args.expect_ic or "").partition("=")
-    items = [(p, load(p)) for p in args.envelopes]
-    problems = []
+    expect = {t: int(n) for t, _, n in (e.partition("=") for e in args.expect)}
+    items, problems = [], []
+    for p in args.envelopes:
+        if os.path.isfile(p):
+            items.append((p, load(p)))
+        else:
+            problems.append(f"{os.path.basename(p)}: no envelope (klt sim failed before reporting; see {tag_of(p)}.stderr)")
     for name, env in items:
+        if tag_of(name) in expect:
+            problems += check_expected_count(name, env, expect[tag_of(name)])
         problems += basic_problems(name, env)
         if "error" in env:
             continue
@@ -184,7 +247,10 @@ def main(argv=None):
             problems += check_negative_control(args.control, ctl)
             if args.control_repeat:
                 problems += check_reproducible(args.control, ctl, load(args.control_repeat))
-    text = render(items, ic_source) + "\n## Verdict: " + ("FAIL" if problems else "PASS") + "\n"
+    text = render(items, ic_source, args.title)
+    if args.provenance:
+        text += "\n## Provenance\n\n" + "\n".join(provenance_lines(args.provenance, items) + [""] + measurement_rows(items)) + "\n"
+    text += "\n## Verdict: " + ("FAIL" if problems else "PASS") + "\n"
     if problems:
         text += "\n" + "\n".join(f"- {p}" for p in problems) + "\n"
     with open(args.out, "w", encoding="utf-8") as fh:
