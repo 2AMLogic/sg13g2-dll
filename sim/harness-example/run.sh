@@ -27,32 +27,14 @@ SIM_DIR="$(cd "${HERE}/.." && pwd)"
 GRID="${SIM_DIR}/harness/gridspec.py"
 
 # shellcheck source=/dev/null
-source "${SIM_DIR}/harness/env.sh"
-
-if [[ -z "${PDK_ROOT:-}" || ! -d "${SG13G2_OSDI_DIR:-/nonexistent}" ]]; then
-  echo "run.sh: FAIL -- no SG13G2 install / OSDI directory (${SG13G2_OSDI_DIR:-unset})." >&2
-  echo "run.sh: build the models first: sim/harness/common/build-osdi.sh" >&2
-  exit 3
-fi
-for m in psp103.osdi psp103_nqs.osdi r3_cmc.osdi mosvar.osdi; do
-  [[ -f "${SG13G2_OSDI_DIR}/${m}" ]] || {
-    echo "run.sh: FAIL -- OSDI model ${SG13G2_OSDI_DIR}/${m} is missing; refusing to fall back to any other model." >&2
-    exit 3
-  }
-done
-command -v klt >/dev/null || { echo "run.sh: FAIL -- klt not on PATH" >&2; exit 3; }
-
-"${SIM_DIR}/check-pins.sh"
+source "${SIM_DIR}/harness/preflight.sh"
+sim_preflight
 
 STAMP="$(date -u +%Y%m%dT%H%M%SZ)"
 OUT="${EXAMPLE_RESULTS_DIR:-${HERE}/results/${STAMP}}"
-[[ ! -e "${OUT}" ]] || { echo "run.sh: FAIL -- ${OUT} exists; results are append-only." >&2; exit 3; }
-mkdir -p "${OUT}/base" "${OUT}/requests"
-cp -r "${HERE}/decks" "${OUT}/decks"
+sim_stage_inputs "${HERE}" "${OUT}" base
+mkdir -p "${OUT}/requests"
 cp "${HERE}"/corners.*.example.json "${OUT}/"
-for r in "${HERE}"/requests/*.request.json; do
-  sed "s#@OSDI_DIR@#${SG13G2_OSDI_DIR}#g" "${r}" > "${OUT}/base/$(basename "${r}")"
-done
 
 SEED="${EXAMPLE_MC_SEED:-20261018}"
 N="${EXAMPLE_MC_N:-8}"
