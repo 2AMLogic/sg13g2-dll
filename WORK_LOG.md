@@ -2,6 +2,11 @@
 
 Chronological record of merged PRs and closed issues. Maintained by the Guide role.
 
+### 2026-10-19
+
+- **PR #16**: refactor(sim): share bench preflight and grade pdk-smoke via evidence.py
+- **Issue #15** (closed): Consolidate duplicated sim preflight and envelope grader under sim/
+
 ### 2026-10-18
 
 - **PR #12**: feat(sim): add grid harness for PVT, start-state and Monte Carlo sweeps
