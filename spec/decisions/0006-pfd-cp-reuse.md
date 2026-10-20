@@ -34,7 +34,7 @@ part 2).
 Answered from the tool's documented capability, `klt 0.7.1.dev1755+gdce956c3c399`:
 
 - `klt gen-compose --help`: "Supports placement.strategy ... `array` (one block repeated on a regular rows x cols grid, emitted as a single hierarchical instance)". So a regular, identical array is available for placement.
-- `klt pex --help` lists "extract a parasitic-annotated netlist and re-sim the schematic testbenches against it".
+- `klt pex --help` (text re-read on `klt 0.7.0`, 2026-10-20; the dev build above was not re-run): "Extract a lumped-RC parasitic-annotated netlist from a routed layout (`klt extract --parasitics`), re-run one or more `klt sim` testbench requests" against it. So extraction and re-simulation against the schematic testbenches exist as one command.
 
 Not established by these two commands, and so **unverified, to be filed**:
 

@@ -79,7 +79,7 @@ The mechanism the circuit uses to pass is in
 ngspice has no periodic-noise analysis, so the figure is **simulated, from
 transient noise**, and is stated with its method every time:
 
-- Method: ngspice transient noise (`trnoise` sources on the noisy devices / `.noise`-derived equivalent as pinned by #3), locked loop.
+- Method: ngspice transient noise, locked loop. ngspice's transient-noise facility (`trnoise` / `trrandom`) is a property of independent sources, not of device models, so device noise enters as source equivalents derived from a `.noise` analysis at the locked operating point; which devices, what bandwidth and where the equivalents sit is fixed in a decision record, validated on a known case, **before the first jitter result is recorded**. Whether the PSP103 OSDI models contribute noise in a transient run is not established. (#3 pinned the PDK and OSDI models, not a noise method.)
 - Run length: ≥ 2000 input cycles after the Locked predicate first holds (discard those before).
 - Seeds: ≥ 8 independent seeds per corner; seed values recorded.
 - Estimator: rms of the time-interval error of tap k's rising edge versus the ideal grid t_in + (k/8)·T over all cycles, **minus** the same estimator applied to the input clock (added jitter), RMS-combined over the 8 seeds; the number reported with the minimum, maximum seed result.
