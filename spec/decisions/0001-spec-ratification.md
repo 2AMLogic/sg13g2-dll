@@ -13,7 +13,7 @@
 | 1 | Spec rows | Ratify `target-spec.md`; README target/fallback/stretch carried over unchanged |
 | 2 | Device flavor and rail | **Superseded by [0007](0007-rail-1p2v-thin-oxide.md) (operator ruling, 2026-10-20): 1.2 V thin-oxide CMOS (`sg13_lv_nmos`/`sg13_lv_pmos`) throughout; nominal 1.20 V, tolerance ±10 % (1.08–1.32 V)**; **no SiGe HBT** (unchanged). The original 3.3 V choice and its reasoning are kept below as history. |
 | 3 | Power row | ≤ 5 mW at worst corner; limit kept across the rail change (0007), now loose, revisit with the first result |
-| 4 | "Locked" | Predicate defined in the spec: ≤ 1 % T tap-N error on 64 consecutive cycles, Vctrl ripple < 5 mV pp |
+| 4 | "Locked" | Predicate defined in the spec: ≤ 2 % T tap-N error on 64 consecutive cycles (1 % for the stretch column; 0007 call E, was 1 %), Vctrl ripple < 5 mV pp |
 | 5 | False lock | Testable criterion in the spec: exactly one period of delay, from named start states, all corners, all five frequencies |
 | 6 | Jitter | Transient-noise method, run length, seeds and estimator stated in the spec |
 | 7 | Corner set | Full 5 MOS × 3 supply × 3 temperature = 45 corners in `sim/corners.json`; no narrowing for any pass/fail row |
@@ -64,10 +64,12 @@ G4 (0002), are why the operator moved the rail (0007).
 ## Locked predicate (decision 4)
 
 What is compared: the tap-N rising edge against the input rising edge plus one
-period. Tolerance: 1 % of T. Held for: 64 consecutive cycles, with Vctrl pp
-ripple under 5 mV. The 1 % is half the 2 % static-phase-error row, so a locked
-loop has margin to the row; lock time (row 7) is the time to the first
-success that persists to 2 µs.
+period. Tolerance: 2 % of T (1 % when grading the stretch column). Held for:
+64 consecutive cycles, with Vctrl pp ripple under 5 mV. The tolerance was
+first set at 1 %, "half the 2 % static-phase-error row"; the review showed
+that made row 5 unfalsifiable (any run that reached it had already passed it),
+so 0007 sets the predicate equal to row 5 and row 5 is the graded number. Lock
+time (row 7) is the time to the first success that persists to 2 µs.
 
 ## Corner set (decision 7)
 

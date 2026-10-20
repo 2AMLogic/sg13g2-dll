@@ -23,7 +23,11 @@ The loop is **locked** at time t if, measured on the input edge and the
 delay-line output tap *N* (the last tap, nominal delay one period), the signed
 edge-to-edge time error satisfies
 
-|t_edge(tap N) − (t_edge(in) + T)| ≤ 1 % of T
+|t_edge(tap N) − (t_edge(in) + T)| ≤ 2 % of T
+
+(the same tolerance as row 5's target, so row 5 is a graded number and not a
+consequence of the predicate; the **stretch** column grades every "locked" row
+with a 1 % predicate; 0007 call E)
 
 on **each of 64 consecutive input cycles**, and the delay-line control voltage
 moves by less than 5 mV peak-to-peak over those 64 cycles. Edges are the
@@ -41,7 +45,7 @@ predicate holds and continues to hold to the end of a 2 µs run.
 | 4 | Phase-spacing error | ≤ 2 % T | ≤ 5 % | ≤ 1 % | every adjacent-tap spacing within T/8 ± 0.02 T | Locked, rising edges at VDD/2 into the 20 fF tap load, 64-cycle average per tap; post-layout extracted result is the graded one, schematic result is recorded separately | all 45 post-layout; Monte Carlo is a separate recorded result |
 | 5 | Static phase error | ≤ 2 % T | ≤ 5 % | ≤ 1 % | abs(t_tapN − t_in − T) ≤ 0.02 T | Locked, 64-cycle average, ideal input | all 45 |
 | 6 | Added jitter (rms, simulated) | ≤ 2 ps | ≤ 5 ps | ≤ 1 ps | — / — / 2 ps | See "Jitter method" below | tt/1.20 V/27 °C and ss/1.08 V/125 °C and ff/1.32 V/−40 °C (3 corners; ngspice transient noise is expensive); stated next to every number |
-| 7 | Lock time | ≤ 1 µs from enable | ≤ 5 µs | — | — / — / 1 µs | Time from enable assertion to first Locked-predicate success that persists to 2 µs, from the worst start state of row 8 | all 45 |
+| 7 | Lock time | ≤ 1 µs from enable | ≤ 5 µs | — | — / — / 1 µs | Time from the later of enable assertion and the first input rising edge (start state 5d starts the clock after enable) to the first Locked-predicate success that persists to 2 µs, from the worst start state of row 8 | all 45 |
 | 8 | False lock | none | — | — | pass = settles to **exactly one** period of delay | See "False-lock criterion" below | all 45 |
 | 9 | Supply / device flavor | 1.2 V thin-oxide (`sg13_lv_*`), no HBT ([0007](decisions/0007-rail-1p2v-thin-oxide.md), operator ruling 2026-10-20) | — | — | 1.08 / 1.20 / 1.32 V | Rail tolerance ±10 %; inside the PDK's "VGS ≤ 1.65 V @ 125 °C" rating and the lv model's 1.5 V maximum | all 45 |
 | 10 | Power | ≤ 5 mW | ≤ 10 mW | ≤ 2 mW | — / — / 5 mW | Average VDD supply power over the 64 locked cycles, including bias and the tap buffers driving 20 fF each, at the target frequency; graded at every corner and the limit applies to the worst of the 45 (expected at 1.32 V / 125 °C / mos_ff, confirmed by the result, not assumed); also recorded at tt / 1.20 V / 27 °C. Limit kept across the rail change (0007); it is loose at 1.2 V and is revisited with the first result | all 45; limit applies at the worst |
@@ -87,7 +91,7 @@ transient noise**, and is stated with its method every time:
 - Method: ngspice transient noise, locked loop. ngspice's transient-noise facility (`trnoise` / `trrandom`) is a property of independent sources, not of device models, so device noise enters as source equivalents derived from a `.noise` analysis at the locked operating point; which devices, what bandwidth and where the equivalents sit is fixed in a decision record, validated on a known case, **before the first jitter result is recorded**. Whether the PSP103 OSDI models contribute noise in a transient run is not established. (#3 pinned the PDK and OSDI models, not a noise method.)
 - Run length: ≥ 2000 input cycles after the Locked predicate first holds (discard those before).
 - Seeds: ≥ 8 independent seeds per corner; seed values recorded.
-- Estimator: rms of the time-interval error of tap k's rising edge versus the ideal grid t_in + (k/8)·T over all cycles, **minus** the same estimator applied to the input clock (added jitter), RMS-combined over the 8 seeds; the number reported with the minimum, maximum seed result.
+- Estimator: rms of the time-interval error of tap k's rising edge versus the ideal grid t_in + (k/8)·T over all cycles, **minus** the same estimator applied to the input clock (added jitter), RMS-combined over the 8 seeds; computed for every tap k = 1…8, **graded on the worst tap**, all eight reported with the minimum and maximum seed result.
 - Limits: transient noise in ngspice underestimates 1/f and does not capture supply noise unless injected; the figure is "simulated added jitter, thermal-noise class" and the proxy for supply-induced jitter is a recorded supply-step sensitivity (ps per mV of VDD). Neither is "measured".
 
 ## Not-a-row items

@@ -29,11 +29,21 @@ This is a reasoned bound, not a simulated one.
    cycle, the delay increases from the minimum until the PFD sees
    zero error, which is the first crossing at 1 T. It cannot step past T to
    2T.
-3. **Over-delay supervisor**: a detector that compares a tap at nominal 1.5 T
-   against the input; if the loop is found at delay > 1.5 T (reachable from a
-   disturbed or mid-range or maximum preset), it re-asserts the part-1 reset.
-   It also resets when the control voltage sits within 50 mV of a rail past a
-   time-out.
+3. **Over-delay supervisor**: a half-period **window detector on existing
+   taps** — tap N against the input, with tap N/2 (nominal T/2) as the
+   half-period reference — that decides whether the tap-N edge falls in the
+   first or second half of the input period. If the loop is found at delay
+   > 1.5 T (reachable from a disturbed, mid-range or maximum preset), it
+   re-asserts the part-1 reset. It also resets when the control voltage sits
+   within 50 mV of a rail past a time-out. (0007 call D: the first draft
+   compared "a tap at nominal 1.5 T", which would need a line 50 % longer than
+   the lock range uses; the window detector needs no extra matched cells and
+   keeps the array's edge cells as output taps.)
+
+The full false-lock argument that precedes sizing must also cover PFD edge
+pairing from the minimum-delay start: a tri-state PFD measures the delay d,
+not T − d, so the loop polarity and the bounded step of part 2 are what make
+d → T the first stable crossing rather than the minimum rail.
 
 Part 3 is what covers start states 2, 3 and 4 of the spec's list; parts 1–2
 cover state 1 and the enable cases. The supervisor adds a block not in the
