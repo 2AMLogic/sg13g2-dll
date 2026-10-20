@@ -2,6 +2,11 @@
 
 Chronological record of merged PRs and closed issues. Maintained by the Guide role.
 
+### 2026-10-20
+
+- **PR #8**: docs(spec): propose DLL target spec, decision records and corner set
+- **Issue #2** (closed): Draft and ratify the target spec
+
 ### 2026-10-19
 
 - **PR #16**: refactor(sim): share bench preflight and grade pdk-smoke via evidence.py
