@@ -35,7 +35,7 @@ predicate holds and continues to hold to the end of a 2 µs run.
 | # | Parameter | Target | Fallback | Stretch | min / typ / max (target) | Grading condition | Corners |
 |---|---|---|---|---|---|---|---|
 | 1 | Input clock | 1 GHz | 500 MHz | 2 GHz | — / 1 GHz / — | Operating point; each row below is graded at this frequency | all 45 |
-| 2 | Lock range | ±20 % around target | ±10 % | ±40 % | locks at 0.8 f0 and 1.2 f0 and at 0.9, 1.0, 1.1 f0; the five points | Locked predicate holds at each of the five frequencies, from the start states in the false-lock row | all 45 |
+| 2 | Lock range | ±20 % around target | ±20 % around 500 MHz (0002 G1, accepted in 0007; was ±10 %) | ±40 % | locks at 0.8 f0 and 1.2 f0 and at 0.9, 1.0, 1.1 f0; the five points, at whichever f0 the column names | Locked predicate holds at each of the five frequencies, from the start states in the false-lock row | all 45 |
 | 3 | Output phases | 8, even over T | 4 | 16 | 8 taps at k·T/8, k=0…7 | Count of taps; spacing graded in row 4 | n/a (structural) |
 | 4 | Phase-spacing error | ≤ 2 % T | ≤ 5 % | ≤ 1 % | every adjacent-tap spacing within T/8 ± 0.02 T | Locked, rising edges at VDD/2, 64-cycle average per tap; post-layout extracted result is the graded one, schematic result is recorded separately | all 45 post-layout; Monte Carlo is a separate recorded result |
 | 5 | Static phase error | ≤ 2 % T | ≤ 5 % | ≤ 1 % | abs(t_tapN − t_in − T) ≤ 0.02 T | Locked, 64-cycle average, ideal input | all 45 |
@@ -45,12 +45,15 @@ predicate holds and continues to hold to the end of a 2 µs run.
 | 9 | Supply / device flavor | 1.2 V thin-oxide (`sg13_lv_*`), no HBT ([0007](decisions/0007-rail-1p2v-thin-oxide.md), operator ruling 2026-10-20) | — | — | 1.08 / 1.20 / 1.32 V | Rail tolerance ±10 %; inside the PDK's "VGS ≤ 1.65 V @ 125 °C" rating and the lv model's 1.5 V maximum | all 45 |
 | 10 | Power | ≤ 5 mW | ≤ 10 mW | ≤ 2 mW | — / — / 5 mW | Average VDD supply power over the 64 locked cycles, including bias, at the target frequency; graded at every corner and the limit applies to the worst of the 45 (expected at 1.32 V / 125 °C / mos_ff, confirmed by the result, not assumed); also recorded at tt / 1.20 V / 27 °C. Limit kept across the rail change (0007); it is loose at 1.2 V and is revisited with the first result | all 45; limit applies at the worst |
 | 11 | Signoff | DRC + LVS clean, post-layout re-verified | — | — | — | `klt drc`, `klt lvs`, `klt pex` re-sim of rows 4, 5, 8 | n/a |
+| 12 | Lock-status output (0002 G5, accepted in 0007) | asserted only when locked | — | — | LOCK = 1 ⇒ the Locked predicate holds at that time; LOCK rises within 128 input cycles after the predicate first holds and falls within 128 input cycles after it stops holding | Graded in every row-8 run: LOCK is never 1 in a run that fails row 8 (delay ≠ 1 T or rail park), and is 1 by lock time + 128 cycles in a run that passes; a digital output at the rail, driving the same 20 fF load as a tap | all 45, all five frequencies, all start states |
 
 Note on row 4: at 1 GHz, 2 % of T is 20 ps; the pass window per adjacent-tap
 spacing is 125 ps ± 20 ps.
 
 Row 3: the 8 phases are the eight taps; the ninth point (T) is the lock
-reference tap N, not an output.
+reference tap N, not an output. The `sg13g2-aib` consumer asks for 16 at its
+own target (0002 G2); that is met only by this spec's stretch column and is
+declined at target (0007 decision 4).
 
 ## False-lock criterion (row 8)
 

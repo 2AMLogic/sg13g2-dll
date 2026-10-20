@@ -59,13 +59,14 @@ regular array in front of the tools.
 | Parameter | Target | Fallback | Stretch |
 |---|---|---|---|
 | Input clock | 1 GHz | 500 MHz | 2 GHz |
-| Lock range | ±20% around the target input frequency | ±10% | ±40% |
+| Lock range | ±20% around the target input frequency | ±20% around 500 MHz | ±40% |
 | Output phases | 8, evenly spaced over one period | 4 | 16 |
 | Phase-spacing error | ≤ 2% of the period, worst corner | ≤ 5% | ≤ 1% |
 | Static phase error (output vs input) | ≤ 2% of the period | ≤ 5% | ≤ 1% |
 | Added jitter (rms, simulated) | ≤ 2 ps | ≤ 5 ps | ≤ 1 ps |
 | Lock time | ≤ 1 µs from enable | ≤ 5 µs | — |
 | False lock | none, from any start state, at any corner | — | — |
+| Lock-status output | asserted only when locked | — | — |
 | Supply / power | 1.2 V thin-oxide (±10 %), no HBT; ≤ 5 mW | ≤ 10 mW | ≤ 2 mW |
 | Signoff | DRC + LVS clean, post-layout re-verified | — | — |
 
