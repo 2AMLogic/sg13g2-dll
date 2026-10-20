@@ -13,9 +13,16 @@
 | Charge pump | **Adopt** `design/cp.sch` (cascoded current-steering, `cp_leg_n`/`cp_leg_p`, dump buffer) from the same commit |
 | Loop filter | **Keep (do not adopt)**: the PLL's is a fixed second-order filter; the DLL's loop is first-order, a single capacitor. It is a DLL-specific part. |
 
-Reason: both blocks are on the same PDK and the same `sg13_hv_*` rail (0001),
-and the README says to adopt, not redesign. A PLL and a DLL share
-sub-blocks, not a loop.
+Reason: both blocks are on the same PDK, and the README says to adopt, not
+redesign. A PLL and a DLL share sub-blocks, not a loop.
+
+**Amended by [0007](0007-rail-1p2v-thin-oxide.md) (2026-10-20):** this block
+is now on the 1.2 V `sg13_lv_*` rail while the sibling's cells are `sg13_hv_*`,
+so "adopt" means **adopt the topology and redraw it on `sg13_lv_*`**, not a
+byte-identical stamped copy. The `reuse.lock.json` entries stay `in_tree` /
+`adopting`; when the redrawn cells land they become `kept` with a record that
+names the sibling commit as the source of the topology (a redrawn cell is not
+a vendored file under 2am `REUSE.md`). The fit gate below is unchanged.
 
 Source and evidence read: the file listing and the `.spice` exports'
 header comments (`pfd REF FB UP DN VDD VSS`; `cp UP DN IBP ICP IBN ICN VOUT VDD VSS`) and the sibling's `spec/decision-records/DR-002-supply-device-flavor.md` Decision 0 at `83e59fe`. **Not read or simulated**: the

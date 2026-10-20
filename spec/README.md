@@ -9,6 +9,7 @@
 | [`decisions/0004-delay-cell-topology.md`](decisions/0004-delay-cell-topology.md) | Delay-cell topology, proven at the 500 MHz fallback before 1 GHz |
 | [`decisions/0005-false-lock-exclusion.md`](decisions/0005-false-lock-exclusion.md) | Harmonic-lock exclusion mechanism and the false-lock criterion |
 | [`decisions/0006-pfd-cp-reuse.md`](decisions/0006-pfd-cp-reuse.md) | Adopt-or-keep for `sg13g2-pll`'s PFD and charge pump; `klt` array capability |
+| [`decisions/0007-rail-1p2v-thin-oxide.md`](decisions/0007-rail-1p2v-thin-oxide.md) | Operator ruling 2026-10-20: rail to 1.2 V thin-oxide; 0002 reconciliation (G1, G2, G4, G5); 20 fF tap load; review calls D/E/G folded in |
 
 Machine-readable corner set: [`../sim/corners.json`](../sim/corners.json)
 (schema 1, consumed by `../sim/harness/gridspec.py`).

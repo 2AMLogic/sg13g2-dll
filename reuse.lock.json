@@ -22,7 +22,7 @@
       "decision": "spec/decisions/0006-pfd-cp-reuse.md",
       "sibling_commit": "83e59fe81db0b09dbefcff35a55965bea0c2a76f",
       "sibling_paths": ["design/pfd.sch", "design/netlist/pfd.spice"],
-      "note": "Adopt decided, bytes not yet stamped: the first schematic issue vendors the files and moves this entry to imports[] with sha256 stamps. Condition: re-simulated with 1 GHz inputs across the corner set before use; a failure is a new decision record, not a silent patch."
+      "note": "Adopt the TOPOLOGY, redrawn on sg13_lv_* (this block is on the 1.2 V rail since spec/decisions/0007-rail-1p2v-thin-oxide.md; the sibling's cells are sg13_hv_*), so no byte-identical copy will exist: when the redrawn cell lands this entry becomes `kept` with a record naming the sibling commit as the source of the topology. Condition: re-simulated with 1 GHz inputs across the corner set before use; a failure is a new decision record, not a silent patch."
     },
     {
       "block": "cp",
@@ -31,7 +31,7 @@
       "decision": "spec/decisions/0006-pfd-cp-reuse.md",
       "sibling_commit": "83e59fe81db0b09dbefcff35a55965bea0c2a76f",
       "sibling_paths": ["design/cp.sch", "design/netlist/cp.spice"],
-      "note": "Adopt the topology (cascoded current-steering, cp_leg_n/cp_leg_p, dump buffer); bias currents are re-derived for the DLL's first-order loop. Same stamping path as pfd."
+      "note": "Adopt the topology (cascoded current-steering, cp_leg_n/cp_leg_p, dump buffer), redrawn on sg13_lv_* per 0007; bias currents are re-derived for the DLL's first-order loop. Same path to `kept` as pfd."
     },
     {
       "block": "loop_filter",

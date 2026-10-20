@@ -26,7 +26,8 @@ edge-to-edge time error satisfies
 
 on **each of 64 consecutive input cycles**, and the delay-line control voltage
 moves by less than 5 mV peak-to-peak over those 64 cycles. Edges are the
-rising edges at VDD/2 crossings. Lock time is the first time at which the
+rising edges at VDD/2 crossings (0.60 V at the nominal 1.2 V rail; VDD/2 of
+the corner's own supply elsewhere). Lock time is the first time at which the
 predicate holds and continues to hold to the end of a 2 µs run.
 
 ## Rows
@@ -38,11 +39,11 @@ predicate holds and continues to hold to the end of a 2 µs run.
 | 3 | Output phases | 8, even over T | 4 | 16 | 8 taps at k·T/8, k=0…7 | Count of taps; spacing graded in row 4 | n/a (structural) |
 | 4 | Phase-spacing error | ≤ 2 % T | ≤ 5 % | ≤ 1 % | every adjacent-tap spacing within T/8 ± 0.02 T | Locked, rising edges at VDD/2, 64-cycle average per tap; post-layout extracted result is the graded one, schematic result is recorded separately | all 45 post-layout; Monte Carlo is a separate recorded result |
 | 5 | Static phase error | ≤ 2 % T | ≤ 5 % | ≤ 1 % | abs(t_tapN − t_in − T) ≤ 0.02 T | Locked, 64-cycle average, ideal input | all 45 |
-| 6 | Added jitter (rms, simulated) | ≤ 2 ps | ≤ 5 ps | ≤ 1 ps | — / — / 2 ps | See "Jitter method" below | tt/3.3 V/27 °C and ss/2.97 V/125 °C and ff/3.63 V/−40 °C (3 corners; ngspice transient noise is expensive); stated next to every number |
+| 6 | Added jitter (rms, simulated) | ≤ 2 ps | ≤ 5 ps | ≤ 1 ps | — / — / 2 ps | See "Jitter method" below | tt/1.20 V/27 °C and ss/1.08 V/125 °C and ff/1.32 V/−40 °C (3 corners; ngspice transient noise is expensive); stated next to every number |
 | 7 | Lock time | ≤ 1 µs from enable | ≤ 5 µs | — | — / — / 1 µs | Time from enable assertion to first Locked-predicate success that persists to 2 µs, from the worst start state of row 8 | all 45 |
 | 8 | False lock | none | — | — | pass = settles to **exactly one** period of delay | See "False-lock criterion" below | all 45 |
-| 9 | Supply / device flavor | 3.3 V thick-oxide (sg13_hv), no HBT | — | — | 2.97 / 3.30 / 3.63 V | Rail tolerance ±10 % | all 45 |
-| 10 | Power | ≤ 5 mW | ≤ 10 mW | ≤ 2 mW | — / — / 5 mW | Average VDD supply power over the 64 locked cycles, including bias, at the target frequency; graded at every corner and the limit applies to the worst of the 45 (expected at 3.63 V / 125 °C / mos_ff, confirmed by the result, not assumed); also recorded at tt / 3.30 V / 27 °C | all 45; limit applies at the worst |
+| 9 | Supply / device flavor | 1.2 V thin-oxide (`sg13_lv_*`), no HBT ([0007](decisions/0007-rail-1p2v-thin-oxide.md), operator ruling 2026-10-20) | — | — | 1.08 / 1.20 / 1.32 V | Rail tolerance ±10 %; inside the PDK's "VGS ≤ 1.65 V @ 125 °C" rating and the lv model's 1.5 V maximum | all 45 |
+| 10 | Power | ≤ 5 mW | ≤ 10 mW | ≤ 2 mW | — / — / 5 mW | Average VDD supply power over the 64 locked cycles, including bias, at the target frequency; graded at every corner and the limit applies to the worst of the 45 (expected at 1.32 V / 125 °C / mos_ff, confirmed by the result, not assumed); also recorded at tt / 1.20 V / 27 °C. Limit kept across the rail change (0007); it is loose at 1.2 V and is revisited with the first result | all 45; limit applies at the worst |
 | 11 | Signoff | DRC + LVS clean, post-layout re-verified | — | — | — | `klt drc`, `klt lvs`, `klt pex` re-sim of rows 4, 5, 8 | n/a |
 
 Note on row 4: at 1 GHz, 2 % of T is 20 ps; the pass window per adjacent-tap

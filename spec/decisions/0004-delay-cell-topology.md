@@ -10,7 +10,8 @@
 1. **Topology**: single-ended **current-starved inverter** chain, one stage per
    tap pair; delay is set by a control voltage on the starving devices (the
    same family as the sibling VCO's `vco_stage`, headed by PMOS and tailed by
-   NMOS, all `sg13_hv_*`). The delay line is a regular array of identical
+   NMOS; drawn on **`sg13_lv_*`** since [0007](0007-rail-1p2v-thin-oxide.md),
+   originally `sg13_hv_*`). The delay line is a regular array of identical
    cells with identical loads, including a dummy load on the last tap, so
    every tap sees the same fan-out.
 2. **Sequence**: topology and the false-lock argument are proven first at the
@@ -44,16 +45,23 @@ across the row-2 range. Corresponding 500 MHz fallback numbers are twice
 those. This is a requirement on sizing, not a claim that the topology meets it;
 no simulation exists yet.
 
-PDK constraints on that sizing (independent review, 2026-10-20, IHP-Open-PDK
-`v0.3.0`): the hv model is valid for L ≥ 0.45 µm (nmos) / 0.40 µm (pmos) and
-W ≥ 0.30 µm (`cornerMOShv.lib` header), and the process specification states
-the 3.3 V VGS rating for LG ≥ 0.6 µm / 0.5 µm (`SG13G2_os_process_spec.pdf`
-Rev. 1.2 §2.4–2.5). The sibling's `vco_stage` (`sg13g2-pll`
-`design/netlist/vco.spice` at `83e59fe`) draws its switching pair at
-`l=0.28u`, below both; the family is adopted, those lengths are not. For
-scale, this repo's pinned smoke
+PDK constraints on that sizing (IHP-Open-PDK `v0.3.0`; rail per 0007): the lv
+model is valid for L = 0.13–10 µm and W = 0.15–10 µm (`cornerMOSlv.lib`
+header) and the devices are rated "VGS ≤ 1.65 V @ 125 °C"
+(`SG13G2_os_process_spec.pdf` Rev. 1.2 §2.1–2.2), so the 1.32 V corner is
+inside the rating. The sibling's `vco_stage` (`sg13g2-pll`
+`design/netlist/vco.spice` at `83e59fe`) is hv at `l=0.28u`; the family is
+adopted, its devices and lengths are not. For scale, this repo's pinned smoke
 (`sim/pdk-smoke/results/20261017T220308Z/record.md`) measured a minimum-size
-hv inverter (w = 0.3 µm, l = 0.45 / 0.40 µm, 5 fF load, 100 ps input edges)
-at tphl / tplh = 76 / 150 ps (mos_tt) and 87 / 178 ps (mos_ss), both at
-3.3 V and 27 °C, unstarved. A tap at 1 GHz is 125 ps and, from the range
-above, must reach 104 ps at mos_ss / 2.97 V / 125 °C.
+lv inverter (w = 0.15 µm, l = 0.13 µm, 5 fF load, 50 ps input edges) at
+tphl / tplh = 33 / 48 ps (mos_tt) and 40 / 60 ps (mos_ss), 1.2 V, 27 °C,
+unstarved; the hv inverter in the same run was 87 / 178 ps at mos_ss, which is
+why the rail moved. A tap at 1 GHz is 125 ps and, from the range above, must
+reach 104 ps at mos_ss / 1.08 V / 125 °C into the 20 fF load of 0007.
+
+Control-voltage margin (review finding M4): row 8 fails a run whose control
+voltage parks within 50 mV of a rail, and 0005 resets on the same condition,
+so sizing must place the locked control voltage **at least 100 mV from either
+rail at every one of the 45 corners and all five row-2 frequencies**, with the
+achieved margin reported beside the delay range. A line that needs the
+exclusion zone to lock has not met this record.

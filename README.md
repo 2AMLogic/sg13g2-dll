@@ -66,7 +66,7 @@ regular array in front of the tools.
 | Added jitter (rms, simulated) | ≤ 2 ps | ≤ 5 ps | ≤ 1 ps |
 | Lock time | ≤ 1 µs from enable | ≤ 5 µs | — |
 | False lock | none, from any start state, at any corner | — | — |
-| Supply / power | 3.3 V thick-oxide (±10 %), no HBT; ≤ 5 mW | ≤ 10 mW | ≤ 2 mW |
+| Supply / power | 1.2 V thin-oxide (±10 %), no HBT; ≤ 5 mW | ≤ 10 mW | ≤ 2 mW |
 | Signoff | DRC + LVS clean, post-layout re-verified | — | — |
 
 Row-by-row min/typ/max, grading conditions and corner sets are in

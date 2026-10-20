@@ -11,19 +11,24 @@
 | # | Question | Decision |
 |---|---|---|
 | 1 | Spec rows | Ratify `target-spec.md`; README target/fallback/stretch carried over unchanged |
-| 2 | Device flavor and rail | **3.3 V thick-oxide CMOS (`sg13_hv_nmos`/`sg13_hv_pmos`) throughout**; nominal 3.30 V, tolerance ±10 % (2.97–3.63 V); **no SiGe HBT** |
-| 3 | Power row | ≤ 5 mW at worst corner, consistent with the rail above |
+| 2 | Device flavor and rail | **Superseded by [0007](0007-rail-1p2v-thin-oxide.md) (operator ruling, 2026-10-20): 1.2 V thin-oxide CMOS (`sg13_lv_nmos`/`sg13_lv_pmos`) throughout; nominal 1.20 V, tolerance ±10 % (1.08–1.32 V)**; **no SiGe HBT** (unchanged). The original 3.3 V choice and its reasoning are kept below as history. |
+| 3 | Power row | ≤ 5 mW at worst corner; limit kept across the rail change (0007), now loose, revisit with the first result |
 | 4 | "Locked" | Predicate defined in the spec: ≤ 1 % T tap-N error on 64 consecutive cycles, Vctrl ripple < 5 mV pp |
 | 5 | False lock | Testable criterion in the spec: exactly one period of delay, from named start states, all corners, all five frequencies |
 | 6 | Jitter | Transient-noise method, run length, seeds and estimator stated in the spec |
 | 7 | Corner set | Full 5 MOS × 3 supply × 3 temperature = 45 corners in `sim/corners.json`; no narrowing for any pass/fail row |
 
-## Device flavor and rail (decision 2)
+## Device flavor and rail (decision 2) — superseded by 0007
 
-Chosen: 3.3 V thick-oxide. Rejected: 1.2 V thin-oxide (`sg13_lv_*`) for the
-clock path, and a 1.2 V/3.3 V mix.
+**The rail is 1.2 V thin-oxide, by operator ruling of 2026-10-20; see
+[0007](0007-rail-1p2v-thin-oxide.md) for the decision, the PDK facts and what
+it touches.** The text below is the original proposal, kept as the record of
+why 3.3 V was first chosen and why it was overturned.
 
-Reason: the PFD and charge pump this block adopts (0006) are already drawn
+Originally chosen: 3.3 V thick-oxide. Originally rejected: 1.2 V thin-oxide
+(`sg13_lv_*`) for the clock path, and a 1.2 V/3.3 V mix.
+
+Reason given: the PFD and charge pump this block adopts (0006) are already drawn
 on `sg13_hv_*` in `2AMLogic/sg13g2-pll` (its `spec/decision-records/DR-002-supply-device-flavor.md` Decision 0 at `83e59fe`). A mixed rail would need
 level shifters in the clock path, which add matched-load asymmetry to a block
 whose accuracy is a matching property. One rail keeps the delay line and
@@ -53,8 +58,8 @@ of row 9 (3.63 V) is therefore above the documented maximum terminal voltage
 of the chosen devices, and the lengths at which that maximum is stated are
 above the model's minimum lengths. For comparison the thin-oxide library
 states a maximum drain-source voltage of 1.5 V, so 1.2 V + 10 % (1.32 V) is
-inside it. Whether to grade hv at 3.63 V, or to change the rail or its
-tolerance, is for the ratifying reviewer; this record does not decide it.
+inside it. These facts, with the hv-speed evidence in 0004 and the consumer's
+G4 (0002), are why the operator moved the rail (0007).
 
 ## Locked predicate (decision 4)
 
@@ -68,7 +73,8 @@ success that persists to 2 µs.
 
 All 45 corners are used for every pass/fail row. Narrowing below MOS ×
 ±10 % supply × −40…125 °C is applied to exactly one row: **jitter (row 6)**
-runs at 3 corners (tt/3.30 V/27 °C, ss/2.97 V/125 °C, ff/3.63 V/−40 °C),
+runs at 3 corners (tt/1.20 V/27 °C, ss/1.08 V/125 °C, ff/1.32 V/−40 °C;
+voltages per 0007),
 because transient noise at ≥ 2000 cycles × ≥ 8 seeds is the one analysis whose
 cost makes 45 corners impractical. The three bracket the process, supply
 and temperature extremes of a delay-line delay. The narrowing is recorded
