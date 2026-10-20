@@ -1,27 +1,67 @@
 {
-  "schema": "reuse-lock/v1",
-  "entries": [
+  "schema": 1,
+  "imports": [
     {
-      "id": "pll-pfd",
-      "source": "2AMLogic/sg13g2-pll",
-      "source_commit": "83e59fe81db0b09dbefcff35a55965bea0c2a76f",
-      "path": "design/pfd.sch",
-      "export": "design/netlist/pfd.spice",
-      "decision": "adopt",
-      "mode": "stamped copy at first schematic issue, pinned to source_commit",
-      "conditions": "Must be re-simulated at 1 GHz inputs across the corner set before use; sibling's operating frequency is unverified for a DLL. Failure is recorded in a new decision record, not patched silently.",
-      "record": "spec/decisions/DR-004-pfd-cp-reuse.md"
+      "from": "2AMLogic/sg13g2-bandgap",
+      "commit": "b16eb968473856b26185b05fbb49146731b8ad13",
+      "mode": "vendored",
+      "files": [
+        {
+          "upstream": "sim/tools/build-osdi.sh",
+          "local": "sim/harness/common/build-osdi.sh",
+          "sha256": "d022ddc32a02280081d32bb7186ba1920b0b3399b00b0a5ad5eeda717d1396bd"
+        }
+      ]
+    }
+  ],
+  "in_tree": [
+    {
+      "block": "pfd",
+      "sibling": "2AMLogic/sg13g2-pll",
+      "status": "adopting",
+      "decision": "spec/decisions/DR-004-pfd-cp-reuse.md",
+      "sibling_commit": "83e59fe81db0b09dbefcff35a55965bea0c2a76f",
+      "sibling_paths": ["design/pfd.sch", "design/netlist/pfd.spice"],
+      "note": "Adopt decided, bytes not yet stamped: the first schematic issue vendors the files and moves this entry to imports[] with sha256 stamps. Condition: re-simulated with 1 GHz inputs across the corner set before use; a failure is a new decision record, not a silent patch."
     },
     {
-      "id": "pll-cp",
-      "source": "2AMLogic/sg13g2-pll",
-      "source_commit": "83e59fe81db0b09dbefcff35a55965bea0c2a76f",
-      "path": "design/cp.sch",
-      "export": "design/netlist/cp.spice",
-      "decision": "adopt",
-      "mode": "stamped copy at first schematic issue, pinned to source_commit",
-      "conditions": "Output current is re-derived for the DLL's first-order loop; the topology is adopted, the bias currents are not.",
-      "record": "spec/decisions/DR-004-pfd-cp-reuse.md"
+      "block": "cp",
+      "sibling": "2AMLogic/sg13g2-pll",
+      "status": "adopting",
+      "decision": "spec/decisions/DR-004-pfd-cp-reuse.md",
+      "sibling_commit": "83e59fe81db0b09dbefcff35a55965bea0c2a76f",
+      "sibling_paths": ["design/cp.sch", "design/netlist/cp.spice"],
+      "note": "Adopt the topology (cascoded current-steering, cp_leg_n/cp_leg_p, dump buffer); bias currents are re-derived for the DLL's first-order loop. Same stamping path as pfd."
+    },
+    {
+      "block": "loop_filter",
+      "sibling": "2AMLogic/sg13g2-pll",
+      "status": "kept",
+      "decision": "spec/decisions/DR-004-pfd-cp-reuse.md",
+      "note": "The PLL's second-order filter does not fit a first-order DLL loop; a single capacitor is DLL-specific."
+    }
+  ],
+  "not_adopted": [
+    {
+      "from": "2AMLogic/sg13g2-bandgap",
+      "paths": [
+        "sim/harness/klt_corner_bundle.py",
+        "sim/harness/klt_sim_evidence.py",
+        "sim/harness/merge_batch_shards.py"
+      ],
+      "decision": "kept thin; revisit klt_corner_bundle.py when #2's corner set needs HBT and resistor sections",
+      "record": "spec/decisions/0003-sim-harness-reuse.md"
+    },
+    {
+      "from": "2AMLogic/sky130-pll",
+      "paths": [
+        "sim/harness/montecarlo.py",
+        "sim/harness/checkpoint.py",
+        "sim/harness/corners.py",
+        "sim/harness/executor.py"
+      ],
+      "decision": "not adopted; klt sim provides monte_carlo, --resume and the batch backend natively",
+      "record": "spec/decisions/0003-sim-harness-reuse.md"
     }
   ]
 }

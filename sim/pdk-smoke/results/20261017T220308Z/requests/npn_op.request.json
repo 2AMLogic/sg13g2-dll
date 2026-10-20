@@ -1,0 +1,40 @@
+{
+  "_comment": [
+    "sg13g2-dll pdk-smoke: one npn13G2 DC operating point, Vbe=0.8 V Vce=1.0 V (issue #3).",
+    "Single unit. Device-family load check; limits are sanity gates. Simulated, never measured.",
+    "No OSDI preload: the HBT is VBIC (built into ngspice). The fleet's own /opt/pdk models are used; staging cornerHBT.lib made the fleet job exit 2 with no report (friction, filed upstream)."
+  ],
+  "engine": "ngspice",
+  "netlist": "../decks/npn_op.spice",
+  "netlist_source": "schematic",
+  "models": {
+    "pdk": "ihp-sg13g2",
+    "lib": "libs.tech/ngspice/models/cornerHBT.lib"
+  },
+  "corners": {
+    "process": [
+      "hbt_typ"
+    ],
+    "temperature_c": [
+      27
+    ]
+  },
+  "analysis": {
+    "kind": "op",
+    "args": ""
+  },
+  "measurements": [
+    {
+      "name": "ic_a",
+      "expr": "-i(vc)",
+      "unit": "A",
+      "limits": {
+        "min": 1e-09,
+        "max": 0.1
+      }
+    }
+  ],
+  "options": {
+    "keep_artifacts": true
+  }
+}

@@ -45,9 +45,11 @@ regular array in front of the tools.
 - **In scope**: the voltage-controlled delay line, phase detector, charge
   pump and loop filter, start-up and false-lock prevention, and the output
   phase taps with their buffers.
-- **Not in scope**: frequency synthesis, a reference oscillator, and any
-  consumer of the phases. The input clock is an ideal or behavioural source
-  at the block boundary.
+- **Not in scope**: frequency synthesis, a reference oscillator, duty-cycle
+  correction of the input clock (see
+  `spec/decisions/0002-consumer-requirements-aib.md`), and any consumer of
+  the phases. The input clock is an ideal or behavioural source at the block
+  boundary.
 - **Same-PDK siblings**: `sg13g2-pll` already designs a phase-frequency
   detector and a charge pump on this PDK. They are candidates to adopt, not
   to redesign; whether they fit a DLL's loop is decided in a decision record.
