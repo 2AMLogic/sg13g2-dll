@@ -1,9 +1,9 @@
-# DR-004: Adopt `sg13g2-pll`'s PFD and charge pump; `klt` array capability
+# 0006 — Adopt `sg13g2-pll`'s PFD and charge pump; `klt` array capability
 
-- **Status**: proposed (ratified with DR-001)
+- **Status**: proposed (ratified with 0001)
 - **Date**: 2026-10-17
 - **Decided by**: Builder agent, issue #2
-- **Related**: `reuse.lock.json`; DR-001 (rail); DR-002
+- **Related**: `reuse.lock.json`; 0001 (rail); 0004
 
 ## Decision: adopt, with a fit gate
 
@@ -13,12 +13,12 @@
 | Charge pump | **Adopt** `design/cp.sch` (cascoded current-steering, `cp_leg_n`/`cp_leg_p`, dump buffer) from the same commit |
 | Loop filter | **Keep (do not adopt)**: the PLL's is a fixed second-order filter; the DLL's loop is first-order, a single capacitor. It is a DLL-specific part. |
 
-Reason: both blocks are on the same PDK and the same `sg13_hv_*` rail (DR-001),
+Reason: both blocks are on the same PDK and the same `sg13_hv_*` rail (0001),
 and the README says to adopt, not redesign. A PLL and a DLL share
 sub-blocks, not a loop.
 
 Source and evidence read: the file listing and the `.spice` exports'
-header comments (`pfd REF FB UP DN VDD VSS`; `cp UP DN IBP ICP IBN ICN VOUT VDD VSS`) and the sibling's DR-002 Decision 0. **Not read or simulated**: the
+header comments (`pfd REF FB UP DN VDD VSS`; `cp UP DN IBP ICP IBN ICN VOUT VDD VSS`) and the sibling's `spec/decision-records/DR-002-supply-device-flavor.md` Decision 0 at `83e59fe`. **Not read or simulated**: the
 internals' sizing and their behavior at 1 GHz. `pfd` uses a 5-stage delay-chain
 edge detector as its reset-pulse generator; whether it resolves 1 GHz edges and
 dead zone is unknown.
@@ -26,7 +26,7 @@ dead zone is unknown.
 **Fit gate**: the first schematic issue simulates the stamped PFD with
 1 GHz inputs across the corner set. If it does not fit, a new record states
 why not and what replaces it. The CP's topology is adopted, its bias currents
-are not: the DLL's first-order loop sets its own charge-per-cycle budget (DR-003
+are not: the DLL's first-order loop sets its own charge-per-cycle budget (0005
 part 2).
 
 ## `klt` capability: symmetric placement and extraction of a matched array

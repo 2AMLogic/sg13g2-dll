@@ -1,9 +1,9 @@
-# DR-002: Delay-cell topology, proven at 500 MHz before 1 GHz
+# 0004 — Delay-cell topology, proven at 500 MHz before 1 GHz
 
-- **Status**: proposed (ratified with DR-001)
+- **Status**: proposed (ratified with 0001)
 - **Date**: 2026-10-17
 - **Decided by**: Builder agent, issue #2
-- **Related**: DR-001 (rail), DR-003 (false lock)
+- **Related**: 0001 (rail), 0005 (false lock)
 
 ## Decision
 
@@ -34,7 +34,7 @@
 At the fallback every delay budget is twice as loose, so a structural error
 (loading, false lock, rail) can be separated from a speed shortfall. The
 record is falsifiable: the first schematic issue reports the achievable delay
-range per corner, compared with the range DR-003 needs (below).
+range per corner, compared with the range 0005 needs (below).
 
 ## Delay-range requirement handed to sizing
 

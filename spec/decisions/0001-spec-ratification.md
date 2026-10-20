@@ -1,10 +1,10 @@
-# DR-001: Spec ratification, device flavor and rail, lock predicate, jitter method
+# 0001 — Spec ratification, device flavor and rail, lock predicate, jitter method
 
 - **Status**: proposed — becomes ratified only by a human-reviewed merge of this record. Agents do not mark it ratified.
 - **Date**: 2026-10-17
 - **Decided by**: Builder agent, issue #2
 - **Consumes**: README target table; [`../target-spec.md`](../target-spec.md); [`../../sim/corners.json`](../../sim/corners.json)
-- **Related**: DR-002 (topology), DR-003 (false lock), DR-004 (reuse); #4, #5, #6
+- **Related**: 0004 (topology), 0005 (false lock), 0006 (reuse); #4, #5, #6
 
 ## Decisions
 
@@ -23,8 +23,8 @@
 Chosen: 3.3 V thick-oxide. Rejected: 1.2 V thin-oxide (`sg13_lv_*`) for the
 clock path, and a 1.2 V/3.3 V mix.
 
-Reason: the PFD and charge pump this block adopts (DR-004) are already drawn
-on `sg13_hv_*` in `2AMLogic/sg13g2-pll` (its DR-002 Decision 0). A mixed rail would need
+Reason: the PFD and charge pump this block adopts (0006) are already drawn
+on `sg13_hv_*` in `2AMLogic/sg13g2-pll` (its `spec/decision-records/DR-002-supply-device-flavor.md` Decision 0 at `83e59fe`). A mixed rail would need
 level shifters in the clock path, which add matched-load asymmetry to a block
 whose accuracy is a matching property. One rail keeps the delay line and
 its loads a regular array.
@@ -35,8 +35,8 @@ an advantage on a stated row.
 
 **Unverified risk, stated so it is not buried:** thick-oxide devices are slower
 than thin-oxide ones, and no simulation has yet shown that an hv delay cell
-spans the range the 1 GHz target needs. This is exactly why DR-002 makes the
-500 MHz fallback the first thing proven. **Revisit trigger:** if DR-002's
+spans the range the 1 GHz target needs. This is exactly why 0004 makes the
+500 MHz fallback the first thing proven. **Revisit trigger:** if 0004's
 topology cannot give 8 evenly spaced taps over the lock range at 1 GHz with
 margin at mos_ss/2.97 V/125 °C, a new record reconsiders a 1.2 V clock path; it
 does not relax the 1 GHz row quietly. 2 GHz must not drive the rail choice.
@@ -72,7 +72,7 @@ sensitivity.
 
 ## Open question: `klt` placement and extraction of a matched array
 
-See DR-004 "klt capability". Answered from the tool's documented capability;
+See 0006 "klt capability". Answered from the tool's documented capability;
 the actual symmetric-matched-array behavior is unverified.
 
 ## Ratification

@@ -2,12 +2,12 @@
   "_comment": [
     "PVT corner set consumed by sim/harness/gridspec.py (schema 1: process[], temperature_c[], supply_v{}; every other key is documentation the runner ignores).",
     "Filled by the target spec (issue #2, spec/target-spec.md). Status follows the ratification record named in ratified_by: until that record is merged by a human the set is PROPOSED, and no result graded on it is a ratified-spec result.",
-    "process[] are section names of the pinned PDK's libs.tech/ngspice/models/cornerMOShv.lib (IHP-Open-PDK v0.3.0, sim/pdk.json): mos_tt, mos_ss, mos_ff, mos_sf, mos_fs. The hv library is the one the spec's device flavor (sg13_hv_*, DR-001 decision 2) needs; a bench names it in its base request's models.lib. The *_mismatch sections are Monte Carlo, not corners, and are selected by the harness's --mc-vary / --control-process flags.",
-    "supply_v.Vdd is the value of the voltage source named Vdd in a bench deck (klt sim alters it by name, as the smoke decks already name theirs). 2.97 / 3.30 / 3.63 V is the spec's 3.3 V +/-10 % rail (row 9). The rows are crossed with process x temperature_c: 5 x 3 x 3 = 45 corners, the full set the spec grades every pass/fail row over (DR-001 decision 7).",
-    "reduced_set is for fast iteration only and is never a recorded result (DR-001). The jitter row (row 6) runs at the same three corners, but by its own statement in spec/target-spec.md, not by reference to this key."
+    "process[] are section names of the pinned PDK's libs.tech/ngspice/models/cornerMOShv.lib (IHP-Open-PDK v0.3.0, sim/pdk.json): mos_tt, mos_ss, mos_ff, mos_sf, mos_fs. The hv library is the one the spec's device flavor (sg13_hv_*, 0001 decision 2) needs; a bench names it in its base request's models.lib. The *_mismatch sections are Monte Carlo, not corners, and are selected by the harness's --mc-vary / --control-process flags.",
+    "supply_v.Vdd is the value of the voltage source named Vdd in a bench deck (klt sim alters it by name, as the smoke decks already name theirs). 2.97 / 3.30 / 3.63 V is the spec's 3.3 V +/-10 % rail (row 9). The rows are crossed with process x temperature_c: 5 x 3 x 3 = 45 corners, the full set the spec grades every pass/fail row over (0001 decision 7).",
+    "reduced_set is for fast iteration only and is never a recorded result (0001). The jitter row (row 6) runs at the same three corners, but by its own statement in spec/target-spec.md, not by reference to this key."
   ],
   "schema": 1,
-  "ratified_by": "spec/decisions/DR-001-spec-ratification.md",
+  "ratified_by": "spec/decisions/0001-spec-ratification.md",
   "status": "proposed-pending-human-merge",
   "device_flavor": "sg13_hv (3.3 V thick-oxide), models in cornerMOShv.lib",
   "process": ["mos_tt", "mos_ss", "mos_ff", "mos_sf", "mos_fs"],

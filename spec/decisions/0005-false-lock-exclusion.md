@@ -1,9 +1,9 @@
-# DR-003: Harmonic-lock exclusion mechanism
+# 0005 — Harmonic-lock exclusion mechanism
 
-- **Status**: proposed (ratified with DR-001)
+- **Status**: proposed (ratified with 0001)
 - **Date**: 2026-10-17
 - **Decided by**: Builder agent, issue #2
-- **Related**: [`../target-spec.md`](../target-spec.md) row 8; DR-002
+- **Related**: [`../target-spec.md`](../target-spec.md) row 8; 0004
 
 This record states the criterion and chooses the mechanism. It does not make the
 full false-lock *argument*; that precedes sizing in a later record (CLAUDE.md).

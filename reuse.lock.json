@@ -19,7 +19,7 @@
       "block": "pfd",
       "sibling": "2AMLogic/sg13g2-pll",
       "status": "adopting",
-      "decision": "spec/decisions/DR-004-pfd-cp-reuse.md",
+      "decision": "spec/decisions/0006-pfd-cp-reuse.md",
       "sibling_commit": "83e59fe81db0b09dbefcff35a55965bea0c2a76f",
       "sibling_paths": ["design/pfd.sch", "design/netlist/pfd.spice"],
       "note": "Adopt decided, bytes not yet stamped: the first schematic issue vendors the files and moves this entry to imports[] with sha256 stamps. Condition: re-simulated with 1 GHz inputs across the corner set before use; a failure is a new decision record, not a silent patch."
@@ -28,7 +28,7 @@
       "block": "cp",
       "sibling": "2AMLogic/sg13g2-pll",
       "status": "adopting",
-      "decision": "spec/decisions/DR-004-pfd-cp-reuse.md",
+      "decision": "spec/decisions/0006-pfd-cp-reuse.md",
       "sibling_commit": "83e59fe81db0b09dbefcff35a55965bea0c2a76f",
       "sibling_paths": ["design/cp.sch", "design/netlist/cp.spice"],
       "note": "Adopt the topology (cascoded current-steering, cp_leg_n/cp_leg_p, dump buffer); bias currents are re-derived for the DLL's first-order loop. Same stamping path as pfd."
@@ -37,7 +37,7 @@
       "block": "loop_filter",
       "sibling": "2AMLogic/sg13g2-pll",
       "status": "kept",
-      "decision": "spec/decisions/DR-004-pfd-cp-reuse.md",
+      "decision": "spec/decisions/0006-pfd-cp-reuse.md",
       "note": "The PLL's second-order filter does not fit a first-order DLL loop; a single capacitor is DLL-specific."
     }
   ],

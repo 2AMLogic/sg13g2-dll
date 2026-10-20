@@ -54,7 +54,7 @@ regular array in front of the tools.
   detector and a charge pump on this PDK. They are candidates to adopt, not
   to redesign; whether they fit a DLL's loop is decided in a decision record.
 
-## Target specification (proposed — ratified by merge of [DR-001](spec/decisions/DR-001-spec-ratification.md); issue #2)
+## Target specification (proposed — ratified by merge of [0001](spec/decisions/0001-spec-ratification.md); issue #2)
 
 | Parameter | Target | Fallback | Stretch |
 |---|---|---|---|

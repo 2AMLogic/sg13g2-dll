@@ -1,7 +1,7 @@
 # Target specification
 
 Status: **proposed** — ratified by the human-reviewed merge of
-[DR-001](decisions/DR-001-spec-ratification.md). Target / fallback / stretch
+[0001](decisions/0001-spec-ratification.md). Target / fallback / stretch
 values are carried over unchanged from the README table. `min/typ/max` is the
 pass window for the **target** column; fallback and stretch re-grade the same
 condition at their own value.
@@ -72,7 +72,7 @@ frequencies of row 2):
 5. Loop enable/reset state: enabled from power-up with no preset; enable asserted while the input clock is already running; enable re-asserted after a disable with the control voltage left at its previous value; input clock absent at enable and started later.
 
 The mechanism the circuit uses to pass is in
-[DR-003](decisions/DR-003-false-lock-exclusion.md).
+[0005](decisions/0005-false-lock-exclusion.md).
 
 ## Jitter method (row 6)
 
