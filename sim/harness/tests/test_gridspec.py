@@ -40,11 +40,12 @@ class CornersFile(unittest.TestCase):
 
     def test_committed_set_is_the_spec_cross_product(self):
         # sim/corners.json is filled by the target spec (issue #2): 5 MOS x
-        # 3 supply x 3 temperature = 45 corners, the hv rail at +/-10 %.
+        # 3 supply x 3 temperature = 45 corners, the 1.2 V lv rail at +/-10 %
+        # (spec/decisions/0007-rail-1p2v-thin-oxide.md).
         got = gridspec.load_corners(os.path.join(HARNESS, "..", "corners.json"))
         self.assertEqual(got["process"], ["mos_tt", "mos_ss", "mos_ff", "mos_sf", "mos_fs"])
         self.assertEqual(got["temperature_c"], [-40, 27, 125])
-        self.assertEqual(got["supply_v"], {"Vdd": [2.97, 3.30, 3.63]})
+        self.assertEqual(got["supply_v"], {"Vdd": [1.08, 1.20, 1.32]})
         n = len(got["process"]) * len(got["temperature_c"]) * len(got["supply_v"]["Vdd"])
         self.assertEqual(n, 45)
 
