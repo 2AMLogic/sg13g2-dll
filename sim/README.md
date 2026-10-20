@@ -58,9 +58,10 @@ error, never a local fallback.
 
 - `sim/harness/gridspec.py` builds a grid request from a base request (netlist,
   models, analysis, measurements; no `corners`/`monte_carlo`) plus:
-  - **corners**: `sim/corners.json` (or `--corners`). It is a schema with **no
-    values** until the ratified spec (#2) fills it, and the runner refuses an
-    empty set.
+  - **corners**: `sim/corners.json` (or `--corners`). It carries the target
+    spec's 45-corner set (5 MOS x 3 supply x 3 temperature, issue #2;
+    `spec/target-spec.md`), proposed until the ratification record it names is
+    merged by a human. The runner refuses an empty set.
   - **start states**: `--ic SOURCE=v1,v2,...` (repeatable, equal lengths; one row
     per start state). `SOURCE` is a voltage source in the deck whose value is
     swept through `corners.supply_v`; the deck ties a node to it through a

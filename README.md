@@ -54,25 +54,30 @@ regular array in front of the tools.
   detector and a charge pump on this PDK. They are candidates to adopt, not
   to redesign; whether they fit a DLL's loop is decided in a decision record.
 
-## Target specification (DRAFT — engineering to ratify, see issue #1)
+## Target specification (proposed — ratified by merge of [0001](spec/decisions/0001-spec-ratification.md); issue #2)
 
 | Parameter | Target | Fallback | Stretch |
 |---|---|---|---|
 | Input clock | 1 GHz | 500 MHz | 2 GHz |
-| Lock range | ±20% around the target input frequency | ±10% | ±40% |
+| Lock range | ±20% around the target input frequency | ±20% around 500 MHz | ±40% |
 | Output phases | 8, evenly spaced over one period | 4 | 16 |
 | Phase-spacing error | ≤ 2% of the period, worst corner | ≤ 5% | ≤ 1% |
 | Static phase error (output vs input) | ≤ 2% of the period | ≤ 5% | ≤ 1% |
 | Added jitter (rms, simulated) | ≤ 2 ps | ≤ 5 ps | ≤ 1 ps |
 | Lock time | ≤ 1 µs from enable | ≤ 5 µs | — |
 | False lock | none, from any start state, at any corner | — | — |
-| Supply / power | device flavor and rail to ratify; ≤ 5 mW | ≤ 10 mW | ≤ 2 mW |
+| Lock-status output | asserted only when locked | — | — |
+| Supply / power | 1.2 V thin-oxide (±10 %), no HBT; ≤ 5 mW | ≤ 10 mW | ≤ 2 mW |
 | Signoff | DRC + LVS clean, post-layout re-verified | — | — |
+
+Row-by-row min/typ/max, grading conditions and corner sets are in
+[`spec/target-spec.md`](spec/target-spec.md); the 45-corner set is in
+[`sim/corners.json`](sim/corners.json).
 
 Maturity ladder: spec ratified → loop architecture and false-lock argument
 recorded → schematic simulated across PVT → layout DRC/LVS-clean →
 post-layout re-verification → shuttle seat → measured silicon. **Current
-position: pre-spec.**
+position: spec proposed, awaiting ratification.**
 
 ## Repo layout
 

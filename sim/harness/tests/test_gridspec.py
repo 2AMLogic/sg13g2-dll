@@ -38,15 +38,23 @@ class CornersFile(unittest.TestCase):
             json.dump(data, fh)
         return path
 
-    def test_committed_placeholder_is_refused(self):
-        with self.assertRaises(gridspec.GridError) as cm:
-            gridspec.load_corners(os.path.join(HARNESS, "..", "corners.json"))
-        self.assertIn("empty", str(cm.exception))
+    def test_committed_set_is_the_spec_cross_product(self):
+        # sim/corners.json is filled by the target spec (issue #2): 5 MOS x
+        # 3 supply x 3 temperature = 45 corners, the 1.2 V lv rail at +/-10 %
+        # (spec/decisions/0007-rail-1p2v-thin-oxide.md).
+        got = gridspec.load_corners(os.path.join(HARNESS, "..", "corners.json"))
+        self.assertEqual(got["process"], ["mos_tt", "mos_ss", "mos_ff", "mos_sf", "mos_fs"])
+        self.assertEqual(got["temperature_c"], [-40, 27, 125])
+        self.assertEqual(got["supply_v"], {"Vdd": [1.08, 1.20, 1.32]})
+        n = len(got["process"]) * len(got["temperature_c"]) * len(got["supply_v"]["Vdd"])
+        self.assertEqual(n, 45)
 
-    def test_committed_placeholder_loads_when_allowed(self):
-        self.assertEqual(
-            gridspec.load_corners(os.path.join(HARNESS, "..", "corners.json"), allow_empty=True), {}
-        )
+    def test_empty_set_is_refused(self):
+        path = self.write({"schema": 1, "process": [], "temperature_c": []})
+        with self.assertRaises(gridspec.GridError) as cm:
+            gridspec.load_corners(path)
+        self.assertIn("empty", str(cm.exception))
+        self.assertEqual(gridspec.load_corners(path, allow_empty=True), {})
 
     def test_filled_set_passes_through(self):
         path = self.write({"schema": 1, **CORNERS, "supply_v": {"vdd": [1.08, 1.32]}})
@@ -151,12 +159,15 @@ class Cli(unittest.TestCase):
             text=True,
         )
 
-    def test_unratified_corners_refused_with_exit_2(self):
+    def test_unfilled_corners_refused_with_exit_2(self):
         with tempfile.TemporaryDirectory() as d:
             base = os.path.join(d, "b.json")
             with open(base, "w") as fh:
                 json.dump(BASE, fh)
-            r = self.run_cli(base, "-o", os.path.join(d, "o.json"))
+            empty = os.path.join(d, "empty.json")
+            with open(empty, "w") as fh:
+                json.dump({"schema": 1, "process": [], "temperature_c": []}, fh)
+            r = self.run_cli(base, "-o", os.path.join(d, "o.json"), "--corners", empty)
             self.assertEqual(r.returncode, 2)
             self.assertIn("empty", r.stderr)
             self.assertFalse(os.path.exists(os.path.join(d, "o.json")))
