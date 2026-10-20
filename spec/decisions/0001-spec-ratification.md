@@ -41,6 +41,21 @@ topology cannot give 8 evenly spaced taps over the lock range at 1 GHz with
 margin at mos_ss/2.97 V/125 °C, a new record reconsiders a 1.2 V clock path; it
 does not relax the 1 GHz row quietly. 2 GHz must not drive the rail choice.
 
+**PDK facts bearing on this decision** (independent review, 2026-10-20,
+read at the pinned IHP-Open-PDK `v0.3.0` of `sim/pdk.json`; recorded here,
+not acted on): the hv model library `libs.tech/ngspice/models/cornerMOShv.lib`
+states "Maximum drain-source voltage: 3.3" and a model-valid range of
+L = 0.45–10 µm (nmos), 0.40–10 µm (pmos), W = 0.30–10 µm; the process
+specification `libs.doc/doc/SG13G2_os_process_spec.pdf` (Rev. 1.2, §2.4
+HV-NMOS and §2.5 HV-PMOS) rates the devices at "VGS ≤ 3.3 V (Maximum)
+@ 27 °C" for LG ≥ 0.6 µm (nmos) and ≥ 0.5 µm (pmos). The +10 % supply corner
+of row 9 (3.63 V) is therefore above the documented maximum terminal voltage
+of the chosen devices, and the lengths at which that maximum is stated are
+above the model's minimum lengths. For comparison the thin-oxide library
+states a maximum drain-source voltage of 1.5 V, so 1.2 V + 10 % (1.32 V) is
+inside it. Whether to grade hv at 3.63 V, or to change the rail or its
+tolerance, is for the ratifying reviewer; this record does not decide it.
+
 ## Locked predicate (decision 4)
 
 What is compared: the tap-N rising edge against the input rising edge plus one

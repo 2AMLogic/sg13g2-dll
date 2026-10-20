@@ -43,3 +43,17 @@ At each corner the total delay must span from **below 0.833 ns** (T at
 across the row-2 range. Corresponding 500 MHz fallback numbers are twice
 those. This is a requirement on sizing, not a claim that the topology meets it;
 no simulation exists yet.
+
+PDK constraints on that sizing (independent review, 2026-10-20, IHP-Open-PDK
+`v0.3.0`): the hv model is valid for L ≥ 0.45 µm (nmos) / 0.40 µm (pmos) and
+W ≥ 0.30 µm (`cornerMOShv.lib` header), and the process specification states
+the 3.3 V VGS rating for LG ≥ 0.6 µm / 0.5 µm (`SG13G2_os_process_spec.pdf`
+Rev. 1.2 §2.4–2.5). The sibling's `vco_stage` (`sg13g2-pll`
+`design/netlist/vco.spice` at `83e59fe`) draws its switching pair at
+`l=0.28u`, below both; the family is adopted, those lengths are not. For
+scale, this repo's pinned smoke
+(`sim/pdk-smoke/results/20261017T220308Z/record.md`) measured a minimum-size
+hv inverter (w = 0.3 µm, l = 0.45 / 0.40 µm, 5 fF load, 100 ps input edges)
+at tphl / tplh = 76 / 150 ps (mos_tt) and 87 / 178 ps (mos_ss), both at
+3.3 V and 27 °C, unstarved. A tap at 1 GHz is 125 ps and, from the range
+above, must reach 104 ps at mos_ss / 2.97 V / 125 °C.
