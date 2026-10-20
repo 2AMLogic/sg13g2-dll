@@ -42,7 +42,7 @@ predicate holds and continues to hold to the end of a 2 µs run.
 | 7 | Lock time | ≤ 1 µs from enable | ≤ 5 µs | — | — / — / 1 µs | Time from enable assertion to first Locked-predicate success that persists to 2 µs, from the worst start state of row 8 | all 45 |
 | 8 | False lock | none | — | — | pass = settles to **exactly one** period of delay | See "False-lock criterion" below | all 45 |
 | 9 | Supply / device flavor | 3.3 V thick-oxide (sg13_hv), no HBT | — | — | 2.97 / 3.30 / 3.63 V | Rail tolerance ±10 % | all 45 |
-| 10 | Power | ≤ 5 mW | ≤ 10 mW | ≤ 2 mW | — / — / 5 mW | Average VDD supply power over the 64 locked cycles, including bias, at VDD = 3.63 V, 125 °C, mos_ff (worst), at the target frequency; also recorded at typical | all 45; limit applies at the worst |
+| 10 | Power | ≤ 5 mW | ≤ 10 mW | ≤ 2 mW | — / — / 5 mW | Average VDD supply power over the 64 locked cycles, including bias, at the target frequency; graded at every corner and the limit applies to the worst of the 45 (expected at 3.63 V / 125 °C / mos_ff, confirmed by the result, not assumed); also recorded at tt / 3.30 V / 27 °C | all 45; limit applies at the worst |
 | 11 | Signoff | DRC + LVS clean, post-layout re-verified | — | — | — | `klt drc`, `klt lvs`, `klt pex` re-sim of rows 4, 5, 8 | n/a |
 
 Note on row 4: at 1 GHz, 2 % of T is 20 ps; the pass window per adjacent-tap
