@@ -1,0 +1,12 @@
+* klt sim -- generated corner deck, do not edit
+.lib /opt/pdk/ihp-sg13g2/libs.tech/ngspice/models/cornerHBT.lib hbt_typ
+.include /var/tmp/eda-job-klt-sim-c6cc00df63df/inputs/netlist.cir
+.temp 27
+.control
+save all
+op 
+let ic_a = -i(vc)
+print ic_a
+quit
+.endc
+.end

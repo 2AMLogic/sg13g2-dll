@@ -1,0 +1,11 @@
+{
+  "bucket": "2am-batch-jobs-221082181346",
+  "completed_at": "2026-10-18T02:36:02.505884+00:00",
+  "job_id": "klt-sim-c6460b1aa0b1",
+  "jobs_prefix": "jobs",
+  "launched_at": "2026-10-18T02:33:28.308777+00:00",
+  "profile": "batch-runner-submit",
+  "region": "us-east-1",
+  "request_sha256": "79346f39045ec5fdafc1d49980fcf0644ec51f12ff300f132347261b2174bf11",
+  "state": "done"
+}

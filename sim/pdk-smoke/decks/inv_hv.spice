@@ -1,0 +1,7 @@
+* pdk-smoke: minimum-size HV inverter transient. Device-family load check only;
+* nothing here is a design. klt sim netlist body: no .lib/.temp/analysis/.end.
+Vdd vdd 0 3.3
+Vin in 0 PULSE(0 3.3 1n 100p 100p 1n 2.5n)
+XMP out in vdd vdd sg13_hv_pmos w=0.3u l=0.4u ng=1 m=1
+XMN out in 0 0 sg13_hv_nmos w=0.3u l=0.45u ng=1 m=1
+Cl out 0 5f
