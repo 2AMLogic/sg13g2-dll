@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "kind": "t1-attestation-inventory",
+  "t1_item": 10,
+  "description": "Repo-hygiene inventory for sg13g2-dll: README, LICENSE and the CI workflow with the commands it runs.",
+  "hygiene": [
+    "README.md",
+    "LICENSE",
+    ".github/workflows/signoff.yml",
+    "scripts/check-signoff.sh"
+  ],
+  "checks": [
+    {"name": "readme-cites-spec-issue", "argv": ["grep", "-q", "issue #2", "README.md"]},
+    {"name": "ci-runs-signoff-check", "argv": ["grep", "-q", "scripts/check-signoff.sh", ".github/workflows/signoff.yml"]},
+    {"name": "no-placeholder-scripts", "argv": ["python3", "-I", "-c", "import sys; sys.exit('configured' in open('package.json').read())"]}
+  ]
+}
