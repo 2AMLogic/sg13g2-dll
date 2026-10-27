@@ -121,3 +121,13 @@ sim/harness/cold-start.sh
 The full grids are run per bench (`sim/<bench>/run.sh`, see each README). `sim/inventory.json` is the `klt signoff --attest 9 --inventory` file (schema read from klt 0.8.1.dev55); it lists the stand-in benches and so does not satisfy item 9 until the benches are repointed.
 
 Tools: ngspice 46 on the batch fleet (the dispatch worker's 42 can run the stand-in but not the OSDI models), klt 0.8.1.dev55, OpenVAF-Reloaded v24.0.1mob (`reuse.lock.json`).
+
+## PFD fit gate (`sim/pfd-fit/`)
+
+Decision 0006's gate for `design/pfd.sch`: dead zone and reset-pulse width at
+1 GHz and 500 MHz on the `reduced_set` corners, plus a control run with the
+sibling's reset polarity. `sim/pfd-fit/run.sh` runs it (batch backend, no local
+fallback) and writes `results/<UTC stamp>/fit-gate.md`; the criteria are in
+`sim/pfd-fit/grade.py`, and `make_bench.py` regenerates the decks/requests.
+Unit test of the grader (no simulator): `python3 -I -m unittest discover -s sim/pfd-fit/tests`.
+No result is committed yet.
