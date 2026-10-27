@@ -31,7 +31,7 @@ _None._
 
 Issues currently being built (`loom:building`).
 
-_None._
+- **#41**: Install the two-key ratification path and ratify spec/target-spec.md
 
 ## PRs Awaiting Review
 
@@ -52,6 +52,7 @@ Issues carrying `loom:curated`.
 - **#6**: Track the gap to T1 (klayout-tools design-evidence-tiers.md) *(curated)*
 - **#23**: T1 item 1 (design sources): current-starved delay-line schematics, tap buffers and netlist on sg13_lv *(curated)*
 - **#28**: T1 item 9 (testbenches shipped): one harness bench per spec row, with cold-start docs and --attest 9 *(curated)*
+- **#41**: Install the two-key ratification path and ratify spec/target-spec.md *(curated)*
 
 ## Proposed (Architect / Hermit)
 
@@ -69,10 +70,10 @@ _None._
 | Very important | 0 |
 | Important | 1 |
 | Ready (`loom:issue`) | 0 |
-| In Progress (`loom:building`) | 0 |
+| In Progress (`loom:building`) | 1 |
 | PRs awaiting review | 0 |
 | Approved PRs awaiting merge | 0 |
-| Curated | 3 |
+| Curated | 4 |
 | Architect / Hermit proposals | 0 |
 | Active epics | 0 |
 <!-- guide:plan-body:end -->
