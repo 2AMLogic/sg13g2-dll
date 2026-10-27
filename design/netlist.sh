@@ -5,8 +5,8 @@
 #   design/netlist.sh --check         # regenerate to a temp dir and diff; non-zero if stale
 #   design/netlist.sh --top <block>   # restrict to one top
 #
-# The single exporter for every block of this design (issue #24; the delay-line
-# schematics of #23 add their tops to BLOCKS below rather than a second script).
+# The single exporter for every block of this design (issue #24's PFD/charge
+# pump/bias/filter and issue #23's delay cell, tap buffer and delay line).
 # Each top is netlisted with its full hierarchy into one self-contained,
 # includable file (`klt netlist --block`) under design/netlist/. xschem is only
 # ever run through `klt netlist`, which forces the headless flags and kills a
@@ -26,13 +26,16 @@ OUT_DIR="${HERE}/netlist"
 
 # Tops and the .subckt set each export must contain (connectivity guard: a
 # hierarchy that silently lost a branch fails the run).
-BLOCKS=(pfd cp cp_bias loop_filter)
+BLOCKS=(pfd cp cp_bias loop_filter delay_cell tap_buffer delay_line)
 expected_subckts() {
   case "$1" in
     pfd)         echo "pfd edgedet srlatch nand2_lv inv_lv inv2x_lv" ;;
     cp)          echo "cp cp_leg_p cp_leg_n cp_dumpbuf inv_lv" ;;
     cp_bias)     echo "cp_bias" ;;
     loop_filter) echo "loop_filter" ;;
+    delay_cell)  echo "delay_cell" ;;
+    tap_buffer)  echo "tap_buffer" ;;
+    delay_line)  echo "delay_line delay_cell tap_buffer" ;;
     *)           echo "" ;;
   esac
 }

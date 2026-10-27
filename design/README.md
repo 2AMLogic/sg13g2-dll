@@ -10,10 +10,15 @@ has been simulated yet: see "Status".
 | Charge pump | `cp.sch` (+ `cp_leg_p`, `cp_leg_n`, `cp_dumpbuf`) | `netlist/cp.spice` | cascoded current-steering; bias pins `IBP ICP IBN ICN` are external |
 | CP bias | `cp_bias.sch` | `netlist/cp_bias.spice` | one long-channel PMOS sets Iref; diode stacks give mirror and cascode gates |
 | Loop filter | `loop_filter.sch` | `netlist/loop_filter.spice` | first-order: one MIM capacitor, `VCTRL` to `VSS` |
+| Delay cell | `delay_cell.sch` | `netlist/delay_cell.spice` | two current-starved inverters, non-inverting (issue #23) |
+| Tap buffer | `tap_buffer.sch` | `netlist/tap_buffer.spice` | two-inverter buffer isolating each tap |
+| Delay line | `delay_line.sch` | `netlist/delay_line.spice` | 8 delay cells, `T0..T8` tap buffers, dummy last-tap load |
+
+Sizing rationale and evidence status for the delay line: [`NOTES.md`](NOTES.md).
 
 Not yet drawn (follow-up issues of #24): lock detector (spec row 12), false-lock
-supervisor (`0005` parts 1 and 3), and `dll_top.sch`, which waits on the delay
-line of #23.
+supervisor (`0005` parts 1 and 3), and `dll_top.sch`, which now has its delay
+line (#23) and waits on the rest.
 
 ## Regenerate and check
 
@@ -29,7 +34,7 @@ python3 -I design/tools/mksch.py --check
 and `.sym` files (label-driven connectivity, as in the sibling); edit either the
 cell definition and redraw, or the `.sch` in xschem and then update the
 definition, and re-export. `netlist.sh` is the one exporter for the design:
-issue #23's tops are added to its `BLOCKS` list rather than a second script.
+issue #23's tops are in its `BLOCKS` list.
 xschem is only run through `klt netlist`.
 
 ## Interface assumptions the delay line must meet or change

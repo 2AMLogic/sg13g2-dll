@@ -1,0 +1,101 @@
+{
+  "_comment": [
+    "delay-sanity base request (issue #23): delay_line, T0->Tk single-event delay vs control voltage. Limits are sanity gates, NOT spec numbers. Simulated, never measured.",
+    "@OSDI_DIR@, @VTH@, @FREQ@ are substituted by run.sh."
+  ],
+  "engine": "ngspice",
+  "netlist": "../decks/dl_@FREQ@.spice",
+  "netlist_source": "schematic",
+  "models": {
+    "pdk": "ihp-sg13g2",
+    "lib": "libs.tech/ngspice/models/cornerMOSlv.lib"
+  },
+  "analysis": {
+    "kind": "tran",
+    "args": "5p 8n"
+  },
+  "measurements": [
+    {
+      "name": "d1",
+      "spice": ".meas tran d1 trig v(t0) val=@VTH@ rise=1 targ v(t1) val=@VTH@ rise=1",
+      "unit": "s",
+      "limits": {
+        "min": 0,
+        "max": 6e-09
+      }
+    },
+    {
+      "name": "d2",
+      "spice": ".meas tran d2 trig v(t0) val=@VTH@ rise=1 targ v(t2) val=@VTH@ rise=1",
+      "unit": "s",
+      "limits": {
+        "min": 0,
+        "max": 6e-09
+      }
+    },
+    {
+      "name": "d3",
+      "spice": ".meas tran d3 trig v(t0) val=@VTH@ rise=1 targ v(t3) val=@VTH@ rise=1",
+      "unit": "s",
+      "limits": {
+        "min": 0,
+        "max": 6e-09
+      }
+    },
+    {
+      "name": "d4",
+      "spice": ".meas tran d4 trig v(t0) val=@VTH@ rise=1 targ v(t4) val=@VTH@ rise=1",
+      "unit": "s",
+      "limits": {
+        "min": 0,
+        "max": 6e-09
+      }
+    },
+    {
+      "name": "d5",
+      "spice": ".meas tran d5 trig v(t0) val=@VTH@ rise=1 targ v(t5) val=@VTH@ rise=1",
+      "unit": "s",
+      "limits": {
+        "min": 0,
+        "max": 6e-09
+      }
+    },
+    {
+      "name": "d6",
+      "spice": ".meas tran d6 trig v(t0) val=@VTH@ rise=1 targ v(t6) val=@VTH@ rise=1",
+      "unit": "s",
+      "limits": {
+        "min": 0,
+        "max": 6e-09
+      }
+    },
+    {
+      "name": "d7",
+      "spice": ".meas tran d7 trig v(t0) val=@VTH@ rise=1 targ v(t7) val=@VTH@ rise=1",
+      "unit": "s",
+      "limits": {
+        "min": 0,
+        "max": 6e-09
+      }
+    },
+    {
+      "name": "d8",
+      "spice": ".meas tran d8 trig v(t0) val=@VTH@ rise=1 targ v(t8) val=@VTH@ rise=1",
+      "unit": "s",
+      "limits": {
+        "min": 0,
+        "max": 6e-09
+      }
+    }
+  ],
+  "options": {
+    "osdi_preload": [
+      "@OSDI_DIR@/psp103.osdi",
+      "@OSDI_DIR@/psp103_nqs.osdi",
+      "@OSDI_DIR@/r3_cmc.osdi",
+      "@OSDI_DIR@/mosvar.osdi"
+    ],
+    "stage_model_inputs": true,
+    "keep_artifacts": true
+  }
+}
