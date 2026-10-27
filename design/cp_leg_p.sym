@@ -1,0 +1,31 @@
+v {xschem version=3.4.8RC file_version=1.3
+* cp_leg_p -- generated symbol, see design/tools/mksch.py
+}
+G {}
+K {type=subcircuit
+format="@name @pinlist @symname"
+template="name=x1"
+}
+V {}
+S {}
+E {}
+L 4 -60 -60 60 -60 {}
+L 4 60 -60 60 60 {}
+L 4 -60 60 60 60 {}
+L 4 -60 -60 -60 60 {}
+B 5 -62.5 -32.5 -57.5 -27.5 {name=IBP dir=in}
+T {IBP} -53 -33 0 0 0.15 0.15 {layer=7}
+B 5 -62.5 -12.5 -57.5 -7.5 {name=ICP dir=in}
+T {ICP} -53 -13 0 0 0.15 0.15 {layer=7}
+B 5 -62.5 7.5 -57.5 12.5 {name=UP dir=in}
+T {UP} -53 7 0 0 0.15 0.15 {layer=7}
+B 5 -62.5 27.5 -57.5 32.5 {name=UPB dir=in}
+T {UPB} -53 27 0 0 0.15 0.15 {layer=7}
+B 5 57.5 -12.5 62.5 -7.5 {name=VOUT dir=out}
+T {VOUT} 21 -13 0 0 0.15 0.15 {layer=7}
+B 5 57.5 7.5 62.5 12.5 {name=VDUMP dir=out}
+T {VDUMP} 13 7 0 0 0.15 0.15 {layer=7}
+B 5 -2.5 -62.5 2.5 -57.5 {name=VDD dir=inout}
+T {VDD} -12 -54 0 0 0.15 0.15 {layer=7}
+T {@symname} -55 -90 0 0 0.2 0.2 {}
+T {@name} -55 -110 0 0 0.2 0.2 {}
