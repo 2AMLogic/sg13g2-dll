@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "kind": "t1-attestation-inventory",
+  "t1_item": 1,
+  "description": "PARTIAL inventory (issue #23): the delay-line partition only (delay_cell, tap_buffer, delay_line). It does not make T1 item 1 met for the design: dll_top is outside it (#30 item 4). Interim location until #5's manifest convention fixes one.",
+  "sources": [
+    "design/delay_cell.sch",
+    "design/delay_cell.sym",
+    "design/tap_buffer.sch",
+    "design/tap_buffer.sym",
+    "design/delay_line.sch",
+    "design/delay_line.sym",
+    "design/xschemrc",
+    "design/netlist.sh"
+  ],
+  "derived": [
+    {
+      "path": "design/netlist/delay_cell.spice",
+      "generator": "klt netlist (design/netlist.sh)",
+      "check": {
+        "argv": [
+          "design/netlist.sh",
+          "--check",
+          "--top",
+          "delay_cell"
+        ],
+        "cwd": ".",
+        "local_only": true
+      }
+    },
+    {
+      "path": "design/netlist/tap_buffer.spice",
+      "generator": "klt netlist (design/netlist.sh)",
+      "check": {
+        "argv": [
+          "design/netlist.sh",
+          "--check",
+          "--top",
+          "tap_buffer"
+        ],
+        "cwd": ".",
+        "local_only": true
+      }
+    },
+    {
+      "path": "design/netlist/delay_line.spice",
+      "generator": "klt netlist (design/netlist.sh)",
+      "check": {
+        "argv": [
+          "design/netlist.sh",
+          "--check",
+          "--top",
+          "delay_line"
+        ],
+        "cwd": ".",
+        "local_only": true
+      }
+    }
+  ]
+}

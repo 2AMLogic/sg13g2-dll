@@ -64,6 +64,11 @@ prefix to `design/` first. (Generic tool gap, already tracked as 2AMLogic/klayou
 ff/1.32 V/-40 C from `sim/corners.json`) as `klt sim` requests and writes
 `results/<stamp>/record.md`. On the dispatch worker that built this change the
 batch submit failed (`InvalidAccessKeyId` on the S3 input upload) and the local
-ngspice 42 cannot load the OSDI v0.4 models, so **no result is committed**. The
+ngspice 42 cannot load the OSDI v0.4 models, so **no result is committed**. A second attempt (2026-10-27, loom-worker-1) got
+past submit but every batch job failed with `the fleet runner runs klt 0.7.0 but
+the submitting client is 0.8.1.dev61`; a throwaway `klayout-tools==0.7.0` client
+lacks the `--wait-for-capacity` and `--report-out` flags `run.sh` uses. The
+fleet runner image needs a klt bump (worker/fleet spec), after which the bench
+can run unchanged. **No result is committed.** The
 T/8 coverage question, the 104 ps ss corner and the rail-margin requirement of
 decision 0004 stay open until the bench is run where the fleet is reachable.
