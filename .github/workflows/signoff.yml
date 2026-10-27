@@ -1,0 +1,25 @@
+name: klt signoff
+
+# T1 tier state is graded, not hand-read: re-run the attestation and the
+# tier verdict with the pinned klt (scripts/klt.sh) and byte-compare with the
+# committed records under manifests/. Anyone changing cited evidence, the
+# manifest or the vendored checklist regenerates the records in the same PR.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  signoff:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - name: Re-run klt signoff and compare against the committed records
+        run: scripts/check-signoff.sh
