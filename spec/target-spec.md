@@ -1,7 +1,9 @@
 # Target specification
 
-Status: **proposed** — ratified by the human-reviewed merge of
-[0001](decisions/0001-spec-ratification.md). Target / fallback / stretch
+Status: **proposed — ratification candidate**. Becomes ratified only when the
+operator approves and merges the ratification PR carrying
+[0009](decisions/0009-ratification-of-target-spec.md) (the standard two-key
+path; builds on [0001](decisions/0001-spec-ratification.md)). Target / fallback / stretch
 values are carried over unchanged from the README table. `min/typ/max` is the
 pass window for the **target** column; fallback and stretch re-grade the same
 condition at their own value.
