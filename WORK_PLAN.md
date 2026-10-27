@@ -32,7 +32,6 @@ _None._
 Issues currently being built (`loom:building`).
 
 - **#5**: Signoff scaffolding: block manifest, committed klt signoff record, and CI (T1 item 10)
-- **#23**: T1 item 1 (design sources): current-starved delay-line schematics, tap buffers and netlist on sg13_lv
 - **#28**: T1 item 9 (testbenches shipped): one harness bench per spec row, with cold-start docs and --attest 9
 
 ## PRs Awaiting Review
@@ -72,7 +71,7 @@ _None._
 | Very important | 0 |
 | Important | 1 |
 | Ready (`loom:issue`) | 0 |
-| In Progress (`loom:building`) | 3 |
+| In Progress (`loom:building`) | 2 |
 | PRs awaiting review | 0 |
 | Approved PRs awaiting merge | 1 |
 | Curated | 4 |
