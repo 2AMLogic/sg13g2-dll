@@ -4,6 +4,8 @@ Chronological record of merged PRs and closed issues. Maintained by the Guide ro
 
 ### 2026-10-27
 
+- **PR #7**: feat(signoff): add block manifest, committed klt signoff record and CI
+- **Issue #5** (closed): Signoff scaffolding: block manifest, committed klt signoff record, and CI (T1 item 10)
 - **PR #35**: fix: resolve repo symbols before stock xschem ones and declare delay-line item-1 inventory
 - **PR #32**: feat(design): delay_cell/tap_buffer/delay_line sources, export gate and unrun sanity bench
 - **PR #33**: feat(sim): DLL row benches, behavioural stand-in and testbench inventory
