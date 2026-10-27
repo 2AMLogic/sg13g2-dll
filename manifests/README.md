@@ -7,10 +7,10 @@
   `klt signoff --manifest manifests/sg13g2-dll.json --tiers-doc manifests/design-evidence-tiers.md --format json`.
 - `design-evidence-tiers.md` — the checklist the grader parses, vendored
   byte-identical from `2AMLogic/klayout-tools` `docs/design-evidence-tiers.md`
-  at commit `fc02bdf0b6aa62e3553927511ee2de328fd1d186`.
+  at tag `v0.8.0` (commit `c572046be644e0407f693f2410f3abb799d68a3a`).
 - `item-10-inventory.json` — repo-hygiene inventory; `evidence/item-10-repo-hygiene.json`
   is its `klt signoff --attest 10` envelope. Not yet cited by the manifest.
 
-klt is pinned in `scripts/klt.sh` to that same klayout-tools commit, because
-released 0.7.0 has no `--attest`. CI (`.github/workflows/signoff.yml`) runs
+klt is pinned in `scripts/klt.sh` to released klayout-tools 0.8.0 on PyPI
+(`klayout-tools==0.8.0`), run in a throwaway uv environment. CI (`.github/workflows/signoff.yml`) runs
 `scripts/check-signoff.sh`; regenerate with `scripts/check-signoff.sh --write`.
