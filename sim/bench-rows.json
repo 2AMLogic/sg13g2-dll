@@ -1,0 +1,62 @@
+{
+  "_comment": "Spec row -> covering bench or non-bench artifact (issue #28). A test checks every row of spec/target-spec.md appears here. status: runnable = bench builds and runs against the stand-in; blocked = waits on a named item; not-a-bench = covered by a corner file or another T1 item.",
+  "dut": "standin",
+  "rows": {
+    "1": {
+      "bench": "sim/lock-range",
+      "status": "runnable",
+      "note": "operating point; BENCH_F0_HZ picks the column"
+    },
+    "2": {
+      "bench": "sim/lock-range",
+      "status": "runnable"
+    },
+    "3": {
+      "bench": "sim/phase",
+      "status": "runnable",
+      "note": "structural: 8 output taps tap0..tap7 plus reference tap8, checked by a unit test"
+    },
+    "4": {
+      "bench": "sim/phase",
+      "status": "runnable",
+      "note": "schematic result only; post-layout is a separate recorded result (row 11 / other T1 items)"
+    },
+    "5": {
+      "bench": "sim/phase",
+      "status": "runnable"
+    },
+    "6": {
+      "bench": "sim/jitter",
+      "status": "blocked",
+      "blocked_on": "noise-method decision record (spec/decisions/ 0001-0007 has none); harness and cold start only"
+    },
+    "7": {
+      "bench": "sim/lock-time",
+      "status": "runnable"
+    },
+    "8": {
+      "bench": "sim/false-lock",
+      "status": "runnable"
+    },
+    "9": {
+      "artifact": "sim/corners.json",
+      "status": "not-a-bench",
+      "note": "supply and device flavor are the corner set and the pinned PDK (sim/pdk.json)"
+    },
+    "10": {
+      "bench": "sim/power",
+      "status": "runnable",
+      "note": "the stand-in draws no supply current; meaningful only on the item-1 netlist"
+    },
+    "11": {
+      "artifact": "klt drc / klt lvs / klt pex",
+      "status": "not-a-bench",
+      "note": "other T1 items"
+    },
+    "12": {
+      "bench": "sim/false-lock",
+      "status": "runnable",
+      "note": "LOCK graded in every row-8 run"
+    }
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "bench": "power",
+  "rows": [
+    10
+  ],
+  "profile": "power",
+  "freq_scales": [
+    1.0
+  ],
+  "start_states": [
+    "s1_min_rail"
+  ]
+}

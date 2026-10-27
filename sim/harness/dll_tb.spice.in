@@ -1,0 +1,62 @@
+* DLL row-bench testbench, rendered by sim/harness/dllbench.py (placeholders filled).
+* Issue #28. DUT: @DUT_NAME@ (@DUT_NOTE@). Simulated, never measured.
+*
+* Stimulus per spec/target-spec.md "Conventions": ideal input, 50 % duty,
+* 100 ps rise/fall at every frequency, 0 jitter; every tap and the lock
+* output drive 20 fF to VSS. Start-state sources (swept by sim/harness/
+* gridspec.py through corners.supply_v, an `alter`; the deck never changes):
+*   vic   control-voltage preset as a fraction of Vdd, released at 100 ps;
+*         negative = no preset
+*   vton  enable asserted at this time in ns (negative = high from power-up)
+*   vtdis enable dropped at this time in ns (>=1e5 = never)
+*   vtre  enable re-asserted at this time in ns (>=1e5 = never)
+*   vtclk input clock starts at this time in ns (negative = at 0)
+* klt sim netlist body: no .lib/.temp/analysis/.end.
+Vdd vdd 0 1.2
+vic vic 0 -1
+vton ton 0 -1
+vtdis tdis 0 100000
+vtre tre 0 100000
+vtclk tclk 0 -1
+* input clock: period @PERIOD_NS@ ns, 100 ps edges, thresholds at Vdd/2
+Btt tt 0 V = time*1e9-max(v(tclk),0)
+Bph ph 0 V = (v(tt)/@PERIOD_NS@-floor(v(tt)/@PERIOD_NS@))*@PERIOD_NS@
+Bin in 0 V = v(vdd)*u(v(tt))*(min(1,max(0,v(ph)/0.1))-min(1,max(0,(v(ph)-@HALF_NS@)/0.1)))
+* enable
+Ben en 0 V = v(vdd)*min(1,max(0,min(1,max(0,(time*1e9-v(ton))/0.05)*(1-min(1,max(0,(time*1e9-v(tdis))/0.05)))+min(1,max(0,(time*1e9-v(tre))/0.05)))))
+@DUT_INCLUDE@
+Xdut vdd in en tap0 tap1 tap2 tap3 tap4 tap5 tap6 tap7 tap8 lock vc @DUT_SUBCKT@
+Cl0 tap0 0 20f
+Cl1 tap1 0 20f
+Cl2 tap2 0 20f
+Cl3 tap3 0 20f
+Cl4 tap4 0 20f
+Cl5 tap5 0 20f
+Cl6 tap6 0 20f
+Cl7 tap7 0 20f
+Cl8 tap8 0 20f
+Cll lock 0 20f
+* control-voltage preset: tie vc to vic*Vdd for the first 100 ps, then release
+Bicv icv 0 V = max(v(vic),0)*v(vdd)
+Bicg icg 0 V = u(v(vic)+0.5)*u(100p-time)
+Sic vc icv icg 0 swic
+.model swic SW(Vt=0.5 Vh=0.1 Ron=10 Roff=1e12)
+* measurement nodes, normalised to the corner's own Vdd (thresholds at 0.5)
+Bn_in inn 0 V = v(in)/v(vdd)
+Bn_en enn 0 V = v(en)/v(vdd)
+Bn_lk lockn 0 V = v(lock)/v(vdd)
+Bn_0 tn0 0 V = v(tap0)/v(vdd)
+Bn_1 tn1 0 V = v(tap1)/v(vdd)
+Bn_2 tn2 0 V = v(tap2)/v(vdd)
+Bn_3 tn3 0 V = v(tap3)/v(vdd)
+Bn_4 tn4 0 V = v(tap4)/v(vdd)
+Bn_5 tn5 0 V = v(tap5)/v(vdd)
+Bn_6 tn6 0 V = v(tap6)/v(vdd)
+Bn_7 tn7 0 V = v(tap7)/v(vdd)
+Bn_8 tn8 0 V = v(tap8)/v(vdd)
+Bvrh vrh 0 V = v(vdd)-v(vc)
+* start-state evidence: the preset fraction seen at 50 ps (the swept value when
+* there is no preset), and the swept sources read back
+Bics icseen 0 V = u(v(vic)+0.5)*v(vc)/v(vdd)+(1-u(v(vic)+0.5))*v(vic)
+* supply power in mW (zero for a DUT with no supply current, e.g. the stand-in)
+Bpw pw 0 V = -i(Vdd)*v(vdd)*1e3

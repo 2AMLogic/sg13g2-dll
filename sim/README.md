@@ -104,6 +104,24 @@ repeated in `ctl_repeat.envelope.json`) with sigma exactly 0 within every
 corner. The pooled sigma over several corners is not zero (it contains the
 corner-to-corner spread), so the checks read the per-corner block.
 
+## DLL row benches (`sim/lock-range/`, `phase/`, `lock-time/`, `false-lock/`, `power/`, `jitter/`)
+
+One bench per measured quantity (issue #28, T1 item 9); `sim/bench-rows.json` maps every row of `spec/target-spec.md` to its bench or non-bench artifact. They share `sim/harness/dllbench.py` (request construction through `gridspec.py`, grading), the testbench template `sim/harness/dll_tb.spice.in` and `sim/harness/bench-run.sh`. Each bench has a README with its own cold start; the grids are large (the false-lock and lock-range grids are 2025 units each) and go to the batch fleet.
+
+**The default DUT is the behavioural STAND-IN in `sim/standin/`, not the item-1 netlist (#24).** It needs XSPICE code models and no OSDI model. Repointing at the item-1 netlist is a DUT descriptor, not a bench edit. `sim/jitter/` is harness-only until a noise-method decision record exists.
+
+### Cold start
+
+One bounded command from a fresh clone with the PDK installed (`sim/pdk.json`, IHP-Open-PDK v0.3.0). It checks the pins, runs the simulator-free unit tests, builds every bench's requests and checks them; it submits nothing:
+
+```
+sim/harness/cold-start.sh
+```
+
+The full grids are run per bench (`sim/<bench>/run.sh`, see each README). `sim/inventory.json` is the `klt signoff --attest 9 --inventory` file (schema read from klt 0.8.1.dev55); it lists the stand-in benches and so does not satisfy item 9 until the benches are repointed.
+
+Tools: ngspice 46 on the batch fleet (the dispatch worker's 42 can run the stand-in but not the OSDI models), klt 0.8.1.dev55, OpenVAF-Reloaded v24.0.1mob (`reuse.lock.json`).
+
 ## PFD fit gate (`sim/pfd-fit/`)
 
 Decision 0006's gate for `design/pfd.sch`: dead zone and reset-pulse width at

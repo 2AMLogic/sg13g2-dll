@@ -1,0 +1,11 @@
+{
+  "bench": "lock-time",
+  "rows": [
+    7
+  ],
+  "profile": "samples",
+  "freq_scales": [
+    1.0
+  ],
+  "start_states": "all"
+}

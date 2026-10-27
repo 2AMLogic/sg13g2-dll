@@ -1,0 +1,83 @@
+* STAND-IN, not the item-1 netlist (issue #28, Startable Subset item 1).
+*
+* Behavioural delay-locked loop so the row benches under sim/ have something
+* to drive before the item-1 schematic (#24) exists. It uses no SG13G2 device
+* and no OSDI model, so process and temperature corners do nothing to it; only
+* the supply value (Vdd) and the testbench's start-state sources move it.
+* A bench result obtained on it is a result about this model, not about the
+* block, and does not satisfy T1 item 9.
+*
+* Ports: vdd in en tap0 .. tap8 lock vc      (vss is node 0)
+*   tap k is nominal k*T/8: tap0 is the buffered input, tap1..tap7 the other
+*   output phases (spec row 3), tap8 the lock-reference tap N (nominal delay
+*   one period, not an output). vc is the delay-control node, brought out so
+*   the benches can preset it (the start-state axis) and observe it.
+*
+* Model:
+*   delay stage  RC with a B-source conductance and a limiter; stage delay is
+*                sdmin + sdspan*vc/vdd, ~62 ps .. ~275 ps, so 8 stages give
+*                ~0.5 .. 2.2 ns, wider than 2 T at 1.2 f0, on purpose.
+*   PFD          two XSPICE d_dff plus a reset AND. The first input edge after
+*                enable is blocked (armed flop), so input edge j+1 pairs with
+*                tap-N edge j, the pairing a DLL needs at one period.
+*   charge pump  B-source, icp*(dn-up), into cvc, gated by enable.
+*   start-up     vc is reset to the minimum-delay end by a pulse on each
+*                enable rising edge (0005 part 1).
+*   lock         LOCK = 1 while the filtered PFD pulse duty is under 8 %.
+* NOT implemented: the 0005 part 3 over-delay supervisor and the rail
+* time-out. Without them the loop can lock at 2 T from a high start, and LOCK
+* then reads 1 at the wrong delay. The false-lock and lock-status benches are
+* expected to show that.
+* Needs XSPICE (code models adc_bridge, dac_bridge, d_dff, d_and, ...).
+.param sdmin=62p sdspan=213p cstg=20f icp=70u cvc=1p
+.subckt dstage a y vdd vc
+Bg c 0 I = (v(c)-v(a))*0.6931*cstg/(sdmin+sdspan*max(0,min(1,v(vc)/v(vdd))))
+Cc c 0 {cstg}
+By y 0 V = v(vdd)*(0.5+0.5*tanh(30*(v(c)-v(vdd)/2)/v(vdd)))
+.ends dstage
+
+.subckt dll_standin vdd in en tap0 tap1 tap2 tap3 tap4 tap5 tap6 tap7 tap8 lock vc
+Bd0 tap0 0 V = v(vdd)*(0.5+0.5*tanh(30*(v(in)-v(vdd)/2)/v(vdd)))
+X1 tap0 tap1 vdd vc dstage
+X2 tap1 tap2 vdd vc dstage
+X3 tap2 tap3 vdd vc dstage
+X4 tap3 tap4 vdd vc dstage
+X5 tap4 tap5 vdd vc dstage
+X6 tap5 tap6 vdd vc dstage
+X7 tap6 tap7 vdd vc dstage
+X8 tap7 tap8 vdd vc dstage
+* PFD
+Abr   [in tap8 en] [din dtap den] adc_in
+.model adc_in adc_bridge(in_low=0.45 in_high=0.75)
+Ainb  din dinb inv
+.model inv d_inverter(inertial_delay=false)
+Aenb  den denb inv
+Alo   lo pd_lo
+.model pd_lo d_pulldown
+Ahi   hi pu_hi
+.model pu_hi d_pullup
+Aarm  den dinb lo denb armed narmed dff
+.model dff d_dff(clk_delay=10p set_delay=10p reset_delay=10p rise_delay=10p fall_delay=10p)
+Aref  [din armed] dref and2
+.model and2 d_and(rise_delay=10p fall_delay=10p)
+Aup   hi dref lo rpfd up nup dff
+Atapd [dtap hi] dtapd and2
+Adn   hi dtapd lo rpfd dn ndn dff
+Arp   [up dn] rpfd and2
+Adac  [up dn] [upa dna] dac_out
+.model dac_out dac_bridge(out_low=0 out_high=1 t_rise=5p t_fall=5p)
+* charge pump, gated by enable
+Bcp 0 vc I = icp*(v(dna)-v(upa))*(0.5+0.5*tanh(20*(v(en)-0.5*v(vdd))/v(vdd)))
+Cvc vc 0 {cvc}
+* min-delay reset pulse on each enable rising edge
+Ren en enl 1k
+Cen enl 0 200f
+Brst rstp 0 V = v(en)*(1-v(enl)/max(v(en),0.1))
+Srst vc 0 rstp 0 swrst
+.model swrst SW(Vt=0.5 Vh=0.1 Ron=50 Roff=1e12)
+* lock flag: filtered PFD activity, threshold 8 % summed up+dn duty (includes the PFD reset overlap)
+Bact act 0 V = v(upa)+v(dna)
+Rlk act lkf 5k
+Clk lkf 0 10p
+Blk lock 0 V = v(vdd)*(0.5+0.5*tanh(60*(0.08-v(lkf))))
+.ends dll_standin
