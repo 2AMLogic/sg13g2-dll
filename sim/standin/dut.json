@@ -1,0 +1,15 @@
+{
+  "_comment": "DUT descriptor read by sim/harness/dllbench.py. Repointing the benches at the item-1 netlist (#24) means a sibling descriptor with this shape, not edits to the benches.",
+  "name": "standin",
+  "stand_in": true,
+  "attestable": false,
+  "netlist": "dll_standin.spice",
+  "subckt": "dll_standin",
+  "ports": ["vdd", "in", "en", "tap0", "tap1", "tap2", "tap3", "tap4", "tap5", "tap6", "tap7", "tap8", "lock", "vc"],
+  "delay_law": {
+    "_comment": "total delay of tap8 versus vc/vdd, linear: min_s + span_s*(vc/vdd). Used only to place the row-8 start state 4 (nominal delay 0.5 T and 1.5 T).",
+    "min_s": 4.96e-10,
+    "span_s": 1.704e-9
+  },
+  "supply_current": false
+}

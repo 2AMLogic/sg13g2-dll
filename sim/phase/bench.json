@@ -1,0 +1,15 @@
+{
+  "bench": "phase",
+  "rows": [
+    3,
+    4,
+    5
+  ],
+  "profile": "phase",
+  "freq_scales": [
+    1.0
+  ],
+  "start_states": [
+    "s1_min_rail"
+  ]
+}

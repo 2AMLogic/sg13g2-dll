@@ -1,0 +1,16 @@
+{
+  "bench": "false-lock",
+  "rows": [
+    8,
+    12
+  ],
+  "profile": "predicate",
+  "freq_scales": [
+    0.8,
+    0.9,
+    1.0,
+    1.1,
+    1.2
+  ],
+  "start_states": "all"
+}
