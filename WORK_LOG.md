@@ -4,11 +4,11 @@ Chronological record of merged PRs and closed issues. Maintained by the Guide ro
 
 ### 2026-10-27
 
-- **PR #35**: fix: put design/ first on the xschem library path and declare the delay-line item-1 inventory
-- **PR #33**: feat(sim): DLL row benches, behavioural stand-in and testbench inventory
+- **PR #35**: fix: resolve repo symbols before stock xschem ones and declare delay-line item-1 inventory
 - **PR #32**: feat(design): delay_cell/tap_buffer/delay_line sources, export gate and unrun sanity bench
-- **Issue #24** (closed): T1 item 1 (design sources): PFD/CP redrawn on sg13_lv, loop filter, lock detector and dll_top schematic
+- **PR #33**: feat(sim): DLL row benches, behavioural stand-in and testbench inventory
 - **PR #31**: feat(design): PFD, charge pump, bias and loop filter on sg13_lv with staleness-checked exporter
+- **Issue #24** (closed): T1 item 1 (design sources): PFD/CP redrawn on sg13_lv, loop filter, lock detector and dll_top schematic
 
 ### 2026-10-21
 
