@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "kind": "t1-attestation-inventory",
+  "t1_item": 9,
+  "description": "STAND-IN inventory (issue #28 Startable Subset). The benches listed run against the behavioural stand-in in sim/standin/, not the item-1 netlist, so this inventory does not satisfy T1 item 9 until the benches are repointed (#24); row 6 (jitter) is not attestable until a noise-method decision record exists. Row-to-bench map: sim/bench-rows.json.",
+  "testbenches": [
+    "sim/lock-range/README.md",
+    "sim/lock-range/run.sh",
+    "sim/lock-range/bench.json",
+    "sim/phase/README.md",
+    "sim/phase/run.sh",
+    "sim/phase/bench.json",
+    "sim/lock-time/README.md",
+    "sim/lock-time/run.sh",
+    "sim/lock-time/bench.json",
+    "sim/false-lock/README.md",
+    "sim/false-lock/run.sh",
+    "sim/false-lock/bench.json",
+    "sim/power/README.md",
+    "sim/power/run.sh",
+    "sim/power/bench.json",
+    "sim/jitter/README.md",
+    "sim/jitter/run.sh",
+    "sim/harness/dll_tb.spice.in",
+    "sim/harness/dllbench.py",
+    "sim/harness/bench-run.sh",
+    "sim/standin/dll_standin.spice",
+    "sim/standin/dut.json"
+  ],
+  "cold_start": {
+    "argv": [
+      "sim/harness/cold-start.sh"
+    ],
+    "cwd": ".",
+    "local_only": true
+  },
+  "pins": {
+    "pdk": {
+      "name": "IHP-Open-PDK",
+      "revision": "v0.3.0"
+    },
+    "tools": {
+      "ngspice": "46",
+      "klt": "0.8.1.dev55+g879d39bad82b",
+      "openvaf-reloaded": "v24.0.1mob"
+    }
+  }
+}

@@ -45,13 +45,13 @@ issue (#24), not here.
 - **Hand-placed array.** Schematics are plain text under `design/`; the
   regular array (cell k at x = 500k, buffer k below it) was emitted once with a
   shell loop for the 27 repeated instance lines, then committed as ordinary
-  source. There is no generator in the repo and `export.sh` does not run one.
+  source. There is no generator in the repo and `netlist.sh` does not run one.
   Revisit only if the array proves error-prone to edit by hand.
 
 ## Export
 
-`design/export.sh` runs `klt netlist --block` for each top and writes
-`design/netlist/*.spice`; `design/export.sh --check` writes nothing and exits 3
+`design/netlist.sh` runs `klt netlist --block` for each top and writes
+`design/netlist/*.spice`; `design/netlist.sh --check` writes nothing and exits 3
 when any committed netlist differs from a fresh export. The script, not
 `klt netlist --check`, does the comparison because the raw export embeds the
 absolute checkout path in `** sch_path:` comments; the script rewrites that

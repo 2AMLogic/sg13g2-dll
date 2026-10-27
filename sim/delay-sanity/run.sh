@@ -4,7 +4,7 @@
 # request (multi-unit -> batch fleet; NO local fallback, a failed submit fails
 # the run). Results are simulated, never measured, and append-only.
 #
-#   design/export.sh && sim/delay-sanity/run.sh
+#   design/netlist.sh && sim/delay-sanity/run.sh
 #
 # Env: DS_CAPACITY_WAIT_S (default 900), DS_RESULTS_DIR, DS_VC (comma list)
 set -euo pipefail
@@ -15,7 +15,7 @@ DESIGN_DIR="$(cd "${SIM_DIR}/../design" && pwd)"
 # shellcheck source=/dev/null
 source "${SIM_DIR}/harness/preflight.sh"
 sim_preflight
-"${DESIGN_DIR}/export.sh" --check
+"${DESIGN_DIR}/netlist.sh" --check
 
 STAMP="$(date -u +%Y%m%dT%H%M%SZ)"
 OUT="${DS_RESULTS_DIR:-${HERE}/results/${STAMP}}"
