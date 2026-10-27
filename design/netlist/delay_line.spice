@@ -1,0 +1,71 @@
+** sch_path: design/delay_line.sch
+.subckt delay_line IN VBP VBN T0 T1 T2 T3 T4 T5 T6 T7 T8 VDD VSS
+*.ipin IN
+*.ipin VBP
+*.ipin VBN
+*.opin T0
+*.opin T1
+*.opin T2
+*.opin T3
+*.opin T4
+*.opin T5
+*.opin T6
+*.opin T7
+*.opin T8
+*.iopin VDD
+*.iopin VSS
+XC1 IN VBP VBN n1 VDD VSS delay_cell
+XC2 n1 VBP VBN n2 VDD VSS delay_cell
+XC3 n2 VBP VBN n3 VDD VSS delay_cell
+XC4 n3 VBP VBN n4 VDD VSS delay_cell
+XC5 n4 VBP VBN n5 VDD VSS delay_cell
+XC6 n5 VBP VBN n6 VDD VSS delay_cell
+XC7 n6 VBP VBN n7 VDD VSS delay_cell
+XC8 n7 VBP VBN n8 VDD VSS delay_cell
+XDUM n8 VBP VBN dumout VDD VSS delay_cell
+XB0 IN T0 VDD VSS tap_buffer
+XB1 n1 T1 VDD VSS tap_buffer
+XB2 n2 T2 VDD VSS tap_buffer
+XB3 n3 T3 VDD VSS tap_buffer
+XB4 n4 T4 VDD VSS tap_buffer
+XB5 n5 T5 VDD VSS tap_buffer
+XB6 n6 T6 VDD VSS tap_buffer
+XB7 n7 T7 VDD VSS tap_buffer
+XB8 n8 T8 VDD VSS tap_buffer
+.ends
+
+* expanding   symbol:  delay_cell.sym # of pins=6
+** sym_path: design/delay_cell.sym
+** sch_path: design/delay_cell.sch
+.subckt delay_cell IN VBP VBN OUT VDD VSS
+*.ipin IN
+*.ipin VBP
+*.ipin VBN
+*.opin OUT
+*.iopin VDD
+*.iopin VSS
+XMPH1 nh1 VBP VDD VDD sg13_lv_pmos w=1.5u l=0.13u ng=1 m=1
+XMP1 mid IN nh1 VDD sg13_lv_pmos w=1u l=0.13u ng=1 m=1
+XMN1 mid IN nt1 VSS sg13_lv_nmos w=0.5u l=0.13u ng=1 m=1
+XMNT1 nt1 VBN VSS VSS sg13_lv_nmos w=0.75u l=0.13u ng=1 m=1
+XMPH2 nh2 VBP VDD VDD sg13_lv_pmos w=1.5u l=0.13u ng=1 m=1
+XMP2 OUT mid nh2 VDD sg13_lv_pmos w=1u l=0.13u ng=1 m=1
+XMN2 OUT mid nt2 VSS sg13_lv_nmos w=0.5u l=0.13u ng=1 m=1
+XMNT2 nt2 VBN VSS VSS sg13_lv_nmos w=0.75u l=0.13u ng=1 m=1
+.ends
+
+
+* expanding   symbol:  tap_buffer.sym # of pins=4
+** sym_path: design/tap_buffer.sym
+** sch_path: design/tap_buffer.sch
+.subckt tap_buffer IN OUT VDD VSS
+*.ipin IN
+*.opin OUT
+*.iopin VDD
+*.iopin VSS
+XMP1 b IN VDD VDD sg13_lv_pmos w=0.5u l=0.13u ng=1 m=1
+XMN1 b IN VSS VSS sg13_lv_nmos w=0.25u l=0.13u ng=1 m=1
+XMP2 OUT b VDD VDD sg13_lv_pmos w=3u l=0.13u ng=1 m=1
+XMN2 OUT b VSS VSS sg13_lv_nmos w=1.5u l=0.13u ng=1 m=1
+.ends
+

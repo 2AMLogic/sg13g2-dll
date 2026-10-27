@@ -1,0 +1,134 @@
+v {xschem version=3.4.8RC file_version=1.3
+sg13g2-dll :: delay_line -- 8 identical delay_cell in series + 9 identical tap_buffer
+Taps: T0 = buffered input (reference), Tk = buffered output of cell k (k=1..8).
+Every cell output drives exactly one delay_cell input (cell k+1, or the dummy
+cell XDUM after cell 8) plus one tap_buffer input, so all taps see the same load.
+Regular array: cell k at x=500k, tap buffer k directly below.
+}
+G {}
+K {}
+V {}
+S {}
+E {}
+C {delay_cell.sym} 500 0 0 0 {name=XC1 }
+C {lab_pin.sym} 460 -40 0 0 {name=l1 lab=IN}
+C {lab_pin.sym} 460 0 0 0 {name=l2 lab=VBP}
+C {lab_pin.sym} 460 40 0 0 {name=l3 lab=VBN}
+C {lab_pin.sym} 540 0 0 0 {name=l4 lab=n1}
+C {lab_pin.sym} 480 -80 0 0 {name=l5 lab=VDD}
+C {lab_pin.sym} 520 80 0 0 {name=l6 lab=VSS}
+C {delay_cell.sym} 1000 0 0 0 {name=XC2 }
+C {lab_pin.sym} 960 -40 0 0 {name=l7 lab=n1}
+C {lab_pin.sym} 960 0 0 0 {name=l8 lab=VBP}
+C {lab_pin.sym} 960 40 0 0 {name=l9 lab=VBN}
+C {lab_pin.sym} 1040 0 0 0 {name=l10 lab=n2}
+C {lab_pin.sym} 980 -80 0 0 {name=l11 lab=VDD}
+C {lab_pin.sym} 1020 80 0 0 {name=l12 lab=VSS}
+C {delay_cell.sym} 1500 0 0 0 {name=XC3 }
+C {lab_pin.sym} 1460 -40 0 0 {name=l13 lab=n2}
+C {lab_pin.sym} 1460 0 0 0 {name=l14 lab=VBP}
+C {lab_pin.sym} 1460 40 0 0 {name=l15 lab=VBN}
+C {lab_pin.sym} 1540 0 0 0 {name=l16 lab=n3}
+C {lab_pin.sym} 1480 -80 0 0 {name=l17 lab=VDD}
+C {lab_pin.sym} 1520 80 0 0 {name=l18 lab=VSS}
+C {delay_cell.sym} 2000 0 0 0 {name=XC4 }
+C {lab_pin.sym} 1960 -40 0 0 {name=l19 lab=n3}
+C {lab_pin.sym} 1960 0 0 0 {name=l20 lab=VBP}
+C {lab_pin.sym} 1960 40 0 0 {name=l21 lab=VBN}
+C {lab_pin.sym} 2040 0 0 0 {name=l22 lab=n4}
+C {lab_pin.sym} 1980 -80 0 0 {name=l23 lab=VDD}
+C {lab_pin.sym} 2020 80 0 0 {name=l24 lab=VSS}
+C {delay_cell.sym} 2500 0 0 0 {name=XC5 }
+C {lab_pin.sym} 2460 -40 0 0 {name=l25 lab=n4}
+C {lab_pin.sym} 2460 0 0 0 {name=l26 lab=VBP}
+C {lab_pin.sym} 2460 40 0 0 {name=l27 lab=VBN}
+C {lab_pin.sym} 2540 0 0 0 {name=l28 lab=n5}
+C {lab_pin.sym} 2480 -80 0 0 {name=l29 lab=VDD}
+C {lab_pin.sym} 2520 80 0 0 {name=l30 lab=VSS}
+C {delay_cell.sym} 3000 0 0 0 {name=XC6 }
+C {lab_pin.sym} 2960 -40 0 0 {name=l31 lab=n5}
+C {lab_pin.sym} 2960 0 0 0 {name=l32 lab=VBP}
+C {lab_pin.sym} 2960 40 0 0 {name=l33 lab=VBN}
+C {lab_pin.sym} 3040 0 0 0 {name=l34 lab=n6}
+C {lab_pin.sym} 2980 -80 0 0 {name=l35 lab=VDD}
+C {lab_pin.sym} 3020 80 0 0 {name=l36 lab=VSS}
+C {delay_cell.sym} 3500 0 0 0 {name=XC7 }
+C {lab_pin.sym} 3460 -40 0 0 {name=l37 lab=n6}
+C {lab_pin.sym} 3460 0 0 0 {name=l38 lab=VBP}
+C {lab_pin.sym} 3460 40 0 0 {name=l39 lab=VBN}
+C {lab_pin.sym} 3540 0 0 0 {name=l40 lab=n7}
+C {lab_pin.sym} 3480 -80 0 0 {name=l41 lab=VDD}
+C {lab_pin.sym} 3520 80 0 0 {name=l42 lab=VSS}
+C {delay_cell.sym} 4000 0 0 0 {name=XC8 }
+C {lab_pin.sym} 3960 -40 0 0 {name=l43 lab=n7}
+C {lab_pin.sym} 3960 0 0 0 {name=l44 lab=VBP}
+C {lab_pin.sym} 3960 40 0 0 {name=l45 lab=VBN}
+C {lab_pin.sym} 4040 0 0 0 {name=l46 lab=n8}
+C {lab_pin.sym} 3980 -80 0 0 {name=l47 lab=VDD}
+C {lab_pin.sym} 4020 80 0 0 {name=l48 lab=VSS}
+C {delay_cell.sym} 4500 0 0 0 {name=XDUM }
+C {lab_pin.sym} 4460 -40 0 0 {name=l49 lab=n8}
+C {lab_pin.sym} 4460 0 0 0 {name=l50 lab=VBP}
+C {lab_pin.sym} 4460 40 0 0 {name=l51 lab=VBN}
+C {lab_pin.sym} 4540 0 0 0 {name=l52 lab=dumout}
+C {lab_pin.sym} 4480 -80 0 0 {name=l53 lab=VDD}
+C {lab_pin.sym} 4520 80 0 0 {name=l54 lab=VSS}
+C {tap_buffer.sym} 250 400 0 0 {name=XB0 }
+C {lab_pin.sym} 210 400 0 0 {name=l55 lab=IN}
+C {lab_pin.sym} 290 400 0 0 {name=l56 lab=T0}
+C {lab_pin.sym} 230 340 0 0 {name=l57 lab=VDD}
+C {lab_pin.sym} 270 460 0 0 {name=l58 lab=VSS}
+C {tap_buffer.sym} 750 400 0 0 {name=XB1 }
+C {lab_pin.sym} 710 400 0 0 {name=l59 lab=n1}
+C {lab_pin.sym} 790 400 0 0 {name=l60 lab=T1}
+C {lab_pin.sym} 730 340 0 0 {name=l61 lab=VDD}
+C {lab_pin.sym} 770 460 0 0 {name=l62 lab=VSS}
+C {tap_buffer.sym} 1250 400 0 0 {name=XB2 }
+C {lab_pin.sym} 1210 400 0 0 {name=l63 lab=n2}
+C {lab_pin.sym} 1290 400 0 0 {name=l64 lab=T2}
+C {lab_pin.sym} 1230 340 0 0 {name=l65 lab=VDD}
+C {lab_pin.sym} 1270 460 0 0 {name=l66 lab=VSS}
+C {tap_buffer.sym} 1750 400 0 0 {name=XB3 }
+C {lab_pin.sym} 1710 400 0 0 {name=l67 lab=n3}
+C {lab_pin.sym} 1790 400 0 0 {name=l68 lab=T3}
+C {lab_pin.sym} 1730 340 0 0 {name=l69 lab=VDD}
+C {lab_pin.sym} 1770 460 0 0 {name=l70 lab=VSS}
+C {tap_buffer.sym} 2250 400 0 0 {name=XB4 }
+C {lab_pin.sym} 2210 400 0 0 {name=l71 lab=n4}
+C {lab_pin.sym} 2290 400 0 0 {name=l72 lab=T4}
+C {lab_pin.sym} 2230 340 0 0 {name=l73 lab=VDD}
+C {lab_pin.sym} 2270 460 0 0 {name=l74 lab=VSS}
+C {tap_buffer.sym} 2750 400 0 0 {name=XB5 }
+C {lab_pin.sym} 2710 400 0 0 {name=l75 lab=n5}
+C {lab_pin.sym} 2790 400 0 0 {name=l76 lab=T5}
+C {lab_pin.sym} 2730 340 0 0 {name=l77 lab=VDD}
+C {lab_pin.sym} 2770 460 0 0 {name=l78 lab=VSS}
+C {tap_buffer.sym} 3250 400 0 0 {name=XB6 }
+C {lab_pin.sym} 3210 400 0 0 {name=l79 lab=n6}
+C {lab_pin.sym} 3290 400 0 0 {name=l80 lab=T6}
+C {lab_pin.sym} 3230 340 0 0 {name=l81 lab=VDD}
+C {lab_pin.sym} 3270 460 0 0 {name=l82 lab=VSS}
+C {tap_buffer.sym} 3750 400 0 0 {name=XB7 }
+C {lab_pin.sym} 3710 400 0 0 {name=l83 lab=n7}
+C {lab_pin.sym} 3790 400 0 0 {name=l84 lab=T7}
+C {lab_pin.sym} 3730 340 0 0 {name=l85 lab=VDD}
+C {lab_pin.sym} 3770 460 0 0 {name=l86 lab=VSS}
+C {tap_buffer.sym} 4250 400 0 0 {name=XB8 }
+C {lab_pin.sym} 4210 400 0 0 {name=l87 lab=n8}
+C {lab_pin.sym} 4290 400 0 0 {name=l88 lab=T8}
+C {lab_pin.sym} 4230 340 0 0 {name=l89 lab=VDD}
+C {lab_pin.sym} 4270 460 0 0 {name=l90 lab=VSS}
+C {ipin.sym} -350 -40 0 0 {name=p1 lab=IN}
+C {ipin.sym} -350 0 0 0 {name=p2 lab=VBP}
+C {ipin.sym} -350 40 0 0 {name=p3 lab=VBN}
+C {opin.sym} 5200 -300 0 0 {name=p4 lab=T0}
+C {opin.sym} 5200 -260 0 0 {name=p5 lab=T1}
+C {opin.sym} 5200 -220 0 0 {name=p6 lab=T2}
+C {opin.sym} 5200 -180 0 0 {name=p7 lab=T3}
+C {opin.sym} 5200 -140 0 0 {name=p8 lab=T4}
+C {opin.sym} 5200 -100 0 0 {name=p9 lab=T5}
+C {opin.sym} 5200 -60 0 0 {name=p10 lab=T6}
+C {opin.sym} 5200 -20 0 0 {name=p11 lab=T7}
+C {opin.sym} 5200 20 0 0 {name=p12 lab=T8}
+C {iopin.sym} -350 -200 0 0 {name=p13 lab=VDD}
+C {iopin.sym} -350 200 0 0 {name=p14 lab=VSS}
