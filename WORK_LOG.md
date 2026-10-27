@@ -2,6 +2,11 @@
 
 Chronological record of merged PRs and closed issues. Maintained by the Guide role.
 
+### 2026-10-27
+
+- **PR #33**: feat(sim): DLL row benches, behavioural stand-in and testbench inventory
+- **PR #31**: feat(design): PFD, charge pump, bias and loop filter on sg13_lv with staleness-checked exporter
+
 ### 2026-10-21
 
 - **PR #19**: Bump Repo Skills 0.24.3 -> 0.24.7
