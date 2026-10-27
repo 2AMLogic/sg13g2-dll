@@ -4,6 +4,8 @@ Chronological record of merged PRs and closed issues. Maintained by the Guide ro
 
 ### 2026-10-27
 
+- **PR #40**: build: pin klt to released klayout-tools 0.8.0 and regenerate signoff records
+- **Issue #39** (closed): Bump klayout-tools pin fc02bdf0b6aa → 0.8.0
 - **PR #7**: feat(signoff): add block manifest, committed klt signoff record and CI
 - **Issue #5** (closed): Signoff scaffolding: block manifest, committed klt signoff record, and CI (T1 item 10)
 - **PR #35**: fix: resolve repo symbols before stock xschem ones and declare delay-line item-1 inventory
