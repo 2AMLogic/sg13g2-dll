@@ -31,9 +31,11 @@ if { ![info exists PDK_ROOT] || $PDK_ROOT eq {} } {
     else { puts stderr "xschemrc: $pdk_xschemrc not found; $PDK symbols unavailable." }
 }
 
-# Re-assert the generic devices library and add this repo's design/ last, so a
-# bare reference (inv_lv.sym) resolves to this repo's symbol.
+# Put this repo's design/ FIRST, so a bare reference (inv_lv.sym, delay_line.sym)
+# resolves to this repo's symbol and not to a same-named stock symbol (the
+# xschem devices library ships a delay_line.sym), then re-assert the generic
+# devices library behind it.
 set REPO_ROOT [file dirname [file dirname [file normalize [info script]]]]
+set XSCHEM_LIBRARY_PATH [file join $REPO_ROOT design]:${XSCHEM_LIBRARY_PATH}
 append XSCHEM_LIBRARY_PATH :${XSCHEM_SHAREDIR}/xschem_library/devices
-append XSCHEM_LIBRARY_PATH :[file join $REPO_ROOT design]
 set XSCHEM_START_WINDOW {}
