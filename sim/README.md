@@ -103,3 +103,13 @@ The committed run is `sim/harness-example/results/20261018T022831Z/`: seed
 repeated in `ctl_repeat.envelope.json`) with sigma exactly 0 within every
 corner. The pooled sigma over several corners is not zero (it contains the
 corner-to-corner spread), so the checks read the per-corner block.
+
+## PFD fit gate (`sim/pfd-fit/`)
+
+Decision 0006's gate for `design/pfd.sch`: dead zone and reset-pulse width at
+1 GHz and 500 MHz on the `reduced_set` corners, plus a control run with the
+sibling's reset polarity. `sim/pfd-fit/run.sh` runs it (batch backend, no local
+fallback) and writes `results/<UTC stamp>/fit-gate.md`; the criteria are in
+`sim/pfd-fit/grade.py`, and `make_bench.py` regenerates the decks/requests.
+Unit test of the grader (no simulator): `python3 -I -m unittest discover -s sim/pfd-fit/tests`.
+No result is committed yet.

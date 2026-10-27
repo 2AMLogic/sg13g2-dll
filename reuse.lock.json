@@ -22,7 +22,15 @@
       "decision": "spec/decisions/0006-pfd-cp-reuse.md",
       "sibling_commit": "83e59fe81db0b09dbefcff35a55965bea0c2a76f",
       "sibling_paths": ["design/pfd.sch", "design/netlist/pfd.spice"],
-      "note": "Adopt the TOPOLOGY, redrawn on sg13_lv_* (this block is on the 1.2 V rail since spec/decisions/0007-rail-1p2v-thin-oxide.md; the sibling's cells are sg13_hv_*), so no byte-identical copy will exist: when the redrawn cell lands this entry becomes `kept` with a record naming the sibling commit as the source of the topology. Condition: re-simulated with 1 GHz inputs across the corner set before use; a failure is a new decision record, not a silent patch."
+      "note": "Adopt the TOPOLOGY, redrawn on sg13_lv_* (this block is on the 1.2 V rail since spec/decisions/0007-rail-1p2v-thin-oxide.md; the sibling's cells are sg13_hv_*), so no byte-identical copy will exist: when the redrawn cell lands this entry becomes `kept` with a record naming the sibling commit as the source of the topology. Condition: re-simulated with 1 GHz inputs across the corner set before use; a failure is a new decision record, not a silent patch.",
+      "redrawn": {
+        "schematic": "design/pfd.sch",
+        "netlist": "design/netlist/pfd.spice",
+        "device_family": "sg13_lv",
+        "topology_source": "2AMLogic/sg13g2-pll@83e59fe81db0b09dbefcff35a55965bea0c2a76f",
+        "differs": "reset path NAND + three inverters (sibling: NAND + two); see spec/decisions/0008-false-lock-argument.md",
+        "fit_gate": "not run (batch backend InvalidAccessKeyId on the dispatch host); status stays adopting until sim/pfd-fit/run.sh passes"
+      }
     },
     {
       "block": "cp",
@@ -31,7 +39,15 @@
       "decision": "spec/decisions/0006-pfd-cp-reuse.md",
       "sibling_commit": "83e59fe81db0b09dbefcff35a55965bea0c2a76f",
       "sibling_paths": ["design/cp.sch", "design/netlist/cp.spice"],
-      "note": "Adopt the topology (cascoded current-steering, cp_leg_n/cp_leg_p, dump buffer), redrawn on sg13_lv_* per 0007; bias currents are re-derived for the DLL's first-order loop. Same path to `kept` as pfd."
+      "note": "Adopt the topology (cascoded current-steering, cp_leg_n/cp_leg_p, dump buffer), redrawn on sg13_lv_* per 0007; bias currents are re-derived for the DLL's first-order loop. Same path to `kept` as pfd.",
+      "redrawn": {
+        "schematic": "design/cp.sch",
+        "netlist": "design/netlist/cp.spice",
+        "device_family": "sg13_lv",
+        "topology_source": "2AMLogic/sg13g2-pll@83e59fe81db0b09dbefcff35a55965bea0c2a76f",
+        "differs": "dump buffer biased from IBN, not ICN; bias from the new cp_bias cell; no currents simulated yet",
+        "fit_gate": "none defined for the CP topology; status stays adopting until its bias currents are simulated"
+      }
     },
     {
       "block": "loop_filter",
