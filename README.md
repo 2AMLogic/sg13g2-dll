@@ -7,7 +7,13 @@ clock, producing evenly spaced output phases — designed by AI agents driving
 [klayout-tools](https://github.com/2AMLogic/klayout-tools) and the
 open-source xschem + ngspice flow.
 
-**Status: just opened, specification phase.** Nothing is designed yet.
+**Status: schematic phase.** The spec is proposed (ratification pending, issue #2).
+`design/` holds the xschem schematics and exported netlists for the delay
+line, delay cell, tap buffer, PFD, charge pump, bias and loop filter. `sim/`
+holds the PVT corner set, the PDK smoke and delay-sanity benches, and the
+row benches (false lock, lock range, lock time, jitter, phase, power) over a
+shared harness. There is no layout yet, and nothing here is measured: every
+number is simulated.
 
 **Built agent-native.** Every specification, decision record, testbench, and
 line of documentation here is produced by AI agents working from a ratified
@@ -88,6 +94,29 @@ sim/           testbenches + PVT corner results (ngspice)
 layout/        GDS + DRC/LVS reports (klayout-tools driven)
 measurements/  silicon characterization (empty until tape-out)
 ```
+
+## Reproduce
+
+Every result is simulated, never measured, and `sim/*/results/` is
+append-only evidence. Multi-corner and Monte Carlo grids are `klt sim`
+requests that go to the batch fleet; there is no local fallback. klt is run
+through the pinned wrapper `scripts/klt.sh` (klayout-tools 0.8.0).
+
+```
+sim/harness/common/build-osdi.sh      # once per PDK install: compile the OSDI models
+sim/check-pins.sh                     # re-hash the vendored pins; check sim/pdk.json
+design/netlist.sh                     # regenerate design/netlist/*.spice from the schematics
+design/netlist.sh --check             # fail if a committed netlist is stale
+sim/pdk-smoke/run.sh                  # SG13G2 device-family smoke
+sim/delay-sanity/run.sh               # delay vs control voltage per tap
+scripts/check-signoff.sh              # re-run the T1 signoff, byte-compare the records
+scripts/check-signoff.sh --write      # regenerate the signoff records
+```
+
+The row benches have one `run.sh` each under `sim/false-lock/`,
+`sim/lock-range/`, `sim/lock-time/` and `sim/jitter/`; see
+[`sim/README.md`](sim/README.md). The tier-verdict record is
+`manifests/sg13g2-dll.signoff.json`.
 
 ## License
 
