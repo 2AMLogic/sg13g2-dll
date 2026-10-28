@@ -53,6 +53,7 @@ Issues carrying `loom:curated`.
 - **#23**: T1 item 1 (design sources): current-starved delay-line schematics, tap buffers and netlist on sg13_lv *(curated)*
 - **#28**: T1 item 9 (testbenches shipped): one harness bench per spec row, with cold-start docs and --attest 9 *(curated)*
 - **#41**: Install the two-key ratification path and ratify spec/target-spec.md *(curated)*
+- **#45**: T1 item 10 (repo hygiene): cite the existing item-10 envelope in the manifest and give the README a true status and reproduce section *(curated)*
 
 ## Proposed (Architect / Hermit)
 
@@ -73,7 +74,7 @@ _None._
 | In Progress (`loom:building`) | 1 |
 | PRs awaiting review | 0 |
 | Approved PRs awaiting merge | 0 |
-| Curated | 4 |
+| Curated | 5 |
 | Architect / Hermit proposals | 0 |
 | Active epics | 0 |
 <!-- guide:plan-body:end -->
