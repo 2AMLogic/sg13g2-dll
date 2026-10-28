@@ -2,6 +2,11 @@
 
 Chronological record of merged PRs and closed issues. Maintained by the Guide role.
 
+### 2026-10-28
+
+- **PR #47**: docs: add README Reproduce section and cite item-10 hygiene envelope
+- **Issue #45** (closed): T1 item 10 (repo hygiene): cite the existing item-10 envelope in the manifest and give the README a true status and reproduce section
+
 ### 2026-10-27
 
 - **PR #40**: build: pin klt to released klayout-tools 0.8.0 and regenerate signoff records
