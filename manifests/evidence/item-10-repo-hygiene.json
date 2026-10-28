@@ -3,14 +3,14 @@
   "kind": "generic",
   "status": "pass",
   "t1_item": 10,
-  "summary": "T1 item 10 (Repo hygiene): 7/7 attestation checks passed (klt signoff --attest)",
+  "summary": "T1 item 10 (Repo hygiene): 20/20 attestation checks passed (klt signoff --attest)",
   "source": "manifests/item-10-inventory.json",
   "attestation": {
     "producer": "klt signoff --attest",
     "inventory_schema_version": 1,
     "hash_algorithm": "sha256-raw-bytes",
-    "check_count": 7,
-    "passed_count": 7,
+    "check_count": 20,
+    "passed_count": 20,
     "checks": [
       {
         "check": "present",
@@ -31,7 +31,14 @@
         "role": "hygiene",
         "path": "README.md",
         "passed": true,
-        "content_hash": "sha256:348c29aa6dd4aa43f75368116e3306ae2babdfb8b33707b3fc1799580c95334c"
+        "content_hash": "sha256:e603eb32d86789dc8d68c4eb74b167ffd86cf3d44647a3c361bf2de53d2a040d"
+      },
+      {
+        "check": "present",
+        "role": "hygiene",
+        "path": "design/netlist.sh",
+        "passed": true,
+        "content_hash": "sha256:b3178c006580575137c90f2b1138e481ef2a4f2d520cce41e709bc6690f216ea"
       },
       {
         "check": "present",
@@ -39,6 +46,41 @@
         "path": "scripts/check-signoff.sh",
         "passed": true,
         "content_hash": "sha256:3715f32cd4de32aeeec3ecba8aa4b9b48bd46abea0697779f511bcc4143aa2f1"
+      },
+      {
+        "check": "present",
+        "role": "hygiene",
+        "path": "scripts/klt.sh",
+        "passed": true,
+        "content_hash": "sha256:85645ba322dcb692e43346b225b107350a6b5d8d18b9cf6d2ecab419856eeda8"
+      },
+      {
+        "check": "present",
+        "role": "hygiene",
+        "path": "sim/check-pins.sh",
+        "passed": true,
+        "content_hash": "sha256:e6ab118c734b650ab8dfd331c76a2c034675cca961d422ab20e8afd25a1b6bf0"
+      },
+      {
+        "check": "present",
+        "role": "hygiene",
+        "path": "sim/delay-sanity/run.sh",
+        "passed": true,
+        "content_hash": "sha256:50648b80a421ecdbc114336b84bd3105c7079117366141f9c5574a90658e735c"
+      },
+      {
+        "check": "present",
+        "role": "hygiene",
+        "path": "sim/harness/common/build-osdi.sh",
+        "passed": true,
+        "content_hash": "sha256:d022ddc32a02280081d32bb7186ba1920b0b3399b00b0a5ad5eeda717d1396bd"
+      },
+      {
+        "check": "present",
+        "role": "hygiene",
+        "path": "sim/pdk-smoke/run.sh",
+        "passed": true,
+        "content_hash": "sha256:da85d711dfe812229007b24f1ea98d3204d8fcad61bdfcb867454775da4e5125"
       },
       {
         "check": "command",
@@ -71,6 +113,104 @@
       {
         "check": "command",
         "role": "audit",
+        "name": "readme-names-design-netlist.sh",
+        "argv": [
+          "grep",
+          "-qF",
+          "design/netlist.sh",
+          "README.md"
+        ],
+        "cwd": ".",
+        "exit_status": 0,
+        "passed": true
+      },
+      {
+        "check": "command",
+        "role": "audit",
+        "name": "readme-names-sim-harness-common-build-osdi.sh",
+        "argv": [
+          "grep",
+          "-qF",
+          "sim/harness/common/build-osdi.sh",
+          "README.md"
+        ],
+        "cwd": ".",
+        "exit_status": 0,
+        "passed": true
+      },
+      {
+        "check": "command",
+        "role": "audit",
+        "name": "readme-names-sim-check-pins.sh",
+        "argv": [
+          "grep",
+          "-qF",
+          "sim/check-pins.sh",
+          "README.md"
+        ],
+        "cwd": ".",
+        "exit_status": 0,
+        "passed": true
+      },
+      {
+        "check": "command",
+        "role": "audit",
+        "name": "readme-names-sim-pdk-smoke-run.sh",
+        "argv": [
+          "grep",
+          "-qF",
+          "sim/pdk-smoke/run.sh",
+          "README.md"
+        ],
+        "cwd": ".",
+        "exit_status": 0,
+        "passed": true
+      },
+      {
+        "check": "command",
+        "role": "audit",
+        "name": "readme-names-sim-delay-sanity-run.sh",
+        "argv": [
+          "grep",
+          "-qF",
+          "sim/delay-sanity/run.sh",
+          "README.md"
+        ],
+        "cwd": ".",
+        "exit_status": 0,
+        "passed": true
+      },
+      {
+        "check": "command",
+        "role": "audit",
+        "name": "readme-names-scripts-check-signoff.sh",
+        "argv": [
+          "grep",
+          "-qF",
+          "scripts/check-signoff.sh",
+          "README.md"
+        ],
+        "cwd": ".",
+        "exit_status": 0,
+        "passed": true
+      },
+      {
+        "check": "command",
+        "role": "audit",
+        "name": "readme-has-reproduce-section",
+        "argv": [
+          "grep",
+          "-q",
+          "^## Reproduce",
+          "README.md"
+        ],
+        "cwd": ".",
+        "exit_status": 0,
+        "passed": true
+      },
+      {
+        "check": "command",
+        "role": "audit",
         "name": "no-placeholder-scripts",
         "argv": [
           "python3",
@@ -94,7 +234,7 @@
         "path": "manifests/item-10-inventory.json",
         "scope": "repo"
       },
-      "content_hash": "sha256:9de4f2bd08274353c43d003b574891f560cc99af0fb4767646b1b6deb1da874c"
+      "content_hash": "sha256:757478f6218c4af3d2909219e56a5b2daabf629f90aefce72b92132ce628ee25"
     }
   }
 }

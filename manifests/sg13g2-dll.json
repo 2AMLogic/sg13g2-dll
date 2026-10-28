@@ -1,5 +1,7 @@
 {
   "block": "sg13g2-dll",
   "kind": "analog",
-  "evidence": {}
+  "evidence": {
+    "10": {"file": "manifests/evidence/item-10-repo-hygiene.json", "content_hash": "sha256:757478f6218c4af3d2909219e56a5b2daabf629f90aefce72b92132ce628ee25"}
+  }
 }
