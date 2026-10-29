@@ -2,16 +2,29 @@
   "schema_version": 1,
   "kind": "t1-attestation-inventory",
   "t1_item": 10,
-  "description": "Repo-hygiene inventory for sg13g2-dll: README, LICENSE and the CI workflow with the commands it runs.",
+  "description": "Repo-hygiene inventory for sg13g2-dll: README, LICENSE, the CI workflow, and the reproduce entry points the README must name.",
   "hygiene": [
     "README.md",
     "LICENSE",
     ".github/workflows/signoff.yml",
-    "scripts/check-signoff.sh"
+    "design/netlist.sh",
+    "sim/harness/common/build-osdi.sh",
+    "sim/check-pins.sh",
+    "sim/pdk-smoke/run.sh",
+    "sim/delay-sanity/run.sh",
+    "scripts/check-signoff.sh",
+    "scripts/klt.sh"
   ],
   "checks": [
     {"name": "readme-cites-spec-issue", "argv": ["grep", "-q", "issue #2", "README.md"]},
     {"name": "ci-runs-signoff-check", "argv": ["grep", "-q", "scripts/check-signoff.sh", ".github/workflows/signoff.yml"]},
+    {"name": "readme-names-design-netlist.sh", "argv": ["grep", "-qF", "design/netlist.sh", "README.md"]},
+    {"name": "readme-names-sim-harness-common-build-osdi.sh", "argv": ["grep", "-qF", "sim/harness/common/build-osdi.sh", "README.md"]},
+    {"name": "readme-names-sim-check-pins.sh", "argv": ["grep", "-qF", "sim/check-pins.sh", "README.md"]},
+    {"name": "readme-names-sim-pdk-smoke-run.sh", "argv": ["grep", "-qF", "sim/pdk-smoke/run.sh", "README.md"]},
+    {"name": "readme-names-sim-delay-sanity-run.sh", "argv": ["grep", "-qF", "sim/delay-sanity/run.sh", "README.md"]},
+    {"name": "readme-names-scripts-check-signoff.sh", "argv": ["grep", "-qF", "scripts/check-signoff.sh", "README.md"]},
+    {"name": "readme-has-reproduce-section", "argv": ["grep", "-q", "^## Reproduce", "README.md"]},
     {"name": "no-placeholder-scripts", "argv": ["python3", "-I", "-c", "import sys; sys.exit('configured' in open('package.json').read())"]}
   ]
 }
