@@ -14,7 +14,7 @@ returned envelopes against `spec/target-spec.md`.
 Measurement scheme (all times are of rising edges at Vdd/2 of the corner's own
 supply; the deck normalises every measured node by Vdd):
   * delay d_k,n  = in edge j -> tap k edge j, for the 64 consecutive cycles
-    j = J-63 .. J, J = floor(2.95 us / T). Edge indices, not times, pair the
+    j = J-63 .. J, J = floor(run / T) - TAIL_CYCLES, run = 2 x the column's lock-time limit. Edge indices, not times, pair the
     edges, so a delay of 2 T reads as 2 T.
   * Locked predicate (spec "Locked"): |d_8,n - T| <= tol*T for all 64 cycles
     and the control voltage moves < 5 mV over them.
@@ -42,9 +42,13 @@ sys.path.insert(0, HERE)
 import evidence  # noqa: E402
 import gridspec  # noqa: E402
 
-TSTOP = 3.2e-6
+# Spec "Locked": a graded run lasts 2 x the column's lock-time limit (row 7).
+# Column f0 (Hz) -> lock-time limit (s): 1 GHz target 1 us, 500 MHz fallback 5 us, 2 GHz stretch 1 us.
+LOCK_LIMIT = {1e9: 1e-6, 5e8: 5e-6, 2e9: 1e-6}
 WINDOW = 64
-J_END_TIME = 2.95e-6
+# The window ends TAIL_CYCLES input cycles before the end of the run so that the
+# tap-N edge paired with the last input edge (one period later) is inside the run.
+TAIL_CYCLES = 2
 SAMPLE_STEP = 16
 VC_PP_MAX = 5e-3
 RAIL_MARGIN = 0.05
@@ -72,9 +76,17 @@ def fnum(x):
     return f"{x:.9g}"
 
 
-def window_end(period):
-    """Last edge index of the 64-cycle window."""
-    return int(J_END_TIME / period)
+def run_length(f0):
+    """Run length (s) of the column named by f0: 2 x its lock-time limit."""
+    for col, limit in LOCK_LIMIT.items():
+        if abs(f0 - col) <= 1e-6 * col:
+            return 2 * limit
+    raise BenchError(f"--f0 {f0:g} matches no column ({', '.join(f'{c:g}' for c in LOCK_LIMIT)} Hz)")
+
+
+def window_end(period, run):
+    """Last edge index of the 64-cycle window, ending with the run."""
+    return int(run / period) - TAIL_CYCLES
 
 
 def vc_for_delay(dut, period, mult):
@@ -174,8 +186,8 @@ def evidence_measurements():
     return out
 
 
-def measurements(profile, period, tol, pmax_mw):
-    j_end = window_end(period)
+def measurements(profile, period, tol, pmax_mw, run):
+    j_end = window_end(period, run)
     j0 = j_end - WINDOW + 1
     t0 = (j0 - 1) * period
     t1 = j_end * period
@@ -211,7 +223,7 @@ def render_deck(template, period, dut, include_rel):
     return text
 
 
-def base_request(deck_rel, profile, period, tol, pmax_mw):
+def base_request(deck_rel, profile, period, tol, pmax_mw, run):
     return {
         "_comment": [
             "DLL row bench base request (issue #28), written by sim/harness/dllbench.py.",
@@ -222,8 +234,8 @@ def base_request(deck_rel, profile, period, tol, pmax_mw):
         "netlist": deck_rel,
         "netlist_source": "schematic",
         "models": {"pdk": "ihp-sg13g2", "lib": "libs.tech/ngspice/models/cornerMOSlv.lib"},
-        "analysis": {"kind": "tran", "args": f"{fnum(5e-12)} {fnum(TSTOP)} 0 {fnum(1e-11)}"},
-        "measurements": measurements(profile, period, tol, pmax_mw),
+        "analysis": {"kind": "tran", "args": f"{fnum(5e-12)} {fnum(run)} 0 {fnum(1e-11)}"},
+        "measurements": measurements(profile, period, tol, pmax_mw, run),
         "options": {
             "osdi_preload": [f"@OSDI_DIR@/{m}" for m in ("psp103.osdi", "psp103_nqs.osdi", "r3_cmc.osdi", "mosvar.osdi")],
             "stage_model_inputs": True,
@@ -233,6 +245,7 @@ def base_request(deck_rel, profile, period, tol, pmax_mw):
 
 
 def build(bench_dir, out, dut_path, f0, tol, pmax_mw, osdi_dir, corners=None):
+    run = run_length(f0)
     cfg = load(os.path.join(bench_dir, "bench.json"))
     dut = load(dut_path)
     dut_dir = os.path.dirname(os.path.abspath(dut_path))
@@ -245,7 +258,7 @@ def build(bench_dir, out, dut_path, f0, tol, pmax_mw, osdi_dir, corners=None):
     shutil.copy(os.path.join(dut_dir, dut["netlist"]), os.path.join(out, "decks", "dut", dut["netlist"]))
     corner_set = gridspec.load_corners(corners or os.path.join(SIM, "corners.json"))
     states = list(STATES) if cfg["start_states"] == "all" else list(cfg["start_states"])
-    manifest = {"bench": cfg["bench"], "rows": cfg["rows"], "profile": cfg["profile"], "f0_hz": f0,
+    manifest = {"bench": cfg["bench"], "rows": cfg["rows"], "profile": cfg["profile"], "f0_hz": f0, "run_s": run,
                 "tol": tol, "dut": dut["name"], "stand_in": bool(dut.get("stand_in")),
                 "attestable": bool(dut.get("attestable")), "requests": []}
     for scale in cfg["freq_scales"]:
@@ -256,7 +269,7 @@ def build(bench_dir, out, dut_path, f0, tol, pmax_mw, osdi_dir, corners=None):
         with open(os.path.join(out, deck_rel), "w", encoding="utf-8") as fh:
             fh.write(render_deck(template, period, dut, f"dut/{dut['netlist']}"))
         axes = [state_axes(s, period, dut) for s in states]
-        base = base_request(f"../{deck_rel}", cfg["profile"], period, tol, pmax_mw)
+        base = base_request(f"../{deck_rel}", cfg["profile"], period, tol, pmax_mw, run)
         base_path = os.path.join(out, "base", f"{tag}.base.request.json")
         gridspec.write_request(base, base_path)
         ic = {a: [row[a] for row in axes] for a in AXES}
@@ -265,7 +278,7 @@ def build(bench_dir, out, dut_path, f0, tol, pmax_mw, osdi_dir, corners=None):
         gridspec.write_request(gridspec.rebase_netlist(req, os.path.dirname(base_path), req_path), req_path)
         manifest["requests"].append({
             "tag": tag, "freq_hz": freq, "period_s": period,
-            "window": {"j_end": window_end(period), "samples": cfg["profile"] == "samples"},
+            "window": {"j_end": window_end(period, run), "samples": cfg["profile"] == "samples"},
             "states": [{"name": s, "ic": a, "ref_ns": enable_ref_ns(a)} for s, a in zip(states, axes)],
         })
     with open(os.path.join(out, "manifest.json"), "w", encoding="utf-8") as fh:
@@ -323,7 +336,7 @@ def lock_time(period, st, vals, j_end):
     return tail[1] - st["ref_ns"] * 1e-9
 
 
-def grade_corner(profile, period, st, vals, tol):
+def grade_corner(profile, period, st, vals, tol, j_end=None):
     """Per-corner facts: predicate, delay in periods, rails, LOCK, lock time."""
     f = {"state": st["name"]}
     perr, vcpp = vals.get("perr"), vals.get("vcpp")
@@ -337,7 +350,7 @@ def grade_corner(profile, period, st, vals, tol):
     lk = vals.get("lock_end")
     f["lock_ok"] = None if lk is None else (lk > 0.5) == f["row8_pass"]
     if profile == "samples":
-        f["lock_time_s"] = lock_time(period, st, dict(vals, _tol=tol), window_end(period))
+        f["lock_time_s"] = lock_time(period, st, dict(vals, _tol=tol), j_end)
     return f
 
 
@@ -380,7 +393,7 @@ def grade(bench_dir, out):
             st = state_of(req, c)
             if st is None:
                 continue
-            f = grade_corner(manifest["profile"], req["period_s"], st, mvals(c), tol)
+            f = grade_corner(manifest["profile"], req["period_s"], st, mvals(c), tol, req["window"]["j_end"])
             key = (req["tag"], st["name"])
             s = summary.setdefault(key, {"n": 0, "locked": 0, "one_period": 0, "row8": 0, "lock_ok": 0,
                                          "lock_time_max": None, "no_lock_time": 0, "multi": 0})
@@ -403,7 +416,7 @@ def grade(bench_dir, out):
                   "in `sim/standin/`; they do not grade the block and do not satisfy T1 item 9.", ""]
     lines += [f"- spec rows: {', '.join(str(r) for r in cfg['rows'])}; profile `{manifest['profile']}`; "
               f"tolerance {tol:g} of T; f0 {manifest['f0_hz']:.6g} Hz; DUT `{manifest['dut']}`",
-              "- window: the last 64 input cycles before 2.95 us (edge indices, rising edges at Vdd/2 of each corner's own supply)", ""]
+              f"- run {manifest['run_s']:.6g} s (2 x the column lock-time limit); window: the 64 input cycles ending {TAIL_CYCLES} cycles before the end of the run (edge indices, rising edges at Vdd/2 of each corner's own supply)", ""]
     lines += ["| request | start state | corners | locked | exactly 1 T | row-8 pass | LOCK consistent | delay != 1 T | lock time max (s) | no lock time |",
               "|---|---|---|---|---|---|---|---|---|---|"]
     for (tag, name), s in sorted(summary.items()):

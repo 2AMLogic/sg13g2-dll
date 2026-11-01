@@ -113,6 +113,28 @@ class Build(unittest.TestCase):
         with open(os.path.join(out, "decks", "tb_f100.spice"), encoding="utf-8") as fh:
             self.assertIn("2 ", fh.read())  # period 2 ns
 
+    def test_run_length_is_per_column(self):
+        self.assertAlmostEqual(dllbench.run_length(1e9), 2e-6)
+        self.assertAlmostEqual(dllbench.run_length(2e9), 2e-6)
+        self.assertAlmostEqual(dllbench.run_length(5e8), 10e-6)
+        with self.assertRaises(dllbench.BenchError):
+            dllbench.run_length(7e8)
+
+    def test_manifest_and_request_carry_the_column_run(self):
+        for f0, run in ((5e8, 10e-6), (1e9, 2e-6)):
+            out = self.build("lock-time", f0=f0)
+            man = jload(os.path.join(out, "manifest.json"))
+            self.assertAlmostEqual(man["run_s"], run)
+            for r in man["requests"]:  # every frequency of the sweep uses the column's run
+                req = jload(os.path.join(out, "requests", r["tag"] + ".request.json"))
+                self.assertAlmostEqual(float(req["analysis"]["args"].split()[1]), run)
+                self.assertEqual(r["window"]["j_end"], dllbench.window_end(r["period_s"], run))
+                self.assertLessEqual((r["window"]["j_end"] + 1) * r["period_s"], run)
+
+    def test_unknown_column_is_refused_at_build(self):
+        with self.assertRaises(dllbench.BenchError):
+            self.build("power", f0=7e8)
+
     def test_existing_output_is_refused(self):
         out = self.build("power")
         with self.assertRaises(dllbench.BenchError):
@@ -151,7 +173,7 @@ class Grading(unittest.TestCase):
         self.assertFalse(f["row8_pass"])
 
     def test_lock_time_needs_settled_tail(self):
-        j_end = dllbench.window_end(self.T)
+        j_end = dllbench.window_end(self.T, dllbench.run_length(1e9))
         vals = {"perr": 0.001, "_tol": 0.02}
         for j in range(16, j_end + 1, 16):
             ok = j >= 400
