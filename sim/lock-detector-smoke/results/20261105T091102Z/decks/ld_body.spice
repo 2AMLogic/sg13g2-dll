@@ -1,0 +1,20 @@
+* lock detector smoke bench body (issue #54). run.sh prepends design/netlist/lock_detector.spice
+* (the committed export) to make decks/ld_1GHz.spice. Not a design.
+* Typical corner, 1 GHz (T = 1 ns). Ideal stimulus: TAPN = REF delayed by exactly T plus an
+* error e (e = 0 or +240 ps); VCTRL is an ideal source. LOCK drives 20 fF, the same load as a
+* tap (row 12).
+*   0-60 ns     : e = +240 ps (outside the window), VCTRL quiet   -> LOCK must stay 0
+*   60-220 ns   : e = 0, VCTRL has +-15 mV ripple at 50 MHz      -> LOCK must stay 0
+*   220-520 ns  : e = 0, VCTRL quiet                             -> LOCK rises (<= 192 cycles)
+*   520-580 ns  : e = +240 ps for 60 cycles                       -> LOCK falls (<= 128 cycles)
+*   580-800 ns  : e = 0, VCTRL quiet                             -> LOCK rises again
+Vdd vdd 0 1.2
+Vck ref 0 PULSE(0 1.2 0.5n 30p 30p 0.47n 1n)
+Vt0 t0 0 PULSE(0 1.2 1.5n 30p 30p 0.47n 1n)
+Vt1 t1 0 PULSE(0 1.2 1.74n 30p 30p 0.47n 1n)
+* se = 1 while the error is applied
+Bse se 0 V = u(60n-time) + u(time-520n)*u(580n-time)
+Btapn tapn 0 V = v(se)*v(t1) + (1-v(se))*v(t0)
+Bv vctrl 0 V = 0.6 + 0.015*sin(6.2832*50e6*time)*u(time-60n)*u(220n-time)
+XDUT ref tapn vctrl lock vdd 0 lock_detector
+Cl lock 0 20f

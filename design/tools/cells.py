@@ -223,3 +223,78 @@ c.sub("XRI", "inv_lv", A="clr_n", Y="clr", VDD="VDD", VSS="VSS")
 c.sub("XLAT", "srlatch", S="set", R="clr", Q="RST", QB="RSTB", VDD="VDD", VSS="VSS")
 c.mos("MRST", "p", "20u", L, D="VCTRL", G="RSTB", S="VDD", B="VDD")
 c.sub("XMSK", "refmask", REF="REF", RSTB="RSTB", REFM="REFM", VDD="VDD", VSS="VSS")
+
+# ------------------------------------------------------------ lock detector --
+# Requirement: spec row 12 (LOCK lags the Locked predicate by <= 128 input cycles in
+# both directions; senses the delay error AND the 5 mV VCTRL criterion). Issue #54.
+# Built against the draft (proposed) spec. Every number the row does not fix is a
+# design choice listed in design/NOTES.md "Lock detector".
+#
+# vmov_cmp: VCTRL ripple sensor. Two matched NMOS source followers copy VCTRL; one copy
+# goes through an R-C low-pass (R 5 x 4.2 kohm rppd, C 20 um x 20 um MIM, tau ~ 10 ns),
+# so the other copy minus the low-passed copy is the movement of VCTRL. Two OTAs, one
+# per sign, each with a small deliberate input offset so the output only flips when
+# the difference exceeds it (target about 5 mV on VCTRL). STILL = 1 when neither OTA has flipped.
+c = add(Cell("vmov_cmp", "VCTRL:i:l STILL:o:r VDD:io:t VSS:io:b",
+             "VCTRL movement sensor: STILL = 1 while |VCTRL - lowpass(VCTRL)| is below the offset-set threshold"))
+c.mos("MFA", "n", "2u", "1u", D="VDD", G="VCTRL", S="vsa", B="VSS")
+c.mos("MSA", "n", "0.5u", "1u", D="vsa", G="VDD", S="VSS", B="VSS")
+c.mos("MFB", "n", "2u", "1u", D="VDD", G="VCTRL", S="vsb0", B="VSS")
+c.mos("MSB", "n", "0.5u", "1u", D="vsb0", G="VDD", S="VSS", B="VSS")
+for i in range(5):
+    c.res(f"RL{i + 1}", "0.5u", "8u", "vsb0" if i == 0 else f"lp{i}", "vsb" if i == 4 else f"lp{i + 1}")
+c.cap("CL", "20u", "20u", "vsb", "VSS")
+# The follower outputs sit about one NMOS Vgs below VCTRL, so the comparators use
+# PMOS input pairs (valid while VCTRL is below roughly 0.85 V; above that the pair
+# turns off and STILL is not meaningful). The output flips when in2 falls below in1 by
+# a small offset: the mirror-diode device (in1) is made narrower (3.59 um against 4 um
+# for in2) to move the flip point to the target. A step test of the whole cell at tt
+# (vmov_cmp alone, 0.6 V, 20 fF-free) held STILL at 1 for a 4 mV VCTRL step up and 5 mV
+# down and dropped it at 5 mV up and 8 mV down. The flip point moves from "never"
+# to "always" over about 0.1 um of this width, so it is a trim, not a robust number:
+# random mismatch (not simulated) is larger than the window. See design/NOTES.md.
+# OTA A: out high when vsa < vsb - offset
+c.mos("MTA", "p", "1.5u", "1u", D="tla", G="VSS", S="VDD", B="VDD")
+c.mos("MA1", "p", "3.59u", "1u", D="da", G="vsb", S="tla", B="VDD")
+c.mos("MA2", "p", "4u", "1u", D="oa", G="vsa", S="tla", B="VDD")
+c.mos("MLA1", "n", "1u", "0.5u", D="da", G="da", S="VSS", B="VSS")
+c.mos("MLA2", "n", "1u", "0.5u", D="oa", G="da", S="VSS", B="VSS")
+c.sub("XA1", "inv_lv", A="oa", Y="oab", VDD="VDD", VSS="VSS")
+# OTA B: out high when vsb > vsa + offset
+c.mos("MTB", "p", "1.5u", "1u", D="tlb", G="VSS", S="VDD", B="VDD")
+c.mos("MB1", "p", "3.59u", "1u", D="db", G="vsa", S="tlb", B="VDD")
+c.mos("MB2", "p", "4u", "1u", D="ob", G="vsb", S="tlb", B="VDD")
+c.mos("MLB1", "n", "1u", "0.5u", D="db", G="db", S="VSS", B="VSS")
+c.mos("MLB2", "n", "1u", "0.5u", D="ob", G="db", S="VSS", B="VSS")
+c.sub("XB1", "inv_lv", A="ob", Y="obb", VDD="VDD", VSS="VSS")
+# oab/obb are active-low "moved" flags: STILL = oab AND obb
+c.sub("XSN", "nand2_lv", A1="oab", A2="obb", Y="still_n", VDD="VDD", VSS="VSS")
+c.sub("XSI", "inv_lv", A="still_n", Y="STILL", VDD="VDD", VSS="VSS")
+
+# Delay-error window: with refd = REF delayed by d (2 inverters) and tapd = TAPN delayed by
+# 2d (4 inverters), s1 = TAPN sampled at refd rise (1 iff the tap edge is earlier than REF + d)
+# and s2 = tapd sampled at refd rise (1 iff the tap edge is earlier than REF - d), so
+# s1 & ~s2 is true for a tap-N edge within +-d of the REF edge. GOOD = s1 & ~s2 & STILL.
+# The 8-stage ripple counter of REF rises (cleared while GOOD is low) rises at the 128th
+# consecutive good REF cycle; a latch holds LOCK until the first not-GOOD sample.
+c = add(Cell("lock_detector", "REF:i:l TAPN:i:l VCTRL:i:l LOCK:o:r VDD:io:t VSS:io:b",
+             "lock detector: tap-N edge window and VCTRL stillness must hold 128 REF cycles; LOCK drops on the first failing sample"))
+c.sub("XD1", "inv_lv", A="REF", Y="rd1", VDD="VDD", VSS="VSS")
+c.sub("XD2", "inv_lv", A="rd1", Y="refd", VDD="VDD", VSS="VSS")
+c.sub("XT1", "inv_lv", A="TAPN", Y="td1", VDD="VDD", VSS="VSS")
+c.sub("XT2", "inv_lv", A="td1", Y="td2", VDD="VDD", VSS="VSS")
+c.sub("XT3", "inv_lv", A="td2", Y="td3", VDD="VDD", VSS="VSS")
+c.sub("XT4", "inv_lv", A="td3", Y="tapd", VDD="VDD", VSS="VSS")
+c.sub("XS1", "dffr_lv", D="TAPN", CK="refd", CLRB="VDD", Q="s1", QB="s1_n", VDD="VDD", VSS="VSS")
+c.sub("XS2", "dffr_lv", D="tapd", CK="refd", CLRB="VDD", Q="s2", QB="s2_n", VDD="VDD", VSS="VSS")
+c.sub("XMOV", "vmov_cmp", VCTRL="VCTRL", STILL="still", VDD="VDD", VSS="VSS")
+c.sub("XGN", "nand3_lv", A1="s1", A2="s2_n", A3="still", Y="bad", VDD="VDD", VSS="VSS")
+c.sub("XGI", "inv_lv", A="bad", Y="good", VDD="VDD", VSS="VSS")
+for i in range(1, 9):
+    ck = "REF" if i == 1 else f"qb{i - 1}"
+    q = "to" if i == 8 else f"q{i}"
+    c.sub(f"XC{i}", "dffr_lv", D=f"qb{i}", CK=ck, CLRB="good", Q=q, QB=f"qb{i}", VDD="VDD", VSS="VSS")
+c.sub("XET", "edgedet", X="to", OUT="pt", VDD="VDD", VSS="VSS")
+c.sub("XLAT", "srlatch", S="pt", R="bad", Q="lockq", QB="lockqb", VDD="VDD", VSS="VSS")
+c.sub("XO1", "inv_lv", A="lockq", Y="lockn", VDD="VDD", VSS="VSS")
+c.sub("XO2", "inv2x_lv", A="lockn", Y="LOCK", VDD="VDD", VSS="VSS")

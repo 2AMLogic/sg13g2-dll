@@ -26,7 +26,7 @@ OUT_DIR="${HERE}/netlist"
 
 # Tops and the .subckt set each export must contain (connectivity guard: a
 # hierarchy that silently lost a branch fails the run).
-BLOCKS=(pfd cp cp_bias loop_filter delay_cell tap_buffer delay_line supervisor)
+BLOCKS=(pfd cp cp_bias loop_filter delay_cell tap_buffer delay_line supervisor lock_detector)
 expected_subckts() {
   case "$1" in
     pfd)         echo "pfd edgedet srlatch nand2_lv inv_lv inv2x_lv" ;;
@@ -37,6 +37,7 @@ expected_subckts() {
     tap_buffer)  echo "tap_buffer" ;;
     delay_line)  echo "delay_line delay_cell tap_buffer" ;;
     supervisor)  echo "supervisor win_det rail_cmp timeout_cnt refmask dffr_lv nand3_lv nand2_lv inv_lv edgedet srlatch" ;;
+    lock_detector) echo "lock_detector vmov_cmp dffr_lv nand3_lv nand2_lv inv_lv inv2x_lv edgedet srlatch" ;;
     *)           echo "" ;;
   esac
 }

@@ -178,3 +178,63 @@ optimum.
   not that the gate would catch its absence.
 - The supervisor adds a pull-up on VCTRL and ≈100 kΩ ladder current (≈12 µA at
   1.2 V, always on): neither is in the power budget yet.
+
+# Lock detector: row 12 map and design choices (issue #54)
+
+Status: **first pass, drawn against the draft (`proposed`) spec and simulated at one
+corner** (`sim/lock-detector-smoke/`, tt / 1.2 V / 27 °C, 1 GHz, ideal stimulus). It
+is re-graded at ratification (#41). **Two row-12 clauses are not met**; see "Not
+met / not established" before relying on the block.
+
+`lock_detector REF TAPN VCTRL LOCK VDD VSS`. `REF` is the input clock and `TAPN` the
+last tap, as for the PFD. It reuses `dffr_lv`, `nand3_lv`, `edgedet` and `srlatch`
+from the PFD and supervisor work and adds `vmov_cmp`. No second PFD or charge pump.
+
+## Row-12 clause to circuit
+
+| Row 12 clause | Circuit element |
+|---|---|
+| asserted only when locked; LOCK = 1 ⇒ the predicate held within the preceding 128 cycles | `LOCK` is a latch (`srlatch`) set only by the 128th consecutive good REF cycle. A cycle is good when the delay-error window (`s1`, `s2`) and the VCTRL sensor (`STILL`) are both true. The predicate itself needs 64 good cycles, so a 128-cycle count means the predicate has held for at least the last 64 cycles when LOCK rises. |
+| LOCK rises within 128 cycles after the predicate first holds | Good cycles are counted from the first good one; LOCK rises at the 128th. The predicate first holds at the 64th, so the lag is 64 cycles plus synchroniser latency. Smoke: 131 cycles after the stimulus became ideal, 67 after the predicate would first hold. |
+| LOCK falls within 128 cycles after it stops holding | The first not-good sample asserts `bad`, which resets the latch and asynchronously clears the counter. Smoke: LOCK fell 1.1 ns after the error was applied. |
+| senses the delay error | `s1`, `s2`: TAPN and a copy delayed by 4 inverters sampled by REF delayed by 2 inverters (`dffr_lv`). `s1 & ~s2` is true when the TAPN edge is inside a window set by gate delays, not by the PFD output. |
+| senses the 5 mV control-voltage criterion | `vmov_cmp`: two matched source followers copy VCTRL, one through an R-C low-pass (5 × rppd 0.5/8 µm ≈ 21 kΩ, MIM 20 × 20 µm, τ ≈ 10 ns); two OTAs with a deliberate offset flag `|VCTRL − lowpass| ≳ 5 mV`. |
+| digital output at the rail, 20 fF load | `LOCK` is driven by `inv_lv` then `inv2x_lv`; smoke rise time 86 ps into 20 fF. |
+
+Design choices that row 12 does not fix: the count is 128 (8-bit ripple counter of
+REF rises, bit 8, cleared while not good); window delays are 2 and 4 inverters; the
+low-pass τ is ≈ 10 ns (10 cycles at 1 GHz, 5 at 500 MHz); the movement threshold
+is a width trim of one OTA device (3.59 µm against 4 µm). The counter and the
+low-pass are not scaled with frequency; at 2 GHz the window and low-pass are the
+same absolute times.
+
+## Not met / not established
+
+- **The delay window is gate-delay limited and far wider than 2 % of T.** An
+  exploratory sweep of the tap-N edge offset e (uncommitted, tt, 1 GHz, run in a
+  scratch directory, so it is a pointer, not evidence) accepted roughly
+  −30 ps ≲ e ≲ +100 ps (about 13 % of T, centred about +35 ps), against the
+  predicate's ±20 ps. The committed bench only shows that e = 0 is accepted and
+  e = +240 ps is rejected. So the clause "LOCK = 1 ⇒ the predicate held" is **not
+  met**: LOCK can assert for an error the predicate rejects. A 40 ps window needs a
+  delay finer than an inverter; the likely fix is a window derived from the delay
+  cell itself or a calibrated offset. Not attempted here.
+- **Harmonic lock is not excluded by the detector.** The window cannot tell a
+  delay of T from 2 T. The false-lock exclusion is the supervisor's (0005 / #53),
+  and the "never 1 in a run that fails row 8" clause is therefore **not shown**;
+  it is for the false-lock bench (#28).
+- **The VCTRL threshold is a trim, not a spec.** At tt a whole-cell step test
+  held `STILL` for +4 mV / −5 mV steps and dropped it at +5 mV / −8 mV. Moving
+  the trim device by 0.1 µm went from "never flags" to "always flags". Random
+  mismatch (not simulated) is wider than that window, so the real threshold at
+  other corners or on silicon is unknown. A repeatable 5 mV sensor needs offset
+  cancellation. Valid only for VCTRL below roughly 0.85 V (the follower outputs
+  must stay under the PMOS pair's input range); above that `STILL` is
+  meaningless.
+- Not simulated: other corners, supplies, temperatures or frequencies; the real
+  delay line, PFD and charge pump (stimulus is ideal); noise or metastability of
+  `s1`/`s2` near the window edge; the 64-cycle p-p definition of the predicate
+  (the low-pass flags a drift of VCTRL as movement, which is stricter than 5 mV
+  p-p over 64 cycles on a slow ramp and looser on a short spike).
+- Loading: the sensor adds two follower gates on VCTRL (no DC load); power of the
+  always-on OTAs is not in the budget yet.
