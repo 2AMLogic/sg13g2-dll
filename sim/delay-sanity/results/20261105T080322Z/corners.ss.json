@@ -1,0 +1,15 @@
+{
+  "_comment": "reduced iteration set from sim/corners.json reduced_set; not the 45-corner grade",
+  "schema": 1,
+  "process": [
+    "mos_ss"
+  ],
+  "temperature_c": [
+    125
+  ],
+  "supply_v": {
+    "Vdd": [
+      1.08
+    ]
+  }
+}
