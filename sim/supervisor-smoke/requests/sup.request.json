@@ -1,0 +1,107 @@
+{
+  "_comment": [
+    "supervisor smoke bench (issue #53): typical corner, ONE unit (single corner, so `klt sim --backend local` is permitted). Three behaviours: over-delay reset, rail time-out reset, first-REF-edge mask. Limits are smoke gates, not spec numbers. Simulated, never measured.",
+    "Stimulus timeline is in decks/sup_body.spice (d changes at 25 ns and 50 ns). The td= values below are derived from the first committed run at this corner; if the design changes, re-derive them (a file-scope .meas cannot read another .meas).",
+    "@OSDI_DIR@ is substituted by run.sh. The corner adds cornerRES (res_typ) for the rppd reference ladder."
+  ],
+  "engine": "ngspice",
+  "netlist": "../decks/sup_1GHz.spice",
+  "netlist_source": "schematic",
+  "models": {
+    "pdk": "ihp-sg13g2",
+    "lib": "libs.tech/ngspice/models/cornerMOSlv.lib"
+  },
+  "analysis": {
+    "kind": "tran",
+    "args": "10p 100n"
+  },
+  "measurements": [
+    {
+      "name": "t_release0",
+      "spice": ".meas tran t_release0 when v(rst)=0.6 fall=1",
+      "unit": "s",
+      "limits": {
+        "min": 3.1e-09,
+        "max": 6e-09
+      }
+    },
+    {
+      "name": "t_over",
+      "spice": ".meas tran t_over when v(rst)=0.6 rise=1 td=20n",
+      "unit": "s",
+      "limits": {
+        "min": 2.5e-08,
+        "max": 2.85e-08
+      }
+    },
+    {
+      "name": "t_release_over",
+      "spice": ".meas tran t_release_over when v(rst)=0.6 fall=1 td=40n",
+      "unit": "s",
+      "limits": {
+        "min": 5e-08,
+        "max": 5.5e-08
+      }
+    },
+    {
+      "name": "t_timeout",
+      "spice": ".meas tran t_timeout when v(rst)=0.6 rise=1 td=55n",
+      "unit": "s",
+      "limits": {
+        "min": 6.6e-08,
+        "max": 9e-08
+      }
+    },
+    {
+      "name": "d_mask0",
+      "spice": ".meas tran d_mask0 trig v(rst) val=0.6 fall=1 targ v(refm) val=0.6 rise=1",
+      "unit": "s",
+      "limits": {
+        "min": 3e-10,
+        "max": 2e-09
+      }
+    },
+    {
+      "name": "d_mask_timeout",
+      "spice": ".meas tran d_mask_timeout trig v(rst) val=0.6 fall=3 targ v(refm) val=0.6 rise=1 td=78.6n",
+      "unit": "s",
+      "limits": {
+        "min": 3e-10,
+        "max": 2e-09
+      }
+    }
+  ],
+  "options": {
+    "osdi_preload": [
+      "@OSDI_DIR@/psp103.osdi",
+      "@OSDI_DIR@/psp103_nqs.osdi",
+      "@OSDI_DIR@/r3_cmc.osdi",
+      "@OSDI_DIR@/mosvar.osdi"
+    ],
+    "stage_model_inputs": true,
+    "keep_artifacts": true,
+    "timeout_s": 900
+  },
+  "corners": {
+    "process": [
+      {
+        "name": "tt",
+        "sections": [
+          "mos_tt",
+          {
+            "lib": "libs.tech/ngspice/models/cornerRES.lib",
+            "section": "res_typ"
+          }
+        ]
+      }
+    ],
+    "temperature_c": [
+      27
+    ],
+    "supply_v": {
+      "Vdd": [
+        1.2
+      ]
+    }
+  }
+}

@@ -132,6 +132,10 @@ class Cell:
     def cap(self, inst, w, l, c0, c1, m=1):
         self.items.append(("cap", inst, w, l, c0, c1, m))
 
+    def res(self, inst, w, l, p, m, body="VSS"):
+        """sg13g2 rppd resistor between nets p and m (body net `body`)."""
+        self.items.append(("res", inst, w, l, p, m, body))
+
     def sub(self, inst, cell, **conn):
         self.items.append(("sub", inst, cell, conn))
 
@@ -166,6 +170,13 @@ class Cell:
                 )
                 lab(x, y - 30, c0)
                 lab(x, y + 30, c1)
+            elif it[0] == "res":
+                _, inst, w, l, p, m, body = it
+                lines.append(
+                    f"C {{sg13g2_pr/rppd.sym}} {x} {y} 0 0 {{name={inst} model=rppd w={w} l={l} body={body} b=0 m=1 spiceprefix=X}}"
+                )
+                lab(x, y - 30, p)
+                lab(x, y + 30, m)
             else:
                 _, inst, cell, conn = it
                 sym = lib[cell].sym

@@ -1,0 +1,302 @@
+{
+  "schema_version": 3,
+  "netlist": {
+    "path": "sim/supervisor-smoke/results/20261105T052155Z/decks/sup_1GHz.spice",
+    "scope": "repo"
+  },
+  "status": "pass",
+  "corner_count": 1,
+  "passed": 1,
+  "failed": 0,
+  "errored": 0,
+  "inconclusive": 0,
+  "diagnostic_counts": {
+    "by_code": {
+      "nonconvergence": 1
+    },
+    "by_severity": {
+      "warning": 1
+    },
+    "corners_with_diagnostics": 1
+  },
+  "metrics": {
+    "sim__corner__count": 1,
+    "sim__corner__passed_count": 1,
+    "sim__corner__failed_count": 0,
+    "sim__corner__errored_count": 0,
+    "sim__corner__inconclusive_count": 0
+  },
+  "environment": {
+    "engine": "ngspice",
+    "engine_version": "46",
+    "ngspice_binary": "/home/ubuntu/.local/bin/ngspice",
+    "engine_build": {
+      "version_banner": "******\n** ngspice-46 : Circuit level simulation program\n** Compiled with KLU Direct Linear Solver\n** The U. C. Berkeley CAD Group\n** Copyright 1985-1994, Regents of the University of California.\n** Copyright 2001-2025, The ngspice team.\n** Please get your ngspice manual from https://ngspice.sourceforge.io/docs.html\n** Please file your bug-reports at http://ngspice.sourceforge.net/bugrep.html\n** Creation Date: Wed Aug  5 10:12:28 UTC 2026\n******",
+      "binary_sha256": "c874869b16dc8a31cfa9d37d2b90a2a9e0e5b996f8e2535db89eb82855072931",
+      "probe": "ok",
+      "reason": null
+    },
+    "models_lib": {
+      "path": null,
+      "scope": "external"
+    },
+    "models_lib_sha256": "03d505847c880d233b341be115a1e5460edf4d8e9b3e8a7df791a52fa4455d67",
+    "models_lib_sha256_scope": "local",
+    "netlist_sha256": "145153354a4e8ffe7fe530857acb03bf09a5f1af6fe11a94f7f7bea8174ad02f",
+    "netlist_closure": [
+      {
+        "path": "sim/supervisor-smoke/results/20261105T052155Z/decks/sup_1GHz.spice",
+        "scope": "repo",
+        "sha256": "145153354a4e8ffe7fe530857acb03bf09a5f1af6fe11a94f7f7bea8174ad02f"
+      }
+    ],
+    "netlist_identity": "sha256:f718de23ecc867769bc509744d8d29ee2a635941ba27239baf804cc8d291fb6e",
+    "netlist_source": "schematic",
+    "osdi_preload": [
+      {
+        "name": "psp103.osdi",
+        "path": null,
+        "scope": "external",
+        "sha256": "2e4299c4683997e26469410dc1ab36b02ced924b1ac0972d6c4eae360e1fc796"
+      },
+      {
+        "name": "psp103_nqs.osdi",
+        "path": null,
+        "scope": "external",
+        "sha256": "839b164483205601c09032951f6c41d3580f15e506dc40a7202950d3afbdfc7d"
+      },
+      {
+        "name": "r3_cmc.osdi",
+        "path": null,
+        "scope": "external",
+        "sha256": "4fead17bc2e9cbfe3df6f106e9dbd6f2cdcd48c002af9c56c2ca0b0712fce350"
+      },
+      {
+        "name": "mosvar.osdi",
+        "path": null,
+        "scope": "external",
+        "sha256": "25e64a374ab523dbfeb7ffed75dcb8b086ee10f06120a9074bd68b92d7b0fb41"
+      }
+    ],
+    "corner_section_libs": [
+      {
+        "name": "cornerRES.lib",
+        "path": null,
+        "scope": "external",
+        "sha256": "2c18502104146804444a567abfe7d00520752bf75426809f9d79f40198fe9c1e"
+      }
+    ],
+    "engine_host": "local",
+    "backend": {
+      "resolved": "local",
+      "source": "flag",
+      "requested": "local"
+    }
+  },
+  "coverage": {
+    "corners_simulated": 1,
+    "measurements_declared": 6,
+    "measurements_with_limits": 6,
+    "unrecognized_limit_keys": [],
+    "schema_version": 1,
+    "known": true,
+    "checked": [
+      "limit:[0,\"tt/1.200V/27C\",\"d_mask0\",\"max\"]",
+      "limit:[0,\"tt/1.200V/27C\",\"d_mask0\",\"min\"]",
+      "limit:[0,\"tt/1.200V/27C\",\"d_mask_timeout\",\"max\"]",
+      "limit:[0,\"tt/1.200V/27C\",\"d_mask_timeout\",\"min\"]",
+      "limit:[0,\"tt/1.200V/27C\",\"t_over\",\"max\"]",
+      "limit:[0,\"tt/1.200V/27C\",\"t_over\",\"min\"]",
+      "limit:[0,\"tt/1.200V/27C\",\"t_release0\",\"max\"]",
+      "limit:[0,\"tt/1.200V/27C\",\"t_release0\",\"min\"]",
+      "limit:[0,\"tt/1.200V/27C\",\"t_release_over\",\"max\"]",
+      "limit:[0,\"tt/1.200V/27C\",\"t_release_over\",\"min\"]",
+      "limit:[0,\"tt/1.200V/27C\",\"t_timeout\",\"max\"]",
+      "limit:[0,\"tt/1.200V/27C\",\"t_timeout\",\"min\"]"
+    ],
+    "skipped": [],
+    "inapplicable": [],
+    "unknown": [],
+    "nothing_checked": false,
+    "nothing_checked_reasons": []
+  },
+  "provenance": {
+    "klt_version": "0.9.0.dev1379+g5dbbad05ff42",
+    "klt_git_commit": "5dbbad05ff42265c92a6f3d2f20d1bbcd2957d49",
+    "klt_reinstall_spec": "klayout-tools @ git+https://github.com/2AMLogic/klayout-tools@5dbbad05ff42265c92a6f3d2f20d1bbcd2957d49",
+    "klayout_version": "0.30.12",
+    "pdk": {
+      "name": "ihp-sg13g2",
+      "source": "PDK_ROOT environment variable",
+      "version": "fetched:0.3.0"
+    },
+    "deck": {
+      "name": "cornerMOSlv.lib",
+      "content_hash": "sha256:03d505847c880d233b341be115a1e5460edf4d8e9b3e8a7df791a52fa4455d67",
+      "released": false
+    },
+    "input": {
+      "content_hash": "sha256:145153354a4e8ffe7fe530857acb03bf09a5f1af6fe11a94f7f7bea8174ad02f",
+      "role": "netlist"
+    }
+  },
+  "measurements": [
+    {
+      "name": "t_release0",
+      "unit": "s",
+      "limits": {
+        "min": 3.1e-09,
+        "max": 6e-09
+      },
+      "status": "pass",
+      "worst_case": {
+        "corner_id": "tt/1.200V/27C",
+        "value": 3.54917e-09,
+        "margin": 4.4917e-10
+      }
+    },
+    {
+      "name": "t_over",
+      "unit": "s",
+      "limits": {
+        "min": 2.5e-08,
+        "max": 2.85e-08
+      },
+      "status": "pass",
+      "worst_case": {
+        "corner_id": "tt/1.200V/27C",
+        "value": 2.58579e-08,
+        "margin": 8.579000000000013e-10
+      }
+    },
+    {
+      "name": "t_release_over",
+      "unit": "s",
+      "limits": {
+        "min": 5e-08,
+        "max": 5.5e-08
+      },
+      "status": "pass",
+      "worst_case": {
+        "corner_id": "tt/1.200V/27C",
+        "value": 5.12916e-08,
+        "margin": 1.2916000000000008e-09
+      }
+    },
+    {
+      "name": "t_timeout",
+      "unit": "s",
+      "limits": {
+        "min": 6.6e-08,
+        "max": 9e-08
+      },
+      "status": "pass",
+      "worst_case": {
+        "corner_id": "tt/1.200V/27C",
+        "value": 7.85498e-08,
+        "margin": 1.1450199999999998e-08
+      }
+    },
+    {
+      "name": "d_mask0",
+      "unit": "s",
+      "limits": {
+        "min": 3e-10,
+        "max": 2e-09
+      },
+      "status": "pass",
+      "worst_case": {
+        "corner_id": "tt/1.200V/27C",
+        "value": 1.02591e-09,
+        "margin": 7.2591e-10
+      }
+    },
+    {
+      "name": "d_mask_timeout",
+      "unit": "s",
+      "limits": {
+        "min": 3e-10,
+        "max": 2e-09
+      },
+      "status": "pass",
+      "worst_case": {
+        "corner_id": "tt/1.200V/27C",
+        "value": 8.51992e-10,
+        "margin": 5.51992e-10
+      }
+    }
+  ],
+  "corners": [
+    {
+      "corner_id": "tt/1.200V/27C",
+      "process": "tt",
+      "supply_v": {
+        "Vdd": 1.2
+      },
+      "temperature_c": 27,
+      "status": "pass",
+      "runtime_s": 99.432,
+      "peak_rss_bytes": 262709248,
+      "engine_exit_code": 0,
+      "engine_killed_by_signal": null,
+      "measurements": [
+        {
+          "name": "t_release0",
+          "value": 3.54917e-09,
+          "unit": "s",
+          "status": "pass",
+          "margin": 4.4917e-10
+        },
+        {
+          "name": "t_over",
+          "value": 2.58579e-08,
+          "unit": "s",
+          "status": "pass",
+          "margin": 8.579000000000013e-10
+        },
+        {
+          "name": "t_release_over",
+          "value": 5.12916e-08,
+          "unit": "s",
+          "status": "pass",
+          "margin": 1.2916000000000008e-09
+        },
+        {
+          "name": "t_timeout",
+          "value": 7.85498e-08,
+          "unit": "s",
+          "status": "pass",
+          "margin": 1.1450199999999998e-08
+        },
+        {
+          "name": "d_mask0",
+          "value": 1.02591e-09,
+          "unit": "s",
+          "status": "pass",
+          "margin": 7.2591e-10
+        },
+        {
+          "name": "d_mask_timeout",
+          "value": 8.51992e-10,
+          "unit": "s",
+          "status": "pass",
+          "margin": 5.51992e-10
+        }
+      ],
+      "diagnostics": [
+        {
+          "severity": "warning",
+          "code": "nonconvergence",
+          "message": "Warning: Dynamic gmin stepping failed"
+        }
+      ],
+      "artifacts": {
+        "log": "/home/ubuntu/GitHub/sg13g2-dll/.loom/worktrees/issue-53/sim/supervisor-smoke/results/20261105T052155Z/artifacts/tt_1p200V_27C/ngspice.log",
+        "raw": null,
+        "waveform": null,
+        "deck": "/home/ubuntu/GitHub/sg13g2-dll/.loom/worktrees/issue-53/sim/supervisor-smoke/results/20261105T052155Z/artifacts/tt_1p200V_27C/corner.cir"
+      },
+      "monte_carlo": null
+    }
+  ]
+}

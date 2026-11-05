@@ -72,3 +72,107 @@ fleet runner image needs a klt bump (worker/fleet spec), after which the bench
 can run unchanged. **No result is committed.** The
 T/8 coverage question, the 104 ps ss corner and the rail-margin requirement of
 decision 0004 stay open until the bench is run where the fleet is reachable.
+
+# False-lock supervisor: design note (issue #53)
+
+Status: **drawn and smoke-simulated at one corner (tt / 1.2 V / 27 °C); not
+characterised across PVT, not part of any false-lock proof.** Requirements are
+in `spec/decisions/0005` parts 1 and 3 and `0008` "Start-up requirement"; no spec
+row or record is edited here. Every number below that a record leaves open is a
+**design choice, not a spec row**.
+
+Pins: `supervisor REF TAPN TAPH EN VCTRL REFM RST VDD VSS`. `REF` is the input
+clock, `TAPN`/`TAPH` are tap N and tap N/2 of the delay line, `REFM` is the masked
+REF that goes to the PFD, `RST` is observable (high while the supervisor holds
+VCTRL high), `VCTRL` is the loop-filter node the pull-up acts on.
+
+## Structure
+
+| Cell | What |
+|---|---|
+| `dffr_lv` | rising-edge D flip-flop from NAND2/NAND3, active-low asynchronous clear of both latches |
+| `win_det` | three samples of the taps (see below) → `OVER` |
+| `rail_cmp` | resistor ladder + two OTA comparators → `NHI`, `NLO`, `NEAR` |
+| `timeout_cnt` | 5-stage ripple counter of REF rises, cleared while its enable is low |
+| `refmask` | `dffr_lv` clocked on falling REF, cleared by `RSTB`, gates REF |
+| `supervisor` | the above + reset latch (`srlatch`) + `MRST` (PMOS, W 20 µm, pulls VCTRL to VDD) |
+
+## Behaviour and the record clause each part implements
+
+- **Reset state is VCTRL high (0005 part 1, 0008 polarity).** `MRST` pulls VCTRL
+  to VDD while the reset latch is set. The latch is set by `EN` low (power-up and
+  re-enable: `EN` must be low at power-up, the latch has no other initial
+  value), by `OVER`, or by a time-out pulse. It is cleared only when `NHI`
+  says VCTRL is within ~50 mV of VDD **and** nothing is setting it, so the
+  PFD is never released before VCTRL has actually reached the minimum-delay
+  state (the release is closed-loop on VCTRL, not a fixed delay).
+- **Over-delay window detector (0005 part 3).** `OVER = b_up & a_up & ~a_dn`
+  with `a_up` = TAPN sampled at REF rise, `a_dn` = TAPN sampled at REF fall,
+  `b_up` = TAPH sampled at REF rise. Ideal-waveform reasoning: `OVER` is true for
+  d in (1.5 T, 2 T) and false on (0, 1.5 T). It repeats with period 2 T
+  (true again on (3.5 T, 4 T)); **delays in (2 T, 3.5 T) are not detected by
+  this window** and rely on the rail time-out (a line pushed there has its
+  control at the low rail). Near lock (d = T) every sampled tap edge sits on the
+  sampling edge by construction; requiring all three samples to agree is what
+  keeps one metastable sample from asserting `OVER`, but this has **not** been
+  shown in a noisy transient. `OVER` is used as a level, not an edge, so a
+  persistent over-delay keeps the reset asserted until the line is back under
+  range.
+- **Rail time-out (0005 part 3).** `NEAR` = VCTRL within ~50 mV of either rail.
+  `timeout_cnt` counts REF rises while `NEAR` is true and the reset is not
+  asserted; its 5th bit rises on the **16th** REF rise, which is the time-out
+  (design choice: 16 REF cycles, ~16 ns at 1 GHz / 32 ns at 500 MHz, long
+  compared with the ≈3 cycles the loop needs to leave a 50 mV band at the
+  per-cycle step of 0008). Its rising edge (edge detector, same cell as the PFD)
+  sets the reset latch once; the counter is held cleared while the reset is
+  asserted, so the reset's own pull to the high rail does not re-trigger it.
+  The counter is cleared asynchronously in **both** latches of each flip-flop:
+  with a slave-only clear, releasing the clear while the (ripple) clock was high
+  clocked the counter (seen in simulation as a spurious time-out).
+- **Rail-proximity threshold (0005 part 3, 50 mV).** Implemented as a ladder
+  VDD - 1u - `REFH` - 22u - `REFL` - 1u - VSS of 24 equal `rppd` resistors
+  (W 0.5 µm / L 8 µm, ≈ 100 kΩ total), so `REFH = 23/24 VDD`, `REFL = 1/24 VDD`:
+  50 mV at 1.2 V, **proportional to VDD** (45 mV at 1.08 V, 55 mV at 1.32 V)
+  rather than a fixed 50 mV. An NMOS-input OTA (VCTRL vs `REFH`) and a
+  PMOS-input OTA (VCTRL vs `REFL`) each drive two inverters. Both inputs go
+  through matched source followers first: fed directly at VDD - 50 mV the NMOS
+  pair sat in triode (no gain) in simulation. DC sweep at tt: `NLO` flips at
+  VCTRL = 0.03-0.04 V, `NHI` at 1.16 V. The comparator offset and its spread
+  over PVT/mismatch is **not characterised**; it is the first thing a corner run
+  should read, because the threshold, not the 50 mV label, is what sets when
+  the loop is declared stuck. Step response at tt: `NLO` follows a step to the
+  low rail after ≈3 ns.
+- **Start-up mask (0008).** `refmask` holds a flip-flop (D tied high, clocked on
+  **falling** REF, cleared by `RSTB`) and passes `REFM = REF & en`. `en` can
+  only rise on a falling REF edge, while REF is low, so `REFM` has no glitch, and
+  the REF edge in progress or next to come after the release is masked: the
+  first REF rise `REFM` shows is the one after the first falling edge past the
+  release. The clear is tied to `RSTB`, so the mask re-applies on **every**
+  supervisor reset (enable, over-delay, time-out), as 0008 requires.
+
+## Sizing (first pass, not justified by a result)
+
+Logic cells reuse `inv_lv`, `nand2_lv`, `edgedet`, `srlatch`; `nand3_lv` P 1 µm /
+N 1.5 µm. OTAs: pair 4 µm / 1 µm (HI) and 4 µm / 0.5 µm (LO), tails 0.5-1.5 µm /
+1 µm with gate at the opposite rail, mirror loads 1-2 µm / 0.5-1 µm. All
+`sg13_lv_*` (0007) plus `rppd`. The OTA sizes were changed twice during the
+smoke work (headroom, then settling time); they are a working point, not an
+optimum.
+
+## Evidence status and what is not established
+
+- `sim/supervisor-smoke/` ran at tt / 1.2 V / 27 °C, 1 GHz, one unit, locally
+  (the 2026-11-05 dispatch worker has ngspice 46 and loads the OSDI models;
+  the earlier notes about ngspice 42 do not apply to this host). See
+  `sim/supervisor-smoke/results/*/record.md`. Stimulus is two ideal delayed
+  copies of REF and a resistor-capacitor stand-in for the loop, **not** the
+  delay line or charge pump.
+- **Not established**: any other corner, supply, temperature or frequency; the
+  comparator threshold spread; metastability of the window samples near lock;
+  the (2 T, 3.5 T) coverage gap; that the supervisor never fires during a normal
+  lock (needs the closed loop, the `sim/false-lock` bench); the 0008 claim that
+  the mask makes FB_0 meet REF_1. The smoke bench has no negative control (a run
+  with the mask removed was not made), so it shows the mask behaviour occurs,
+  not that the gate would catch its absence.
+- The supervisor adds a pull-up on VCTRL and ≈100 kΩ ladder current (≈12 µA at
+  1.2 V, always on): neither is in the power budget yet.

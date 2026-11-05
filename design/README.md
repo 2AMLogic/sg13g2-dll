@@ -2,7 +2,7 @@
 
 Schematic sources (xschem) and the SPICE netlists derived from them. All
 devices are `sg13_lv_*` (1.2 V thin oxide, `spec/decisions/0007`). Nothing here
-has been simulated yet: see "Status".
+has been simulated except the supervisor, at one corner: see "Status".
 
 | Block | Schematic | Netlist | Notes |
 |---|---|---|---|
@@ -13,12 +13,13 @@ has been simulated yet: see "Status".
 | Delay cell | `delay_cell.sch` | `netlist/delay_cell.spice` | two current-starved inverters, non-inverting (issue #23) |
 | Tap buffer | `tap_buffer.sch` | `netlist/tap_buffer.spice` | two-inverter buffer isolating each tap |
 | Delay line | `delay_line.sch` | `netlist/delay_line.spice` | 8 delay cells, `T0..T8` tap buffers, dummy last-tap load |
+| False-lock supervisor | `supervisor.sch` (+ `win_det`, `rail_cmp`, `timeout_cnt`, `refmask`, `dffr_lv`, `nand3_lv`) | `netlist/supervisor.spice` | `0005` parts 1 and 3, `0008` start-up mask (issue #53); sizing and design choices in [`NOTES.md`](NOTES.md) |
 
 Sizing rationale and evidence status for the delay line: [`NOTES.md`](NOTES.md).
 
-Not yet drawn (follow-up issues of #24): lock detector (spec row 12), false-lock
-supervisor (`0005` parts 1 and 3), and `dll_top.sch`, which now has its delay
-line (#23) and waits on the rest.
+Not yet drawn (follow-up issues of #24): lock detector (spec row 12) and
+`dll_top.sch`, which now has its delay line (#23) and the supervisor (#53) and
+waits on the lock detector.
 
 ## Regenerate and check
 
@@ -54,6 +55,7 @@ a result yet.
 
 - Exports regenerate and `--check` fails on an edited schematic (shown on a
   loop-filter edit) or hand-edited netlist.
-- **No simulation exists.** The 0006 fit gate (`sim/pfd-fit/`) was not run: the
+- The supervisor has a one-corner smoke run (`sim/supervisor-smoke/`, `NOTES.md`).
+- **No other simulation exists.** The 0006 fit gate (`sim/pfd-fit/`) was not run: the
   batch backend rejected the submit (`InvalidAccessKeyId`) and the local ngspice
   42 cannot load the v0.4 OSDI models.
