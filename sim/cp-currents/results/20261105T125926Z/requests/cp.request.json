@@ -1,0 +1,124 @@
+{
+  "_comment": [
+    "sg13g2-dll charge-pump / cp_bias bench (issue #30). Corners: the three-corner reduced_set of sim/corners.json. Measurements carry no limits; sim/cp-currents/summarize.py grades them against criteria fixed in that file before any result existed.",
+    "Simulated, never measured. /home/ubuntu/share/pdk/ihp-sg13g2/libs.tech/ngspice/osdi is substituted by run.sh."
+  ],
+  "engine": "ngspice",
+  "netlist": "../decks/cp_bench.spice",
+  "netlist_source": "schematic",
+  "models": {
+    "pdk": "ihp-sg13g2",
+    "lib": "libs.tech/ngspice/models/cornerMOSlv.lib"
+  },
+  "corners": {
+    "units": [
+      {
+        "process": "mos_tt",
+        "temperature_c": 27,
+        "supply_v": {
+          "Vdd": 1.2
+        }
+      },
+      {
+        "process": "mos_ss",
+        "temperature_c": 125,
+        "supply_v": {
+          "Vdd": 1.08
+        }
+      },
+      {
+        "process": "mos_ff",
+        "temperature_c": -40,
+        "supply_v": {
+          "Vdd": 1.32
+        }
+      }
+    ]
+  },
+  "analysis": {
+    "kind": "tran",
+    "args": "20p 300n"
+  },
+  "measurements": [
+    {
+      "name": "i_up",
+      "spice": ".meas tran i_up avg i(Vo) from=50n to=60n",
+      "unit": "A"
+    },
+    {
+      "name": "i_dn",
+      "spice": ".meas tran i_dn avg i(Vo) from=90n to=100n",
+      "unit": "A"
+    },
+    {
+      "name": "i_leak",
+      "spice": ".meas tran i_leak avg i(Vo) from=105n to=115n",
+      "unit": "A"
+    },
+    {
+      "name": "i_both",
+      "spice": ".meas tran i_both avg i(Vo) from=130n to=140n",
+      "unit": "A"
+    },
+    {
+      "name": "i_vdd_idle",
+      "spice": ".meas tran i_vdd_idle avg i(Vdd) from=30n to=40n",
+      "unit": "A"
+    },
+    {
+      "name": "q_up",
+      "spice": ".meas tran q_up integ i(Vo) from=159n to=175n",
+      "unit": "C"
+    },
+    {
+      "name": "q_dn",
+      "spice": ".meas tran q_dn integ i(Vo) from=179n to=195n",
+      "unit": "C"
+    },
+    {
+      "name": "vd_mid",
+      "spice": ".meas tran vd_mid avg v(xdut.vdump) from=190n to=200n",
+      "unit": "V"
+    },
+    {
+      "name": "vd_lo",
+      "spice": ".meas tran vd_lo avg v(xdut.vdump) from=230n to=240n",
+      "unit": "V"
+    },
+    {
+      "name": "vd_hi",
+      "spice": ".meas tran vd_hi avg v(xdut.vdump) from=270n to=280n",
+      "unit": "V"
+    },
+    {
+      "name": "qw_up_max",
+      "spice": ".meas tran qw_up_max max i(Vo) from=159n to=175n",
+      "unit": "A"
+    },
+    {
+      "name": "qw_up_min",
+      "spice": ".meas tran qw_up_min min i(Vo) from=159n to=175n",
+      "unit": "A"
+    },
+    {
+      "name": "qw_dn_max",
+      "spice": ".meas tran qw_dn_max max i(Vo) from=179n to=195n",
+      "unit": "A"
+    },
+    {
+      "name": "qw_dn_min",
+      "spice": ".meas tran qw_dn_min min i(Vo) from=179n to=195n",
+      "unit": "A"
+    }
+  ],
+  "options": {
+    "osdi_preload": [
+      "/home/ubuntu/share/pdk/ihp-sg13g2/libs.tech/ngspice/osdi/psp103.osdi",
+      "/home/ubuntu/share/pdk/ihp-sg13g2/libs.tech/ngspice/osdi/psp103_nqs.osdi",
+      "/home/ubuntu/share/pdk/ihp-sg13g2/libs.tech/ngspice/osdi/r3_cmc.osdi",
+      "/home/ubuntu/share/pdk/ihp-sg13g2/libs.tech/ngspice/osdi/mosvar.osdi"
+    ],
+    "stage_model_inputs": true,
+    "keep_artifacts": true
+  }
+}

@@ -1,0 +1,24 @@
+* klt sim -- generated corner deck, do not edit
+.lib /var/tmp/eda-job-klt-sim-c9bb349b8d7c/inputs/cornerMOSlv.lib mos_ss
+.include /var/tmp/eda-job-klt-sim-c9bb349b8d7c/inputs/netlist.cir
+.temp 125
+.control
+pre_osdi /var/tmp/eda-job-klt-sim-c9bb349b8d7c/inputs/psp103.osdi
+pre_osdi /var/tmp/eda-job-klt-sim-c9bb349b8d7c/inputs/psp103_nqs.osdi
+pre_osdi /var/tmp/eda-job-klt-sim-c9bb349b8d7c/inputs/r3_cmc.osdi
+pre_osdi /var/tmp/eda-job-klt-sim-c9bb349b8d7c/inputs/mosvar.osdi
+save all
+alter Vdd=1.08
+set filetype=ascii
+tran 5p 45.000n
+let __klt_xing_0 = v(ref)
+write /var/tmp/eda-job-klt-sim-c9bb349b8d7c/outputs/artifacts/mos_ss_1p080V_125C/crossings_0.raw __klt_xing_0
+let __klt_xing_1 = v(fb)
+write /var/tmp/eda-job-klt-sim-c9bb349b8d7c/outputs/artifacts/mos_ss_1p080V_125C/crossings_1.raw __klt_xing_1
+let __klt_xing_2 = v(up)
+write /var/tmp/eda-job-klt-sim-c9bb349b8d7c/outputs/artifacts/mos_ss_1p080V_125C/crossings_2.raw __klt_xing_2
+let __klt_xing_3 = v(dn)
+write /var/tmp/eda-job-klt-sim-c9bb349b8d7c/outputs/artifacts/mos_ss_1p080V_125C/crossings_3.raw __klt_xing_3
+quit
+.endc
+.end
