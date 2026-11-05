@@ -130,4 +130,8 @@ sibling's reset polarity. `sim/pfd-fit/run.sh` runs it (batch backend, no local
 fallback) and writes `results/<UTC stamp>/fit-gate.md`; the criteria are in
 `sim/pfd-fit/grade.py`, and `make_bench.py` regenerates the decks/requests.
 Unit test of the grader (no simulator): `python3 -I -m unittest discover -s sim/pfd-fit/tests`.
-No result is committed yet.
+Result 2026-11-05 (`results/20261105T125120Z/fit-gate.md`): C1/C3 pass, C2 fails at 1 GHz (tt, ss); the sibling-polarity control fails C1; see `spec/decisions/0011-pfd-reset-path-too-slow-at-1ghz.md`.
+
+## Charge pump (`sim/cp-currents/`)
+
+UP/DN current, leakage and dump-buffer tracking per reduced-set corner, one `klt sim` request on the batch fleet. See `sim/cp-currents/README.md` and `spec/decisions/0012-cp-bias-currents-below-bounded-step-assumption.md`.

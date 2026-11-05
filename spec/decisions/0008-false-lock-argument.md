@@ -97,3 +97,16 @@ cascode gate.
   0.5–1.5× the input offset for every |offset| ≥ 10 ps), and a reset-pulse width
   of 30 ps to 0.25 T, on the three `reduced_set` corners. A failure is recorded
   in a new decision record proposing a replacement, never a silent edit.
+
+## Addendum 2026-11-05 (issue #30): simulated charge-pump current and the PFD control
+
+Appended; the text above is unchanged. All numbers are simulated, reduced corner set, never measured.
+
+- **I_cp:** `sim/cp-currents/results/20261105T130112Z/record.md` gives 3.5 uA (tt), 2.1 uA (ss/125 C),
+  6.2 uA (ff/-40 C), not 20 uA. K_dl from the delay-sanity record (`sim/delay-sanity/results/20261105T080322Z/`)
+  is 1.18 / 0.83 / 4.91 ns/V at tt / ss / ff (secant at the 1 GHz Vc step nearest T, ss at its fastest-reachable
+  end), so K_dl * I_cp / C_loop is 0.004 / 0.002 / 0.030 with C_loop = 1 pF (assumed, not extracted). The
+  bounded-step constraint is met with margin; the assumed 20 uA was wrong. See 0012.
+- **Control:** `sim/pfd-fit/results/20261105T125120Z/` shows the sibling's NAND + two-inverter reset on the
+  same lv cells has no usable phase response (C1 fails at all corners), so the claim in "PFD redraw" above
+  held. The redrawn PFD itself passes C1/C3 but fails C2 at 1 GHz tt and ss. See 0011.

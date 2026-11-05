@@ -29,7 +29,7 @@
         "device_family": "sg13_lv",
         "topology_source": "2AMLogic/sg13g2-pll@83e59fe81db0b09dbefcff35a55965bea0c2a76f",
         "differs": "reset path NAND + three inverters (sibling: NAND + two); see spec/decisions/0008-false-lock-argument.md",
-        "fit_gate": "not run (batch backend InvalidAccessKeyId on the dispatch host); status stays adopting until sim/pfd-fit/run.sh passes"
+        "fit_gate": "run 2026-11-05 (sim/pfd-fit/results/20261105T125120Z): C1/C3 pass, C2 fails at 1 GHz tt and ss; sibling-polarity control fails C1 as 0008 claimed; status stays adopting, see spec/decisions/0011-pfd-reset-path-too-slow-at-1ghz.md"
       }
     },
     {
@@ -45,8 +45,8 @@
         "netlist": "design/netlist/cp.spice",
         "device_family": "sg13_lv",
         "topology_source": "2AMLogic/sg13g2-pll@83e59fe81db0b09dbefcff35a55965bea0c2a76f",
-        "differs": "dump buffer biased from IBN, not ICN; bias from the new cp_bias cell; no currents simulated yet",
-        "fit_gate": "none defined for the CP topology; status stays adopting until its bias currents are simulated"
+        "differs": "dump buffer biased from IBN, not ICN; bias from the new cp_bias cell; simulated 2.1..6.2 uA (not 20 uA)",
+        "fit_gate": "run 2026-11-05 (sim/cp-currents/results/20261105T130112Z): K1 (current window) and K5 (dump tracking) fail; status stays adopting, see spec/decisions/0012-cp-bias-currents-below-bounded-step-assumption.md"
       }
     },
     {

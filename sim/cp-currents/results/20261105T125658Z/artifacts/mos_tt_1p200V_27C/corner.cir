@@ -1,0 +1,25 @@
+* klt sim -- generated corner deck, do not edit
+.lib /var/tmp/eda-job-klt-sim-6085b2038b5a/inputs/cornerMOSlv.lib mos_tt
+.include /var/tmp/eda-job-klt-sim-6085b2038b5a/inputs/netlist.cir
+.temp 27
+.meas tran i_up avg i(Vo) from=50n to=60n
+.meas tran i_dn avg i(Vo) from=90n to=100n
+.meas tran i_leak avg i(Vo) from=105n to=115n
+.meas tran i_both avg i(Vo) from=130n to=140n
+.meas tran i_vdd_idle avg i(Vdd) from=30n to=40n
+.meas tran q_up integ i(Vo) from=159n to=175n
+.meas tran q_dn integ i(Vo) from=179n to=195n
+.meas tran vd_mid avg v(xdut.vdump) from=190n to=200n
+.meas tran vd_lo avg v(xdut.vdump) from=230n to=240n
+.meas tran vd_hi avg v(xdut.vdump) from=270n to=280n
+.control
+pre_osdi /var/tmp/eda-job-klt-sim-6085b2038b5a/inputs/psp103.osdi
+pre_osdi /var/tmp/eda-job-klt-sim-6085b2038b5a/inputs/psp103_nqs.osdi
+pre_osdi /var/tmp/eda-job-klt-sim-6085b2038b5a/inputs/r3_cmc.osdi
+pre_osdi /var/tmp/eda-job-klt-sim-6085b2038b5a/inputs/mosvar.osdi
+save all
+alter Vdd=1.2
+tran 20p 300n
+quit
+.endc
+.end
