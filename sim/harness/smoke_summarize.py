@@ -1,32 +1,36 @@
 #!/usr/bin/env python3
-"""Write record.md for a supervisor-smoke run directory.
+"""Write record.md for a single-unit smoke-bench run directory.
 
-    summarize.py OUT_DIR KLT_EXIT_CODE
+    smoke_summarize.py OUT_DIR KLT_EXIT_CODE BENCH PREFIX
 
-Reads OUT_DIR/sup.envelope.json. If the envelope is missing, the run errored, or
-any measurement has no value, the record is NOT-RUN and quotes the first error
+Reads OUT_DIR/PREFIX.envelope.json. If the envelope is missing, the run errored,
+or any measurement has no value, the record is NOT-RUN and quotes the first error
 message verbatim; otherwise it lists each measurement against its smoke limits.
 Exit 0 only when every gate passed; 6 otherwise.
+
+BENCH names the bench in the record title; PREFIX is the file prefix the bench's
+run.sh uses for its envelope and stderr (e.g. ``ld`` -> ld.envelope.json).
 """
 import json
 import os
 import sys
 
 
-def main(argv):
-    out, klt_rc = argv[1], int(argv[2])
-    env_path = os.path.join(out, "sup.envelope.json")
-    lines = ["# supervisor-smoke record", "",
+def build_record(out, klt_rc, bench, prefix):
+    """Return (record lines, ok) for the run in `out`."""
+    env_path = os.path.join(out, f"{prefix}.envelope.json")
+    lines = [f"# {bench} record", "",
              "Typical corner (mos_tt, res_typ, 1.2 V, 27 C), 1 GHz, single unit, `klt sim --backend local`.",
              "Simulated, never measured. Limits are smoke gates, not spec numbers.", ""]
     ok = False
     try:
-        env = json.load(open(env_path, encoding="utf-8"))
+        with open(env_path, encoding="utf-8") as f:
+            env = json.load(f)
     except (OSError, ValueError):
         env = None
     errs = []
     if env is None:
-        errs.append(f"no envelope written (klt exit {klt_rc}); see sup.stderr")
+        errs.append(f"no envelope written (klt exit {klt_rc}); see {prefix}.stderr")
     else:
         if env.get("error"):
             errs.append(str(env["error"].get("message", env["error"])))
@@ -45,7 +49,14 @@ def main(argv):
     else:
         lines += ["RESULT: NOT-RUN", "", "Backend/engine error (verbatim):", ""]
         lines += ["    " + e for e in (errs or ["(no message)"])]
-    open(os.path.join(out, "record.md"), "w", encoding="utf-8").write("\n".join(lines) + "\n")
+    return lines, ok
+
+
+def main(argv):
+    out, klt_rc, bench, prefix = argv[1], int(argv[2]), argv[3], argv[4]
+    lines, ok = build_record(out, klt_rc, bench, prefix)
+    with open(os.path.join(out, "record.md"), "w", encoding="utf-8") as f:
+        f.write("\n".join(lines) + "\n")
     print("\n".join(lines))
     return 0 if ok else 6
 

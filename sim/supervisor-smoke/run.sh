@@ -30,4 +30,4 @@ rc=0
 klt sim "${OUT}/requests/sup.request.json" --backend local --format json \
     -o "${OUT}/artifacts" --report-out "${OUT}/sup.envelope.json" \
     > /dev/null 2> "${OUT}/sup.stderr" || rc=$?
-python3 -I "${HERE}/summarize.py" "${OUT}" "${rc}" || exit $?
+python3 -I "${SIM_DIR}/harness/smoke_summarize.py" "${OUT}" "${rc}" supervisor-smoke sup || exit $?
