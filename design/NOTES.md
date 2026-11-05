@@ -59,19 +59,21 @@ prefix to `design/` first. (Generic tool gap, already tracked as 2AMLogic/klayou
 
 ## Evidence status
 
-`sim/delay-sanity/run.sh` runs the T0-to-Tk delay vs control voltage at
-500 MHz and 1 GHz over the reduced corner set (tt/1.2 V/27 C, ss/1.08 V/125 C,
-ff/1.32 V/-40 C from `sim/corners.json`) as `klt sim` requests and writes
-`results/<stamp>/record.md`. On the dispatch worker that built this change the
-batch submit failed (`InvalidAccessKeyId` on the S3 input upload) and the local
-ngspice 42 cannot load the OSDI v0.4 models, so **no result is committed**. A second attempt (2026-10-27, loom-worker-1) got
-past submit but every batch job failed with `the fleet runner runs klt 0.7.0 but
-the submitting client is 0.8.1.dev61`; a throwaway `klayout-tools==0.7.0` client
-lacks the `--wait-for-capacity` and `--report-out` flags `run.sh` uses. The
-fleet runner image needs a klt bump (worker/fleet spec), after which the bench
-can run unchanged. **No result is committed.** The
-T/8 coverage question, the 104 ps ss corner and the rail-margin requirement of
-decision 0004 stay open until the bench is run where the fleet is reachable.
+`sim/delay-sanity/run.sh` ran on the batch fleet (runner klt 0.9.0, 2026-11-05)
+over the reduced corner set (tt/1.2 V/27 C, ss/1.08 V/125 C, ff/1.32 V/-40 C),
+500 MHz and 1 GHz, and wrote
+`sim/delay-sanity/results/20261105T080322Z/record.md` (grading in `GRADING.md`
+beside it). **Simulated, never measured**: ideal bias sources, ideal 20 fF
+loads, single-event delay, no jitter figure.
+
+- 500 MHz: the two-stage tap spans T/8 (250 ps) at all three corners.
+- 1 GHz: tt and ff reach T/8 (125 ps); **ss does not**: fastest tap step is
+  150.7 ps against the 104 ps decision 0004 asks for. The two-stages-per-tap
+  choice is falsified at 1 GHz / ss. `spec/decisions/0010-delay-tap-one-stage-fallback.md`
+  proposes one stage per tap; this cell is not resized here.
+- Vc <= 0.5 V (ss at 1 GHz: <= 0.6 V) gives no output edge at every corner.
+- Only the three reduced corners were run; the 45-corner grade, mismatch and
+  post-layout phase spacing remain open.
 
 # False-lock supervisor: design note (issue #53)
 

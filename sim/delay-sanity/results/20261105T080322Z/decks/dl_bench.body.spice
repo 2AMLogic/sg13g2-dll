@@ -1,0 +1,21 @@
+* delay-sanity bench body (issue #23). run.sh prepends design/netlist/delay_line.spice
+* (the committed export) to make decks/dl_<freq>.spice. Not a design.
+* VC is the delay control: VBN = VC, VBP = Vdd - VC (bias generation is #24's
+* scope; here it is two ideal sources). The harness sweeps VC through
+* corners.supply_v; Vdd is the corner's supply row.
+* Delay is the single-event T0 -> Tk delay of the first rising input edge.
+Vdd vdd 0 1.2
+VC vc 0 0.6
+BVBP vbp 0 V=V(vdd)-V(vc)
+Vck ck 0 PULSE(0 1 0.5n 30p 30p @HALF@ @PERIOD@)
+Bin in 0 V=V(vdd)*V(ck)
+XDL in vbp vc t0 t1 t2 t3 t4 t5 t6 t7 t8 vdd 0 delay_line
+C0 t0 0 20f
+C1 t1 0 20f
+C2 t2 0 20f
+C3 t3 0 20f
+C4 t4 0 20f
+C5 t5 0 20f
+C6 t6 0 20f
+C7 t7 0 20f
+C8 t8 0 20f
