@@ -114,7 +114,7 @@ scripts/check-signoff.sh --write      # regenerate the signoff records
 ```
 
 The row benches have one `run.sh` each under `sim/false-lock/`,
-`sim/lock-range/`, `sim/lock-time/` and `sim/jitter/`; see
+`sim/lock-time/` and `sim/jitter/`; see
 [`sim/README.md`](sim/README.md). The tier-verdict record is
 `manifests/sg13g2-dll.signoff.json`.
 

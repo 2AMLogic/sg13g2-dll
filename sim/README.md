@@ -104,9 +104,9 @@ repeated in `ctl_repeat.envelope.json`) with sigma exactly 0 within every
 corner. The pooled sigma over several corners is not zero (it contains the
 corner-to-corner spread), so the checks read the per-corner block.
 
-## DLL row benches (`sim/lock-range/`, `phase/`, `lock-time/`, `false-lock/`, `power/`, `jitter/`)
+## DLL row benches (`phase/`, `lock-time/`, `false-lock/`, `power/`, `jitter/`)
 
-One bench per measured quantity (issue #28, T1 item 9); `sim/bench-rows.json` maps every row of `spec/target-spec.md` to its bench or non-bench artifact. They share `sim/harness/dllbench.py` (request construction through `gridspec.py`, grading), the testbench template `sim/harness/dll_tb.spice.in` and `sim/harness/bench-run.sh`. Each bench has a README with its own cold start; the grids are large (the false-lock and lock-range grids are 2025 units each) and go to the batch fleet.
+One bench per measured quantity (issue #28, T1 item 9); `sim/bench-rows.json` maps every row of `spec/target-spec.md` to its bench or non-bench artifact. They share `sim/harness/dllbench.py` (request construction through `gridspec.py`, grading), the testbench template `sim/harness/dll_tb.spice.in` and `sim/harness/bench-run.sh`. Each bench has a README with its own cold start; the grids are large (the false-lock grid, which also serves rows 1 and 2, is 2025 units) and go to the batch fleet.
 
 **The default DUT is the behavioural STAND-IN in `sim/standin/`, not the item-1 netlist (#24).** It needs XSPICE code models and no OSDI model. Repointing at the item-1 netlist is a DUT descriptor, not a bench edit. `sim/jitter/` is harness-only until a noise-method decision record exists.
 

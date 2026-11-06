@@ -3,12 +3,12 @@
   "dut": "standin",
   "rows": {
     "1": {
-      "bench": "sim/lock-range",
+      "bench": "sim/false-lock",
       "status": "runnable",
       "note": "operating point; BENCH_F0_HZ picks the column"
     },
     "2": {
-      "bench": "sim/lock-range",
+      "bench": "sim/false-lock",
       "status": "runnable"
     },
     "3": {

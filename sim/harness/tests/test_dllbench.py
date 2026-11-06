@@ -18,7 +18,7 @@ sys.path.insert(0, HARNESS)
 
 import dllbench  # noqa: E402
 
-BENCHES = ("lock-range", "phase", "lock-time", "false-lock", "power")
+BENCHES = ("phase", "lock-time", "false-lock", "power")
 DUT = os.path.join(SIM, "standin", "dut.json")
 
 
