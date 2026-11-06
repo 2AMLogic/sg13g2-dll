@@ -20,7 +20,12 @@ Results (append-only, simulated, never measured), exit 6 on a failed criterion:
 - `20261105T125658Z` first run (killed client re-attached to its remote job; the 16 ns charge
   windows hit an unexplained current sample near the window end).
 - `20261105T125926Z` adds min/max current measurements over the charge windows.
-- `20261105T130112Z` the charge windows shortened to 5 ns; **the record to cite**. The charge
+- `20261105T130112Z` the charge windows shortened to 5 ns. The charge
   columns are still not a usable result (see its note); K1-K5 are identical in all three runs.
 
-Outcome: K1 and K5 fail, see `spec/decisions/0012-cp-bias-currents-below-bounded-step-assumption.md`.
+- `20261106T182524Z` after the issue #62 redraw (`cp_bias` MR 2.2u/4u, unity-gain `cp_dumpbuf`) and a
+  stimulus fix (`Bup`/`Bdn` `pwl()` lists now end with an explicit `400n,0` point: ngspice extrapolates
+  the last slope, which drove UP/DN to about -175 V after the charge pulses); **the record to cite**.
+  K1-K6 pass at all three corners.
+
+Outcome of the first three runs: K1 and K5 failed; the cause and the redraw are in `spec/decisions/0012-cp-bias-currents-below-bounded-step-assumption.md`.

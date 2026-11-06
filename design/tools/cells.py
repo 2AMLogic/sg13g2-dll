@@ -85,10 +85,20 @@ c.mos("M2", "n", "2u", "0.5u", D="sw", G="ICN", S="tail", B="VSS")
 c.mos("XSWO", "n", "1u", L, D="VOUT", G="DN", S="sw", B="VSS")
 c.mos("XSWD", "n", "1u", L, D="VDUMP", G="DNB", S="sw", B="VSS")
 
-c = add(Cell("cp_dumpbuf", "VOUT:i:l IBIAS:i:l VDUMP:o:r VDD:io:t VSS:io:b",
-             "source-follower dump buffer: VDUMP tracks VOUT one Vgs below"))
-c.mos("M1", "n", "2u", "0.25u", D="VDD", G="VOUT", S="VDUMP", B="VSS")
-c.mos("M2", "n", "1u", "0.5u", D="VDUMP", G="IBIAS", S="VSS", B="VSS")
+c = add(Cell("cp_dumpbuf", "VOUT:i:l IBIAS:i:l IBIASP:i:l VDUMP:o:r VDD:io:t VSS:io:b",
+             "unity-gain dump buffer: NMOS-input and PMOS-input 5-transistor OTAs in parallel on one output (complementary input range), VDUMP fed back to both inverting inputs (issue #62)"))
+c.mos("MNT", "n", "2u", "0.5u", D="tn", G="IBIAS", S="VSS", B="VSS")
+c.mos("MNA", "n", "8u", "0.5u", D="da", G="VOUT", S="tn", B="VSS")
+c.mos("MNB", "n", "8u", "0.5u", D="VDUMP", G="VDUMP", S="tn", B="VSS")
+c.mos("MPA", "p", "6u", "1u", D="da", G="da", S="VDD", B="VDD")
+c.mos("MPB", "p", "6u", "1u", D="VDUMP", G="da", S="VDD", B="VDD")
+c.mos("MPT", "p", "6u", "0.5u", D="tp", G="IBIASP", S="VDD", B="VDD")
+c.mos("MQA", "p", "16u", "0.5u", D="dp", G="VOUT", S="tp", B="VDD")
+c.mos("MQB", "p", "16u", "0.5u", D="VDUMP", G="VDUMP", S="tp", B="VDD")
+c.mos("MRA", "n", "2u", "1u", D="dp", G="dp", S="VSS", B="VSS")
+c.mos("MRB", "n", "2u", "1u", D="VDUMP", G="dp", S="VSS", B="VSS")
+c.mos("MCN", "n", "4u", "4u", D="VSS", G="VDUMP", S="VSS", B="VSS")
+c.mos("MCP", "p", "4u", "4u", D="VDD", G="VDUMP", S="VDD", B="VDD")
 
 c = add(Cell("cp", "UP:i:l DN:i:l IBP:i:l ICP:i:l IBN:i:l ICN:i:l VOUT:o:r VDD:io:t VSS:io:b",
              "cascoded current-steering charge pump (bias pins external, see cp_bias)"))
@@ -96,11 +106,11 @@ c.sub("XIUP", "inv_lv", A="UP", Y="UPB", VDD="VDD", VSS="VSS")
 c.sub("XIDN", "inv_lv", A="DN", Y="DNB", VDD="VDD", VSS="VSS")
 c.sub("XLEGP", "cp_leg_p", IBP="IBP", ICP="ICP", UP="UP", UPB="UPB", VOUT="VOUT", VDUMP="VDUMP", VDD="VDD")
 c.sub("XLEGN", "cp_leg_n", IBN="IBN", ICN="ICN", DN="DN", DNB="DNB", VOUT="VOUT", VDUMP="VDUMP", VSS="VSS")
-c.sub("XBUF", "cp_dumpbuf", VOUT="VOUT", IBIAS="IBN", VDUMP="VDUMP", VDD="VDD", VSS="VSS")
+c.sub("XBUF", "cp_dumpbuf", VOUT="VOUT", IBIAS="IBN", IBIASP="IBP", VDUMP="VDUMP", VDD="VDD", VSS="VSS")
 
 c = add(Cell("cp_bias", "IBP:o:r ICP:o:r IBN:o:r ICN:o:r VDD:io:t VSS:io:b",
              "charge-pump bias: one long-channel PMOS sets Iref, diode stacks give mirror and cascode gates"))
-c.mos("MR", "p", "0.5u", "4u", D="ICN", G="VSS", S="VDD", B="VDD")
+c.mos("MR", "p", "2.2u", "4u", D="ICN", G="VSS", S="VDD", B="VDD")
 c.mos("MN3", "n", "2u", "0.5u", D="ICN", G="ICN", S="IBN", B="VSS")
 c.mos("MN0", "n", "2u", "0.5u", D="IBN", G="IBN", S="VSS", B="VSS")
 c.mos("MP0", "p", "6u", "0.5u", D="IBP", G="IBP", S="VDD", B="VDD")

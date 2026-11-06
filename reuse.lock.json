@@ -45,8 +45,8 @@
         "netlist": "design/netlist/cp.spice",
         "device_family": "sg13_lv",
         "topology_source": "2AMLogic/sg13g2-pll@83e59fe81db0b09dbefcff35a55965bea0c2a76f",
-        "differs": "dump buffer biased from IBN, not ICN; bias from the new cp_bias cell; simulated 2.1..6.2 uA (not 20 uA)",
-        "fit_gate": "run 2026-11-05 (sim/cp-currents/results/20261105T130112Z): K1 (current window) and K5 (dump tracking) fail; status stays adopting, see spec/decisions/0012-cp-bias-currents-below-bounded-step-assumption.md"
+        "differs": "dump buffer replaced by a unity-gain buffer (NMOS-input and PMOS-input 5-transistor OTAs on one output, biased from IBN and IBP) with MOS decoupling on VDUMP; bias from the new cp_bias cell (MR 2.2u/4u); simulated 5.1..18.6 uA at tt/ss/ff (not 20 uA)",
+        "fit_gate": "run 2026-11-06 (sim/cp-currents/results/20261106T182524Z): K1-K6 pass at tt, ss and ff after the cp_bias/cp_dumpbuf redraw and a stimulus fix (decision 0012, 2026-11-06 section); the 2026-11-05 run (20261105T130112Z) failed K1 and K5. Status stays adopting: charge per pulse is not graded and 0006 gives pfd and cp the same path to kept, while the pfd fit gate is still open (decision 0011)"
       }
     },
     {

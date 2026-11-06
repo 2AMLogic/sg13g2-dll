@@ -8,7 +8,7 @@
 *.opin ICN
 *.iopin VDD
 *.iopin VSS
-XMR ICN VSS VDD VDD sg13_lv_pmos w=0.5u l=4u ng=1 m=1
+XMR ICN VSS VDD VDD sg13_lv_pmos w=2.2u l=4u ng=1 m=1
 XMN3 ICN ICN IBN VSS sg13_lv_nmos w=2u l=0.5u ng=1 m=1
 XMN0 IBN IBN VSS VSS sg13_lv_nmos w=2u l=0.5u ng=1 m=1
 XMP0 IBP IBP VDD VDD sg13_lv_pmos w=6u l=0.5u ng=1 m=1

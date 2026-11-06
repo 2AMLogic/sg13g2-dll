@@ -41,3 +41,54 @@ changes described in `sim/cp-currents/README.md`; the current figures are identi
 Raise the `cp_bias` reference current (the PMOS resistor `XMR`, 0.5 u / 4 u, sets it) and re-check K1-K5;
 K4 shows about 3x headroom at ff before the 0.1 limit. Re-bias or replace the dump follower so it
 tracks VOUT down to 0.3 V (K5). Both are redraws; re-run `sim/cp-currents/run.sh` after each.
+
+## Update 2026-11-06 (issue #62): redrawn cp_bias and cp_dumpbuf, K1-K6 pass; the 2026-11-05 K5 finding was partly a bench defect
+
+Appended; the sections above are the record of the 2026-11-05 run and are not edited.
+
+### Bench defect found while redrawing
+
+`sim/cp-currents/decks/cp_body.spice` drove UP and DN with `v(vdd)*pwl(time, ...)` behavioural
+sources whose lists ended on a falling edge (`160.4n,0` and `180.4n,0`). ngspice extrapolates the last
+segment of a `pwl()` expression, so UP fell to about -19 V at 162 ns and -175 V at 175 ns (and DN
+likewise after 180 ns). That drove `VDUMP` below VSS and into mA-level supply current after the charge
+pulses, and it is the most likely source of the "unexplained late current spike" in the DN window
+and of the `VDUMP` collapse in the 2026-11-05 K5 result. Both lists now end with an explicit
+`400n,0` point. `summarize.py` and the K1-K6 criteria are unchanged. The charge-per-pulse columns are
+still not graded and still not claimed.
+
+With the fixed bench the unmodified follower fails K5 differently (slope 0.65 .. 0.70, VDUMP 0.23 V at
+VOUT = 0.6 V; local single-corner probes, not evidence), so the follower was replaced, not just re-biased.
+
+### Changes
+
+- `cp_bias`: `MR` (the PMOS resistor that sets Iref) 0.5u/4u -> 2.2u/4u. Iref is about 4.4x larger.
+- `cp_dumpbuf`: the NMOS source follower is replaced by a unity-gain buffer: an NMOS-input and a
+  PMOS-input 5-transistor OTA on one output node (complementary input range, so VOUT = 0.3 .. 0.9 V is
+  covered at 1.08 .. 1.32 V supply), `VDUMP` fed back to both inverting inputs, tails from `IBN` and
+  `IBP`, plus 4u/4u MOS capacitors from `VDUMP` to VSS and VDD. The cell gained an `IBIASP` pin; `cp`
+  connects it to `IBP`. The cascoded current-steering legs (0006) are unchanged.
+
+### Result (simulated, never measured)
+
+`sim/cp-currents/results/20261106T182524Z/record.md`: batch fleet, ngspice, reduced corner set, same
+criteria as above. **RESULT: PASS** (K1-K6).
+
+| corner | I_up | I_dn | mismatch | leakage | VDUMP-VOUT at 0.3 / 0.6 / 0.9 V | dump slope | K_dl*I/C |
+|---|---|---|---|---|---|---|---|
+| tt/1.2 V/27 C | 9.13 uA | 11.07 uA | 19 % | 8 nA | +4 / -8 / -29 mV | 0.95 | 0.013 |
+| ss/1.08 V/125 C | 5.14 uA | 6.44 uA | 22 % | 41 nA | +2 / -14 / -73 mV | 0.88 | 0.005 |
+| ff/1.32 V/-40 C | 16.63 uA | 18.55 uA | 11 % | 3 nA | +8 / -2 / -14 mV | 0.96 | 0.091 |
+
+K3 passes (41 nA against 2 % of 5.14 uA = 103 nA at ss/125 C). Margins are thin in two places and
+should not be read as comfortable: ss I_up is 5.14 uA against the 5 uA floor, and ff K4 is 0.091
+against the 0.1 limit (the allowed ff/ss current ratio is about 4.1; this design has 3.6). Mismatch is
+near the 25 % limit at ss (22 %). Only the three reduced-set corners were run; no Monte Carlo, no
+supply or temperature sweep, no layout.
+
+### Consequence
+
+The finding that `cp` does not fit is resolved on the schematic by this redraw. `reuse.lock.json` `cp`
+stays `adopting` with `fit_gate` and `differs` updated: 0006 gives `pfd` and `cp` the same path to `kept`,
+the `pfd` fit gate is still open (0011), and charge per pulse is not established. Lock time (#25 / #28)
+is not graded here. The loop-gain consequence of the larger current is covered by K4 only.
