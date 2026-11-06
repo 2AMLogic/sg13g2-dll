@@ -14,9 +14,9 @@ sim_preflight
 python3 -I -m unittest discover -s "${HERE}/tests" >&2
 scratch="$(mktemp -d)"
 trap 'rm -rf "${scratch}"' EXIT
-for bench in lock-range phase lock-time false-lock power; do
+for bench in phase lock-time false-lock power; do
   python3 -I "${HERE}/dllbench.py" build "${SIM_DIR}/${bench}" "${scratch}/${bench}" \
       --osdi-dir "${SG13G2_OSDI_DIR}" >&2
   python3 -I "${HERE}/dllbench.py" check "${scratch}/${bench}" >&2
 done
-echo "cold-start: PASS (pins, unit tests, 5 benches built and checked; no simulation run)" >&2
+echo "cold-start: PASS (pins, unit tests, 4 benches built and checked; no simulation run)" >&2

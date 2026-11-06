@@ -1,6 +1,8 @@
 {
   "bench": "false-lock",
   "rows": [
+    1,
+    2,
     8,
     12
   ],

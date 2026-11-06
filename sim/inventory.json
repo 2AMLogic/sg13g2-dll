@@ -4,9 +4,6 @@
   "t1_item": 9,
   "description": "STAND-IN inventory (issue #28 Startable Subset). The benches listed run against the behavioural stand-in in sim/standin/, not the item-1 netlist, so this inventory does not satisfy T1 item 9 until the benches are repointed (#24); row 6 (jitter) is not attestable until a noise-method decision record exists. Row-to-bench map: sim/bench-rows.json.",
   "testbenches": [
-    "sim/lock-range/README.md",
-    "sim/lock-range/run.sh",
-    "sim/lock-range/bench.json",
     "sim/phase/README.md",
     "sim/phase/run.sh",
     "sim/phase/bench.json",

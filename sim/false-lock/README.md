@@ -1,10 +1,12 @@
-# sim/false-lock
+# sim/false-lock (lock range / false lock)
 
-Spec rows 8 and 12: false lock and the lock-status output, from every start state at every frequency of row 2 and every corner.
+Spec rows 1, 2, 8 and 12: the lock range (Locked predicate at 0.8-1.2 x f0, rows 1 and 2), false lock and the lock-status output, from every start state at every frequency of row 2 and every corner.
 
 Simulated, never measured.
 
 Start states (`sim/harness/dllbench.py`, `STATES`): 1 min-delay rail, 2 max-delay rail, 3 mid-range, 4 the two presets where nominal delay is 0.5 T and 1.5 T (from the DUT's `delay_law`), 5 enable cases (power-up with no preset, enable while the clock runs, re-enable after a disable with the control voltage left, clock absent at enable and started later). They are the `--ic` axis (`vic`, `vton`, `vtdis`, `vtre`, `vtclk`, swept through `corners.supply_v`); `dllbench.py grade` reads each source back (`*_seen`, `ic_seen`, `tclk_edge`) and the run fails if an axis did not take effect.
+
+Rows 1 and 2 read the Locked predicate (last 64 input cycles each within tol*T of one period, control voltage moving < 5 mV; `perr`, `vcpp`) from the same units; `record.md` tabulates locked corners per frequency and start state. The spec grades row 2 from these start states, so one grid serves both (the former `sim/lock-range` bench was this grid run twice).
 
 A run passes row 8 only if the last-64-cycle predicate holds at a delay of **exactly one period** (`round(d/T) == 1`) and the control voltage stays > 50 mV from both rails. LOCK (row 12) is sampled at the end of the run and must equal that verdict; the 128-cycle rise/fall latency is graded only through `sim/lock-time` (16-cycle resolution). `record.md` counts, per request and start state, locked, exactly-one-period, row-8-pass, LOCK-consistent and multi-period corners.
 
