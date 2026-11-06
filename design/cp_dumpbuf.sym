@@ -9,19 +9,21 @@ template="name=x1"
 V {}
 S {}
 E {}
-L 4 -60 -40 60 -40 {}
-L 4 60 -40 60 40 {}
-L 4 -60 40 60 40 {}
-L 4 -60 -40 -60 40 {}
-B 5 -62.5 -12.5 -57.5 -7.5 {name=VOUT dir=in}
-T {VOUT} -53 -13 0 0 0.15 0.15 {layer=7}
-B 5 -62.5 7.5 -57.5 12.5 {name=IBIAS dir=in}
-T {IBIAS} -53 7 0 0 0.15 0.15 {layer=7}
+L 4 -60 -50 60 -50 {}
+L 4 60 -50 60 50 {}
+L 4 -60 50 60 50 {}
+L 4 -60 -50 -60 50 {}
+B 5 -62.5 -22.5 -57.5 -17.5 {name=VOUT dir=in}
+T {VOUT} -53 -23 0 0 0.15 0.15 {layer=7}
+B 5 -62.5 -2.5 -57.5 2.5 {name=IBIAS dir=in}
+T {IBIAS} -53 -3 0 0 0.15 0.15 {layer=7}
+B 5 -62.5 17.5 -57.5 22.5 {name=IBIASP dir=in}
+T {IBIASP} -53 17 0 0 0.15 0.15 {layer=7}
 B 5 57.5 -2.5 62.5 2.5 {name=VDUMP dir=out}
 T {VDUMP} 13 -3 0 0 0.15 0.15 {layer=7}
-B 5 -2.5 -42.5 2.5 -37.5 {name=VDD dir=inout}
-T {VDD} -12 -34 0 0 0.15 0.15 {layer=7}
-B 5 -2.5 37.5 2.5 42.5 {name=VSS dir=inout}
-T {VSS} -12 22 0 0 0.15 0.15 {layer=7}
-T {@symname} -55 -70 0 0 0.2 0.2 {}
-T {@name} -55 -90 0 0 0.2 0.2 {}
+B 5 -2.5 -52.5 2.5 -47.5 {name=VDD dir=inout}
+T {VDD} -12 -44 0 0 0.15 0.15 {layer=7}
+B 5 -2.5 47.5 2.5 52.5 {name=VSS dir=inout}
+T {VSS} -12 32 0 0 0.15 0.15 {layer=7}
+T {@symname} -55 -80 0 0 0.2 0.2 {}
+T {@name} -55 -100 0 0 0.2 0.2 {}

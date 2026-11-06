@@ -11,7 +11,7 @@
 *   VOUT 0.6 V until 200 ns, 0.3 V 202-240 ns, 0.9 V 242-280 ns; idle -> dump-buffer VDUMP tracking
 Vdd vdd 0 1.2
 Vo vout 0 PWL(0 0.6 200n 0.6 202n 0.3 240n 0.3 242n 0.9 300n 0.9)
-Bup up 0 V = v(vdd)*pwl(time, 0,0, 40n,0, 40.1n,1, 60n,1, 60.1n,0, 120n,0, 120.1n,1, 140n,1, 140.1n,0, 160n,0, 160.1n,1, 160.3n,1, 160.4n,0)
-Bdn dn 0 V = v(vdd)*pwl(time, 0,0, 80n,0, 80.1n,1, 100n,1, 100.1n,0, 120n,0, 120.1n,1, 140n,1, 140.1n,0, 180n,0, 180.1n,1, 180.3n,1, 180.4n,0)
+Bup up 0 V = v(vdd)*pwl(time, 0,0, 40n,0, 40.1n,1, 60n,1, 60.1n,0, 120n,0, 120.1n,1, 140n,1, 140.1n,0, 160n,0, 160.1n,1, 160.3n,1, 160.4n,0, 400n,0)
+Bdn dn 0 V = v(vdd)*pwl(time, 0,0, 80n,0, 80.1n,1, 100n,1, 100.1n,0, 120n,0, 120.1n,1, 140n,1, 140.1n,0, 180n,0, 180.1n,1, 180.3n,1, 180.4n,0, 400n,0)
 XB ibp icp ibn icn vdd 0 cp_bias
 XDUT up dn ibp icp ibn icn vout vdd 0 cp

@@ -33,11 +33,12 @@ C {lab_pin.sym} 960 -10 0 0 {name=l20 lab=VOUT}
 C {lab_pin.sym} 960 10 0 0 {name=l21 lab=VDUMP}
 C {lab_pin.sym} 900 60 0 0 {name=l22 lab=VSS}
 C {cp_dumpbuf.sym} 1200 0 0 0 {name=XBUF}
-C {lab_pin.sym} 1140 -10 0 0 {name=l23 lab=VOUT}
-C {lab_pin.sym} 1140 10 0 0 {name=l24 lab=IBN}
-C {lab_pin.sym} 1260 0 0 0 {name=l25 lab=VDUMP}
-C {lab_pin.sym} 1200 -40 0 0 {name=l26 lab=VDD}
-C {lab_pin.sym} 1200 40 0 0 {name=l27 lab=VSS}
+C {lab_pin.sym} 1140 -20 0 0 {name=l23 lab=VOUT}
+C {lab_pin.sym} 1140 0 0 0 {name=l24 lab=IBN}
+C {lab_pin.sym} 1140 20 0 0 {name=l25 lab=IBP}
+C {lab_pin.sym} 1260 0 0 0 {name=l26 lab=VDUMP}
+C {lab_pin.sym} 1200 -50 0 0 {name=l27 lab=VDD}
+C {lab_pin.sym} 1200 50 0 0 {name=l28 lab=VSS}
 C {ipin.sym} -400 -300 0 0 {name=p1 lab=UP}
 C {ipin.sym} -400 -260 0 0 {name=p2 lab=DN}
 C {ipin.sym} -400 -220 0 0 {name=p3 lab=IBP}

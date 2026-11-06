@@ -15,7 +15,7 @@ XIUP UP UPB VDD VSS inv_lv
 XIDN DN DNB VDD VSS inv_lv
 XLEGP IBP ICP UP UPB VOUT VDUMP VDD cp_leg_p
 XLEGN IBN ICN DN DNB VOUT VDUMP VSS cp_leg_n
-XBUF VOUT IBN VDUMP VDD VSS cp_dumpbuf
+XBUF VOUT IBN IBP VDUMP VDD VSS cp_dumpbuf
 .ends
 
 * expanding   symbol:  inv_lv.sym # of pins=4
@@ -67,16 +67,27 @@ XXSWD VDUMP DNB sw VSS sg13_lv_nmos w=1u l=0.13u ng=1 m=1
 .ends
 
 
-* expanding   symbol:  cp_dumpbuf.sym # of pins=5
+* expanding   symbol:  cp_dumpbuf.sym # of pins=6
 ** sym_path: design/cp_dumpbuf.sym
 ** sch_path: design/cp_dumpbuf.sch
-.subckt cp_dumpbuf VOUT IBIAS VDUMP VDD VSS
+.subckt cp_dumpbuf VOUT IBIAS IBIASP VDUMP VDD VSS
 *.ipin VOUT
 *.ipin IBIAS
+*.ipin IBIASP
 *.opin VDUMP
 *.iopin VDD
 *.iopin VSS
-XM1 VDD VOUT VDUMP VSS sg13_lv_nmos w=2u l=0.25u ng=1 m=1
-XM2 VDUMP IBIAS VSS VSS sg13_lv_nmos w=1u l=0.5u ng=1 m=1
+XMNT tn IBIAS VSS VSS sg13_lv_nmos w=2u l=0.5u ng=1 m=1
+XMNA da VOUT tn VSS sg13_lv_nmos w=8u l=0.5u ng=1 m=1
+XMNB VDUMP VDUMP tn VSS sg13_lv_nmos w=8u l=0.5u ng=1 m=1
+XMPA da da VDD VDD sg13_lv_pmos w=6u l=1u ng=1 m=1
+XMPB VDUMP da VDD VDD sg13_lv_pmos w=6u l=1u ng=1 m=1
+XMPT tp IBIASP VDD VDD sg13_lv_pmos w=6u l=0.5u ng=1 m=1
+XMQA dp VOUT tp VDD sg13_lv_pmos w=16u l=0.5u ng=1 m=1
+XMQB VDUMP VDUMP tp VDD sg13_lv_pmos w=16u l=0.5u ng=1 m=1
+XMRA dp dp VSS VSS sg13_lv_nmos w=2u l=1u ng=1 m=1
+XMRB VDUMP dp VSS VSS sg13_lv_nmos w=2u l=1u ng=1 m=1
+XMCN VSS VDUMP VSS VSS sg13_lv_nmos w=4u l=4u ng=1 m=1
+XMCP VDD VDUMP VDD VDD sg13_lv_pmos w=4u l=4u ng=1 m=1
 .ends
 

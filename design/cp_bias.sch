@@ -6,7 +6,7 @@ K {}
 V {}
 S {}
 E {}
-C {sg13g2_pr/sg13_lv_pmos.sym} 0 0 0 0 {name=MR model=sg13_lv_pmos w=0.5u l=4u ng=1 m=1 spiceprefix=X}
+C {sg13g2_pr/sg13_lv_pmos.sym} 0 0 0 0 {name=MR model=sg13_lv_pmos w=2.2u l=4u ng=1 m=1 spiceprefix=X}
 C {lab_pin.sym} 20 30 0 0 {name=l1 lab=ICN}
 C {lab_pin.sym} -20 0 0 0 {name=l2 lab=VSS}
 C {lab_pin.sym} 20 -30 0 0 {name=l3 lab=VDD}
