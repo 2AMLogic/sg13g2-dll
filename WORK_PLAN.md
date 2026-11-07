@@ -37,7 +37,7 @@ Issues currently being built (`loom:building`).
 
 PRs waiting on Judge (`loom:review-requested`).
 
-_None._
+- **#42**: docs: install two-key ratification trees and propose spec ratification (0009)
 
 ## Approved (Awaiting Merge)
 
@@ -53,7 +53,6 @@ Issues carrying `loom:curated`.
 - **#23**: T1 item 1 (design sources): current-starved delay-line schematics, tap buffers and netlist on sg13_lv *(curated)*
 - **#28**: T1 item 9 (testbenches shipped): one harness bench per spec row, with cold-start docs and --attest 9 *(curated)*
 - **#41**: Install the two-key ratification path and ratify spec/target-spec.md *(curated)*
-- **#45**: T1 item 10 (repo hygiene): cite the existing item-10 envelope in the manifest and give the README a true status and reproduce section *(curated)*
 
 ## Proposed (Architect / Hermit)
 
@@ -72,9 +71,9 @@ _None._
 | Important | 1 |
 | Ready (`loom:issue`) | 0 |
 | In Progress (`loom:building`) | 1 |
-| PRs awaiting review | 0 |
+| PRs awaiting review | 1 |
 | Approved PRs awaiting merge | 0 |
-| Curated | 5 |
+| Curated | 4 |
 | Architect / Hermit proposals | 0 |
 | Active epics | 0 |
 <!-- guide:plan-body:end -->
