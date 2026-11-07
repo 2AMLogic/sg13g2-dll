@@ -1,0 +1,37 @@
+* klt sim -- generated corner deck, do not edit
+.options seed=1359839816
+.param mc_sample_index=4
+.param mc_process_seed=69897616
+.param mc_mismatch_seed=849040432
+.lib /var/tmp/eda-job-klt-sim-4415506c54d0/inputs/cornerMOSlv.lib mos_ss
+.include /var/tmp/eda-job-klt-sim-4415506c54d0/inputs/netlist.cir
+.temp 125
+.meas tran dr1 trig v(t0) val=0.54 rise=1 targ v(t1) val=0.54 rise=1
+.meas tran df1 trig v(t0) val=0.54 fall=1 targ v(t1) val=0.54 fall=1
+.meas tran dr2 trig v(t0) val=0.54 rise=1 targ v(t2) val=0.54 rise=1
+.meas tran df2 trig v(t0) val=0.54 fall=1 targ v(t2) val=0.54 fall=1
+.meas tran dr3 trig v(t0) val=0.54 rise=1 targ v(t3) val=0.54 rise=1
+.meas tran df3 trig v(t0) val=0.54 fall=1 targ v(t3) val=0.54 fall=1
+.meas tran dr4 trig v(t0) val=0.54 rise=1 targ v(t4) val=0.54 rise=1
+.meas tran df4 trig v(t0) val=0.54 fall=1 targ v(t4) val=0.54 fall=1
+.meas tran dr5 trig v(t0) val=0.54 rise=1 targ v(t5) val=0.54 rise=1
+.meas tran df5 trig v(t0) val=0.54 fall=1 targ v(t5) val=0.54 fall=1
+.meas tran dr6 trig v(t0) val=0.54 rise=1 targ v(t6) val=0.54 rise=1
+.meas tran df6 trig v(t0) val=0.54 fall=1 targ v(t6) val=0.54 fall=1
+.meas tran dr7 trig v(t0) val=0.54 rise=1 targ v(t7) val=0.54 rise=1
+.meas tran df7 trig v(t0) val=0.54 fall=1 targ v(t7) val=0.54 fall=1
+.meas tran dr8 trig v(t0) val=0.54 rise=1 targ v(t8) val=0.54 rise=1
+.meas tran df8 trig v(t0) val=0.54 fall=1 targ v(t8) val=0.54 fall=1
+.meas tran iavg avg i(Vdd) from=6n to=10n
+.control
+pre_osdi /var/tmp/eda-job-klt-sim-4415506c54d0/inputs/psp103.osdi
+pre_osdi /var/tmp/eda-job-klt-sim-4415506c54d0/inputs/psp103_nqs.osdi
+pre_osdi /var/tmp/eda-job-klt-sim-4415506c54d0/inputs/r3_cmc.osdi
+pre_osdi /var/tmp/eda-job-klt-sim-4415506c54d0/inputs/mosvar.osdi
+save all
+alter VC=1.0
+alter Vdd=1.08
+tran 5p 10n
+quit
+.endc
+.end
