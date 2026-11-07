@@ -135,3 +135,7 @@ Result 2026-11-05 (`results/20261105T125120Z/fit-gate.md`): C1/C3 pass, C2 fails
 ## Charge pump (`sim/cp-currents/`)
 
 UP/DN current, leakage and dump-buffer tracking per reduced-set corner, one `klt sim` request on the batch fleet. See `sim/cp-currents/README.md` and `spec/decisions/0012-cp-bias-currents-below-bounded-step-assumption.md`.
+
+## Delay-tap sizing (`sim/delay-sizing/`)
+
+Decision 0010's two delay-tap candidates (A: one stage per tap, B: two stages with widened starving devices) on the `delay-sanity` bench method, ss/tt/ff at 1 GHz and 500 MHz, with Monte Carlo matching. See `sim/delay-sizing/README.md` and `results/20261107T231500Z-comparison/comparison.md` (issue #67). Simulated only; 0010 is not ratified here.
