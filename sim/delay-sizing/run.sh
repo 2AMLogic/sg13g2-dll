@@ -18,11 +18,11 @@ set -euo pipefail
 MODE="${1:?usage: run.sh probe|full|fine|mc}"
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SIM_DIR="$(cd "${HERE}/.." && pwd)"
+DESIGN_DIR="$(cd "${SIM_DIR}/../design" && pwd)"
 # shellcheck source=/dev/null
 source "${SIM_DIR}/harness/preflight.sh"
 sim_preflight
-# NOTE: design/netlist.sh --check is not run: host klt 0.9.2.dev adds a header line to every
-# export (content identical); this bench reads the COMMITTED design/netlist/*.spice as-is.
+"${DESIGN_DIR}/netlist.sh" --check
 
 STAMP="$(date -u +%Y%m%dT%H%M%SZ)"
 OUT="${DS_RESULTS_DIR:-${HERE}/results/${STAMP}-${MODE}}"

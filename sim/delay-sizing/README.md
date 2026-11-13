@@ -11,9 +11,8 @@ DS_B_SCALE=4 sim/delay-sizing/run.sh mc         # Monte Carlo matching, ss/1 GHz
 
 Every grid is a `klt sim` request (multi-unit, so the batch fleet; no local fallback). `make_bench.py` derives the A/B decks from the committed `design/netlist/*.spice` (`area.py` gives the device-area estimate); `summarize.py` writes `record.md`.
 
-`run.sh` does not run `design/netlist.sh --check`: host klt 0.9.2.dev writes an extra header line into every export, so the check fails on content-identical files.
-
 Results: `results/20261107T231500Z-comparison/comparison.md` (comparison and recommendation) with the records it cites. Notes:
 - `full` exits non-zero by design: Vc points in the dead zone produce no edge, as in the `delay-sanity` baseline. Those are recorded as "no edge", not dropped.
 - The coarse `full` grid steps over the dead-zone edge at ff, so its "NOT covered" lines are superseded by `fine`; both are kept.
 - An earlier run whose decks defined `delay_cell` twice (the committed `delay_line.spice` export embeds copies of its sub-cells) was discarded and re-run after the generator was fixed. The numbers were identical.
+- The recorded runs above predate `run.sh` calling `design/netlist.sh --check` (issue #71): the gate exited 3 on every block under the host klt regardless of content, so it was skipped. When the gate was made version-independent, the only difference in all nine diffs was klt's `** klt-netlist-inputs:` header line — the committed netlists these decks read were content-current, so the recorded numbers stand.

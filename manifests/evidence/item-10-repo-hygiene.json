@@ -38,7 +38,7 @@
         "role": "hygiene",
         "path": "design/netlist.sh",
         "passed": true,
-        "content_hash": "sha256:ea1accbf7f603035c631389b16182a64190d39aa7fdfa9ba064404e18dceca8f"
+        "content_hash": "sha256:8583aef2d4a3e423227b888fe60cc7c7d27e622ba2fee51983693c4c8203281d"
       },
       {
         "check": "present",
