@@ -62,6 +62,14 @@ error, never a local fallback.
     spec's 45-corner set (5 MOS x 3 supply x 3 temperature, issue #2;
     `spec/target-spec.md`), proposed until the ratification record it names is
     merged by a human. The runner refuses an empty set.
+  - **reduced set**: `--reduced-corner mos_ss` (one corner) or `--reduced-set`
+    (all three, as `corners.units`) read `reduced_set.corners` out of that same
+    file, so a fast-iteration bench never restates the corner values in a file
+    of its own. A section that is not in the reduced set is refused, not run.
+    (`spec/decisions/0001`: the reduced set is fast iteration only, never a
+    recorded result. A Monte Carlo model section such as `mos_ss_mismatch` is
+    not a corner, so it still comes from a `--corners` file --
+    `sim/delay-sizing/corners.ss_mismatch.json`.)
   - **start states**: `--ic SOURCE=v1,v2,...` (repeatable, equal lengths; one row
     per start state). `SOURCE` is a voltage source in the deck whose value is
     swept through `corners.supply_v`; the deck ties a node to it through a

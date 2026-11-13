@@ -26,6 +26,11 @@ OUT="${CPI_RESULTS_DIR:-${HERE}/results/${STAMP}}"
 sim_stage_inputs "${HERE}" "${OUT}" requests
 { cat "${DESIGN_DIR}/netlist/cp_bias.spice"; cat "${DESIGN_DIR}/netlist/cp.spice"; cat "${HERE}/decks/cp_body.spice"; } > "${OUT}/decks/cp_bench.spice"
 cp "${DELAY_RECORD}" "${OUT}/delay-sanity.record.md"
+# the corner source itself, so a result directory still states what it ran at
+cp "${SIM_DIR}/corners.json" "${OUT}/"
+# corners come from sim/corners.json reduced_set, not from a copy in the request
+python3 -I "${SIM_DIR}/harness/gridspec.py" "${OUT}/requests/cp.base.request.json" \
+    -o "${OUT}/requests/cp.request.json" --reduced-set
 
 BACKEND_ARGS=()
 [[ -z "${CPI_BACKEND:-}" ]] || BACKEND_ARGS=(--backend "${CPI_BACKEND}")

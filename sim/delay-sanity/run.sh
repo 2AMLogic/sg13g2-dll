@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # run.sh -- delay-line sanity bench (issue #23): delay vs control voltage per
-# tap at 500 MHz and 1 GHz over the reduced corner set, every grid a `klt sim`
+# tap at 500 MHz and 1 GHz over the reduced_set corners of sim/corners.json (read
+# by the harness, never restated here), every grid a `klt sim`
 # request (multi-unit -> batch fleet; NO local fallback, a failed submit fails
 # the run). Results are simulated, never measured, and append-only.
 #
@@ -21,10 +22,10 @@ STAMP="$(date -u +%Y%m%dT%H%M%SZ)"
 OUT="${DS_RESULTS_DIR:-${HERE}/results/${STAMP}}"
 sim_stage_inputs "${HERE}" "${OUT}" base
 mkdir -p "${OUT}/requests"
-cp "${HERE}"/corners.*.json "${OUT}/"
+# the corner source itself, so a result directory still states what it ran at
+cp "${SIM_DIR}/corners.json" "${OUT}/"
 VC="${DS_VC:-0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0,1.08}"
 
-declare -A VTH=([tt]=0.6 [ss]=0.54 [ff]=0.66)
 declare -A PERIOD=([500MHz]=2n [1GHz]=1n)
 declare -A HALF=([500MHz]=1n [1GHz]=0.5n)
 
@@ -39,10 +40,13 @@ rc=0
 for f in 500MHz 1GHz; do
   for c in ss tt ff; do
     tag="${f}_${c}"
-    sed -e "s#@VTH@#${VTH[$c]}#g" -e "s#@FREQ@#${f}#g" \
+    # logic threshold = half this corner's rail, read from sim/corners.json
+    vdd="$(sim_reduced_corner_vdd "mos_${c}")"
+    vth="$(awk -v v="${vdd}" 'BEGIN{printf "%g", v/2}')"
+    sed -e "s#@VTH@#${vth}#g" -e "s#@FREQ@#${f}#g" \
         "${OUT}/base/dl.base.request.json" > "${OUT}/base/${tag}.base.request.json"
     python3 -I "${SIM_DIR}/harness/gridspec.py" "${OUT}/base/${tag}.base.request.json" \
-        -o "${OUT}/requests/${tag}.request.json" --corners "${HERE}/corners.${c}.json" --ic "VC=${VC}"
+        -o "${OUT}/requests/${tag}.request.json" --reduced-corner "mos_${c}" --ic "VC=${VC}"
     echo "run.sh: klt sim ${tag}" >&2
     klt sim "${OUT}/requests/${tag}.request.json" \
         --wait-for-capacity "${DS_CAPACITY_WAIT_S:-900}" --format json \

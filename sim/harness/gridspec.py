@@ -7,7 +7,11 @@ all expressed as `klt sim` request fields so the host daemon routes the grid
 to the batch fleet (no `ngspice -b` loops anywhere):
 
   corners  PVT matrix read from sim/corners.json (filled by the ratified spec,
-           issue #2; this module chooses no values).
+           issue #2; this module chooses no values). `--reduced-corner SECTION`
+           and `--reduced-set` select the `reduced_set` of that same file --
+           the fast-iteration corners -- so a bench never restates them:
+           `--reduced-corner mos_ss` is the one ss/1.08 V/125 C point as a
+           cross-product set, `--reduced-set` is all three as `corners.units`.
   ic       initial-condition (start-state) axis. `{"vic": [0.0, 0.6, 1.2]}`
            gives three start states. Each name is a voltage SOURCE in the
            deck whose value the harness sweeps through `corners.supply_v`
@@ -73,6 +77,66 @@ def load_corners(path, allow_empty=False):
     if supply:
         out["supply_v"] = supply
     return out
+
+
+def _reduced_set_corners(path):
+    """Validated `reduced_set.corners` of a corners file (sim/corners.json).
+
+    The reduced set is the spec's fast-iteration set (spec/decisions/0001:
+    never a recorded result). This module chooses no values: it reads the one
+    place they are written, so no bench restates them.
+    """
+    data = load_json(path)
+    if data.get("schema") != 1:
+        raise GridError(f"{path}: schema must be 1")
+    corners = (data.get("reduced_set") or {}).get("corners")
+    if not isinstance(corners, list) or not corners:
+        raise GridError(f"{path}: reduced_set.corners is missing or empty")
+    out = []
+    for i, corner in enumerate(corners):
+        if not isinstance(corner, dict):
+            raise GridError(f"{path}: reduced_set.corners[{i}] must be an object")
+        process = corner.get("process")
+        temp = corner.get("temperature_c")
+        if not isinstance(process, str) or not process:
+            raise GridError(f"{path}: reduced_set.corners[{i}] has no process section")
+        if isinstance(temp, bool) or not isinstance(temp, (int, float)):
+            raise GridError(f"{path}: reduced_set.corners[{i}] has no numeric temperature_c")
+        supply = {k: v for k, v in corner.items() if k not in ("process", "temperature_c")}
+        if not supply:
+            raise GridError(f"{path}: reduced_set.corners[{i}] names no supply voltage")
+        out.append({"process": process, "temperature_c": temp, "supply_v": supply})
+    return out
+
+
+def load_reduced_corner(path, process):
+    """One corner of `reduced_set` as a cross-product set, by model section.
+
+    Fails loudly if the section is not in the reduced set -- a bench may not
+    quietly run at a corner the spec no longer names.
+    """
+    corners = _reduced_set_corners(path)
+    hits = [c for c in corners if c["process"] == process]
+    if not hits:
+        have = ", ".join(c["process"] for c in corners)
+        raise GridError(
+            f"{path}: {process!r} is not in reduced_set.corners (have: {have}). "
+            "The reduced set is the spec's; this module chooses no values."
+        )
+    if len(hits) > 1:
+        raise GridError(f"{path}: {process!r} appears {len(hits)} times in reduced_set.corners")
+    corner = hits[0]
+    return {
+        "process": [corner["process"]],
+        "temperature_c": [corner["temperature_c"]],
+        "supply_v": {k: [v] for k, v in corner["supply_v"].items()},
+    }
+
+
+def load_reduced_set(path):
+    """The whole `reduced_set` as `corners.units` -- the three corners named,
+    not a cross product of their axes (which would be 27 points, not 3)."""
+    return {"units": _reduced_set_corners(path)}
 
 
 def ic_axis(ic):
@@ -143,6 +207,8 @@ def build_request(base, corners=None, ic=None, mc=None, lib_section=None):
     if lib_section is not None:
         grid["process"] = [lib_section] if isinstance(lib_section, str) else lib_section
     if ic is not None:
+        if "units" in grid:
+            raise GridError("a start-state axis cannot cross a `units` corner list")
         grid["supply_v"] = cross_supply(grid.get("supply_v"), ic_axis(ic))
     if grid:
         req["corners"] = grid
@@ -166,6 +232,11 @@ def negative_control(mc_request, quiet_process):
     """
     if "monte_carlo" not in mc_request:
         raise GridError("negative control needs a request with monte_carlo")
+    if "units" in (mc_request.get("corners") or {}):
+        raise GridError(
+            "negative control cannot swap the process sections of a `units` corner "
+            "list: each unit names its own section"
+        )
     if not quiet_process or not isinstance(quiet_process, list):
         raise GridError("quiet_process must be a nonempty list of model sections")
     ctl = copy.deepcopy(mc_request)
@@ -206,8 +277,11 @@ def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     ap.add_argument("base", help="base request JSON (no corners / monte_carlo)")
     ap.add_argument("-o", "--out", required=True, help="grid request path to write")
-    ap.add_argument("--corners", help="corners file (default: sim/corners.json)")
-    ap.add_argument("--no-corners", action="store_true", help="single process/temperature point from the base's models")
+    ap.add_argument("--corners", help="corners file (default: sim/corners.json); also the source --reduced-corner / --reduced-set read")
+    pick = ap.add_mutually_exclusive_group()
+    pick.add_argument("--no-corners", action="store_true", help="single process/temperature point from the base's models")
+    pick.add_argument("--reduced-corner", metavar="SECTION", help="one corner of the corners file's reduced_set, by model section (e.g. mos_ss)")
+    pick.add_argument("--reduced-set", action="store_true", help="every corner of the corners file's reduced_set, as corners.units")
     ap.add_argument("--ic", action="append", metavar="SOURCE=v1,v2", help="start-state axis: voltage source swept via supply_v (repeatable; equal lengths)")
     ap.add_argument("--mc-n", type=int)
     ap.add_argument("--mc-seed", type=int)
@@ -218,9 +292,14 @@ def main(argv=None):
     here = os.path.dirname(os.path.abspath(__file__))
     try:
         base = load_json(args.base)
+        corners_path = args.corners or os.path.join(here, "..", "corners.json")
         corners = None
-        if not args.no_corners:
-            corners = load_corners(args.corners or os.path.join(here, "..", "corners.json"))
+        if args.reduced_corner:
+            corners = load_reduced_corner(corners_path, args.reduced_corner)
+        elif args.reduced_set:
+            corners = load_reduced_set(corners_path)
+        elif not args.no_corners:
+            corners = load_corners(corners_path)
         mc = None
         if args.mc_n is not None or args.mc_seed is not None or args.mc_vary:
             mc = monte_carlo_block(args.mc_n, args.mc_seed, args.mc_vary, args.mc_seed_scope)

@@ -28,21 +28,34 @@ STAMP="$(date -u +%Y%m%dT%H%M%SZ)"
 OUT="${DS_RESULTS_DIR:-${HERE}/results/${STAMP}-${MODE}}"
 [[ ! -e "${OUT}" ]] || { echo "run.sh: FAIL -- ${OUT} exists; results are append-only." >&2; exit 3; }
 mkdir -p "${OUT}/requests" "${OUT}/base"
-cp "${HERE}"/corners.*.json "${OUT}/"
+# the corner source itself, plus the Monte Carlo set this bench owns, so a
+# result directory still states what it ran at
+cp "${SIM_DIR}/corners.json" "${HERE}/corners.ss_mismatch.json" "${OUT}/"
 VC="${DS_VC:-0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0,1.08}"
 SCALE="${DS_B_SCALE:-2}"
-declare -A VTH=([tt]=0.6 [ss]=0.54 [ff]=0.66)
 echo "klt $(klt --version) ; B scale ${SCALE} ; mode ${MODE}" > "${OUT}/tool-versions.txt"
 
 rc=0
 # submit TAG VARIANT FREQ CORNER VCLIST [gridspec extra args...]
 submit() {
   local tag="$1" var="$2" f="$3" c="$4" vc="$5"; shift 5
-  python3 -I "${HERE}/make_bench.py" --variant "${var}" --freq "${f}" --vth "${VTH[$c]}" \
+  local vdd vth corner_args=()
+  # logic threshold = half this corner's rail, read from sim/corners.json
+  vdd="$(sim_reduced_corner_vdd "mos_${c}")"
+  vth="$(awk -v v="${vdd}" 'BEGIN{printf "%g", v/2}')"
+  # CORNERS_FILE is the Monte Carlo escape hatch (corners.ss_mismatch.json names a
+  # mismatch model section, which is not in the reduced set); otherwise the harness
+  # reads the corner out of sim/corners.json.
+  if [[ -n "${CORNERS_FILE:-}" ]]; then
+    corner_args=(--corners "${CORNERS_FILE}")
+  else
+    corner_args=(--reduced-corner "mos_${c}")
+  fi
+  python3 -I "${HERE}/make_bench.py" --variant "${var}" --freq "${f}" --vth "${vth}" \
       --b-scale "${SCALE}" --out "${OUT}"
   sed -i "s#@OSDI_DIR@#${SG13G2_OSDI_DIR}#g" "${OUT}/base/${var}_${f}.base.request.json"
   python3 -I "${SIM_DIR}/harness/gridspec.py" "${OUT}/base/${var}_${f}.base.request.json" \
-      -o "${OUT}/requests/${tag}.request.json" --corners "${CORNERS_FILE:-${HERE}/corners.${c}.json}" --ic "VC=${vc}" "$@"
+      -o "${OUT}/requests/${tag}.request.json" "${corner_args[@]}" --ic "VC=${vc}" "$@"
   echo "run.sh: klt sim ${tag}" >&2
   klt sim "${OUT}/requests/${tag}.request.json" \
       --wait-for-capacity "${DS_CAPACITY_WAIT_S:-600}" --format json \

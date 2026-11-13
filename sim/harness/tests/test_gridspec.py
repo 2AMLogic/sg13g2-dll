@@ -71,6 +71,92 @@ class CornersFile(unittest.TestCase):
             )
 
 
+REDUCED = {
+    "schema": 1,
+    "process": ["mos_tt", "mos_ss"],
+    "temperature_c": [27, 85],
+    "reduced_set": {
+        "corners": [
+            {"process": "mos_tt", "Vdd": 1.20, "temperature_c": 27},
+            {"process": "mos_ss", "Vdd": 1.08, "temperature_c": 125},
+        ]
+    },
+}
+
+
+class ReducedSet(CornersFile):
+    """The reduced_set selector: one reader for the fast-iteration corners.
+
+    Before issue #76 each bench kept its own corners.<c>.json copy of these
+    values, and nothing checked that the copies still matched sim/corners.json.
+    """
+
+    def test_committed_reduced_set_is_the_spec_three(self):
+        # The three fast-iteration corners of sim/corners.json
+        # (spec/decisions/0001: never a recorded result), re-derived for the
+        # 1.2 V rail of spec/decisions/0007-rail-1p2v-thin-oxide.md.
+        path = os.path.join(HARNESS, "..", "corners.json")
+        self.assertEqual(
+            gridspec.load_reduced_set(path),
+            {"units": [
+                {"process": "mos_tt", "temperature_c": 27, "supply_v": {"Vdd": 1.20}},
+                {"process": "mos_ss", "temperature_c": 125, "supply_v": {"Vdd": 1.08}},
+                {"process": "mos_ff", "temperature_c": -40, "supply_v": {"Vdd": 1.32}},
+            ]},
+        )
+
+    def test_reduced_set_corners_are_in_the_full_set(self):
+        # A reduced-set corner the full 45-corner grade does not contain would
+        # mean the two had drifted apart.
+        path = os.path.join(HARNESS, "..", "corners.json")
+        full = gridspec.load_corners(path)
+        for unit in gridspec.load_reduced_set(path)["units"]:
+            self.assertIn(unit["process"], full["process"])
+            self.assertIn(unit["temperature_c"], full["temperature_c"])
+            self.assertIn(unit["supply_v"]["Vdd"], full["supply_v"]["Vdd"])
+
+    def test_single_corner_is_a_one_row_cross_product(self):
+        path = self.write(REDUCED)
+        self.assertEqual(
+            gridspec.load_reduced_corner(path, "mos_ss"),
+            {"process": ["mos_ss"], "temperature_c": [125], "supply_v": {"Vdd": [1.08]}},
+        )
+
+    def test_section_outside_the_reduced_set_is_refused(self):
+        # mos_ff is in the file's full process list but NOT in its reduced_set:
+        # a bench may not quietly run at a corner the spec no longer names.
+        path = self.write(REDUCED)
+        with self.assertRaises(gridspec.GridError) as cm:
+            gridspec.load_reduced_corner(path, "mos_ff")
+        self.assertIn("not in reduced_set.corners", str(cm.exception))
+        with self.assertRaises(gridspec.GridError):
+            gridspec.load_reduced_corner(path, "mos_ss_mismatch")
+
+    def test_malformed_reduced_set_is_refused(self):
+        for bad in (
+            {"schema": 1},
+            {"schema": 1, "reduced_set": {"corners": []}},
+            {"schema": 1, "reduced_set": {"corners": [{"process": "mos_tt", "Vdd": 1.2}]}},
+            {"schema": 1, "reduced_set": {"corners": [{"temperature_c": 27, "Vdd": 1.2}]}},
+            {"schema": 1, "reduced_set": {"corners": [{"process": "mos_tt", "temperature_c": 27}]}},
+        ):
+            with self.assertRaises(gridspec.GridError):
+                gridspec.load_reduced_set(self.write(bad))
+        with self.assertRaises(gridspec.GridError):
+            gridspec.load_reduced_set(self.write({"schema": 2, **REDUCED["reduced_set"]}))
+
+    def test_duplicate_section_is_refused(self):
+        dup = dict(REDUCED, reduced_set={"corners": REDUCED["reduced_set"]["corners"] * 2})
+        with self.assertRaises(gridspec.GridError):
+            gridspec.load_reduced_corner(self.write(dup), "mos_tt")
+
+    def test_units_cannot_carry_a_start_state_axis(self):
+        # `units` is a corner LIST, not axes: there is no supply_v row to cross.
+        units = gridspec.load_reduced_set(self.write(REDUCED))
+        with self.assertRaises(gridspec.GridError):
+            gridspec.build_request(BASE, units, ic={"VC": [0.3, 0.6]})
+
+
 class BuildRequest(unittest.TestCase):
     def test_corner_sweep_only(self):
         req = gridspec.build_request(BASE, CORNERS)
@@ -142,6 +228,15 @@ class BuildRequest(unittest.TestCase):
         with self.assertRaises(gridspec.GridError):
             gridspec.negative_control(mc, [])
 
+    def test_negative_control_refuses_a_units_corner_list(self):
+        # Each unit names its own process section, so there is no single
+        # process axis to swap for the quiet one.
+        req = {**BASE, "corners": {"units": [
+            {"process": "mos_tt_mismatch", "temperature_c": 27, "supply_v": {"Vdd": 1.2}}]},
+            "monte_carlo": {"n": 4, "seed": 1, "vary": "mismatch"}}
+        with self.assertRaises(gridspec.GridError):
+            gridspec.negative_control(req, ["mos_tt"])
+
     def test_negative_control_needs_mc(self):
         with self.assertRaises(gridspec.GridError):
             gridspec.negative_control(gridspec.build_request(BASE, CORNERS), ["mos_tt"])
@@ -192,6 +287,77 @@ class Cli(unittest.TestCase):
                 ctl = json.load(fh)
             self.assertEqual(req["monte_carlo"], {"n": 4, "seed": 9, "vary": "mismatch"})
             self.assertEqual(ctl["corners"]["process"], ["mos_tt"])
+
+    def test_reduced_corner_matches_a_hand_written_corner_file(self):
+        # Issue #76: the per-bench corners.<c>.json files were deleted in favour
+        # of --reduced-corner. The grid request must come out byte-identical to
+        # what the deleted file produced, or a recorded bench changed silently.
+        with tempfile.TemporaryDirectory() as d:
+            base = os.path.join(d, "b.json")
+            with open(base, "w") as fh:
+                json.dump(BASE, fh)
+            hand = os.path.join(d, "corners.ss.json")   # the deleted file, verbatim
+            with open(hand, "w") as fh:
+                json.dump(
+                    {"schema": 1, "process": ["mos_ss"], "temperature_c": [125],
+                     "supply_v": {"Vdd": [1.08]}}, fh)
+            src = os.path.join(d, "corners.json")
+            with open(src, "w") as fh:
+                json.dump(REDUCED, fh)
+            vc = "VC=0.3,0.4,0.5"
+            old_out = os.path.join(d, "old.request.json")
+            new_out = os.path.join(d, "new.request.json")
+            r = self.run_cli(base, "-o", old_out, "--corners", hand, "--ic", vc)
+            self.assertEqual(r.returncode, 0, r.stderr)
+            r = self.run_cli(base, "-o", new_out, "--corners", src,
+                             "--reduced-corner", "mos_ss", "--ic", vc)
+            self.assertEqual(r.returncode, 0, r.stderr)
+            with open(old_out) as fh:
+                old = fh.read()
+            with open(new_out) as fh:
+                self.assertEqual(fh.read(), old)
+
+    def test_reduced_set_writes_units(self):
+        with tempfile.TemporaryDirectory() as d:
+            base = os.path.join(d, "b.json")
+            with open(base, "w") as fh:
+                json.dump(BASE, fh)
+            src = os.path.join(d, "corners.json")
+            with open(src, "w") as fh:
+                json.dump(REDUCED, fh)
+            out = os.path.join(d, "o.request.json")
+            r = self.run_cli(base, "-o", out, "--corners", src, "--reduced-set")
+            self.assertEqual(r.returncode, 0, r.stderr)
+            with open(out) as fh:
+                req = json.load(fh)
+            self.assertEqual([u["process"] for u in req["corners"]["units"]],
+                             ["mos_tt", "mos_ss"])
+            self.assertEqual(req["corners"]["units"][1]["supply_v"], {"Vdd": 1.08})
+
+    def test_unknown_reduced_corner_exits_2_and_writes_nothing(self):
+        with tempfile.TemporaryDirectory() as d:
+            base = os.path.join(d, "b.json")
+            with open(base, "w") as fh:
+                json.dump(BASE, fh)
+            src = os.path.join(d, "corners.json")
+            with open(src, "w") as fh:
+                json.dump(REDUCED, fh)
+            out = os.path.join(d, "o.json")
+            r = self.run_cli(base, "-o", out, "--corners", src, "--reduced-corner", "mos_ff")
+            self.assertEqual(r.returncode, 2)
+            self.assertIn("not in reduced_set.corners", r.stderr)
+            self.assertFalse(os.path.exists(out))
+
+    def test_corner_selectors_are_mutually_exclusive(self):
+        with tempfile.TemporaryDirectory() as d:
+            base = os.path.join(d, "b.json")
+            with open(base, "w") as fh:
+                json.dump(BASE, fh)
+            out = os.path.join(d, "o.json")
+            for extra in (("--no-corners",), ("--reduced-set",)):
+                r = self.run_cli(base, "-o", out, "--reduced-corner", "mos_ss", *extra)
+                self.assertEqual(r.returncode, 2)
+                self.assertFalse(os.path.exists(out))
 
     def test_partial_mc_flags_are_an_error(self):
         with tempfile.TemporaryDirectory() as d:

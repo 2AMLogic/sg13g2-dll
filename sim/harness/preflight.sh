@@ -7,6 +7,8 @@
 #   sim_preflight                          # checks; exits 3 on a missing prerequisite
 #   sim_stage_inputs BENCH_DIR OUT REQ_DST # refuses an existing OUT; copies decks and
 #                                          # requests (@OSDI_DIR@ substituted) into OUT/REQ_DST
+#   sim_reduced_corner_vdd SECTION         # prints the Vdd of that reduced_set corner of
+#                                          # sim/corners.json (gridspec.py is the only reader)
 # Sources env.sh, so PDK_ROOT / SG13G2_OSDI_DIR are set in the caller.
 # shellcheck shell=bash
 
@@ -40,4 +42,21 @@ sim_stage_inputs() {
   for r in "${bench}"/requests/*.request.json; do
     sed "s#@OSDI_DIR@#${SG13G2_OSDI_DIR}#g" "${r}" > "${out}/${req_dst}/$(basename "${r}")"
   done
+}
+
+# Print the Vdd of one reduced_set corner of sim/corners.json, by model section
+# (e.g. mos_ss). Goes through gridspec.load_reduced_corner so the corner values
+# have exactly one reader, and a section not in the reduced set fails loudly.
+sim_reduced_corner_vdd() {
+  local section="${1:?usage: sim_reduced_corner_vdd SECTION}"
+  python3 -I -c '
+import sys
+sys.path.insert(0, sys.argv[1])
+import gridspec
+try:
+    corner = gridspec.load_reduced_corner(sys.argv[2], sys.argv[3])
+except gridspec.GridError as exc:
+    sys.exit(f"sim_reduced_corner_vdd: FAIL -- {exc}")
+print(repr(corner["supply_v"]["Vdd"][0]))
+' "${_SIM_HARNESS_DIR}" "${_SIM_HARNESS_DIR}/../corners.json" "${section}"
 }
