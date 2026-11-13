@@ -67,12 +67,19 @@ on the spans, the same reasoning 0002 G1 used to decline one continuous range
 over 500 MHz and 1 GHz):
 
 - 400–600 MHz is already a **1.5:1** span.
-- The consumer's 250 MHz ±10 % is 225–275 MHz (as stated in #72).
+- The consumer's 250 MHz ±10 % is 225–275 MHz (the ±10 % is 0002's G1 row,
+  line 25; #72 carries the 225–275 MHz figure).
 - A single continuous range covering both would be 225–600 MHz, a **2.67:1**
-  span. Above 2:1 the delay-range limit (one period at the top of the range,
-  below two periods at the bottom) no longer excludes a lock to two periods on
-  its own, which is exactly the argument 0002 G1 and
-  [0005](0005-false-lock-exclusion.md) rest on.
+  span. 0002 G1 (lines 54–57) keeps each lock range under 2:1 so that the
+  delay-range limit — one period at the top of the range, below two periods at
+  the bottom — excludes harmonic lock inside it; a 2.67:1 span fails that
+  bound. [0005](0005-false-lock-exclusion.md) is the stricter statement of the
+  same point: it expects the corner spread of the maximum delay to exceed the
+  1.33× such a bound allows, so range limiting is **necessary but cannot be
+  the exclusion mechanism** (0005 lines 11–18), which is instead the
+  deterministic minimum-delay start-up, bounded monotonic approach, and
+  over-delay supervisor of its "Mechanism chosen". Either way, a 2.67:1 span
+  is outside what the existing argument covers.
 
 So 250 MHz would have to be a **separate** range with its own range-select and
 its own false-lock argument — a design decision of the kind 0002 G1 declined to
@@ -168,14 +175,25 @@ UI = 1 ns:
 
 | | p-p at 14 σ | as UI | Source |
 |---|---|---|---|
-| 0002's comparison (target column, applies at 1 GHz) | 2 ps × 14 = 28 ps | 0.028 UI | 0002 lines 102–103 |
+| 0002's comparison (target-column limit, so a 1 GHz clock) | 2 ps × 14 = 28 ps | 0.028 UI *only against UI = 1 ns, which is not the UI at a 1 GHz clock — see below* | 0002 lines 102–103 |
 | **This spec at the consumer's target** (fallback column, 500 MHz) | **5 ps × 14 = 70 ps** | **0.07 UI** | row 6 fallback |
 | Consumer requirement (as stated in #72) | 30 ps | 0.03 UI | consumer T-21 |
 
 So the fit 0002 discussed **does not apply at the frequency the consumer
 actually runs at**: against 0.03 UI, 0.07 UI is a **2.3× gap** (0.07 / 0.03 =
-2.33), not a 0.002 UI margin. The 0.028 UI figure remains correct for the
-consumer's *stretch* point, where this spec's target column applies.
+2.33), not a 0.002 UI margin.
+
+The 0.028 UI figure does not survive at the consumer's *stretch* point either,
+and it is worth being explicit about why, because the error is the same column
+error one column over. 0002 divided the 28 ps by UI = 1 ns, which is the UI at
+the consumer's **target** (1 Gb/s DDR), while the 2 ps that produced the 28 ps
+is this spec's **target**-column limit and so applies at a 1 GHz clock — the
+consumer's **stretch**. That pairing exists at no consumer operating point. At
+the stretch point the link runs 2 Gb/s DDR on a 1 GHz clock, so UI = T/2 =
+**500 ps**, and the same 28 ps is 28 / 500 = **0.056 UI**. #72 states the
+≤ 0.03 UI requirement at the consumer's target only; whether it also applies at
+stretch is not stated there and is not decided here. If it does, the gap at
+stretch is **1.9×** (0.056 / 0.03).
 
 Two further mismatches, recorded as stated in #72 rather than converted away:
 
