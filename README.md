@@ -99,8 +99,12 @@ measurements/  silicon characterization (empty until tape-out)
 
 Every result is simulated, never measured, and `sim/*/results/` is
 append-only evidence. Multi-corner and Monte Carlo grids are `klt sim`
-requests that go to the batch fleet; there is no local fallback. klt is run
-through the pinned wrapper `scripts/klt.sh` (klayout-tools 0.8.0).
+requests that go to the batch fleet; there is no local fallback. Only the
+signoff records go through the pinned wrapper `scripts/klt.sh` (klayout-tools
+0.8.0); the netlist export and the benches run whatever `klt` is on `PATH`, so
+the pin states nothing about them. The klt behind a simulation result is
+whatever that result's own record says it was — see
+[`sim/README.md`](sim/README.md).
 
 ```
 sim/harness/common/build-osdi.sh      # once per PDK install: compile the OSDI models

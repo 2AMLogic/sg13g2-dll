@@ -20,9 +20,9 @@
 #   * `** sch_path:` / `** sym_path:` -- xschem writes these absolute; they are
 #     rewritten to repo-relative form.
 #   * `** klt-netlist-inputs:` -- a tool-version/provenance header newer klt
-#     versions prepend (present in klt 0.9.2.dev, absent in the 0.8.0 that
-#     scripts/klt.sh pins); dropped, so the gate reports content staleness
-#     rather than which klt happened to be on PATH.
+#     versions prepend and older ones do not (present in klt 0.9.2.dev, absent
+#     in 0.8.x); dropped, so the gate reports content staleness rather than
+#     which klt happened to be on PATH.
 #
 # The committed bytes therefore do not depend on which checkout, or which klt,
 # produced them.
