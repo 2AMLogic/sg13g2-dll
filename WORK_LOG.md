@@ -2,6 +2,43 @@
 
 Chronological record of merged PRs and closed issues. Maintained by the Guide role.
 
+### 2026-11-12
+
+- **PR #69**: Bump Repo Skills 0.25.10 -> 0.26.1
+
+### 2026-11-07
+
+- **Issue #67** (closed): Delay-tap sizing comparison: one stage per tap (0010) vs widened two-stage, at ss/1 GHz, before ratifying 0010 (r7-q57)
+- **PR #68**: sim: compare one-stage and widened two-stage delay taps at ss/1 GHz
+- **PR #66**: Bump Repo Skills 0.25.1 -> 0.25.10
+
+### 2026-11-06
+
+- **Issue #63** (closed): Merge sim/lock-range into sim/false-lock: identical 2025-unit fleet grid simulated twice
+- **PR #65**: refactor(sim): fold lock-range bench into false-lock to drop duplicate fleet grid
+- **Issue #62** (closed): Redraw cp_bias and the CP dump follower to pass K1 and K5, then re-run sim/cp-currents
+- **PR #64**: feat(design): redraw cp_bias and dump buffer to pass K1-K6; fix cp bench pwl extrapolation
+
+### 2026-11-05
+
+- **Issue #59** (closed): Dedupe copy-pasted smoke-bench summarize.py (lock-detector / supervisor)
+- **PR #61**: refactor(sim): share one smoke-bench record grader
+- **Issue #30** (closed): T1 item 1 (remainder of #24): run PFD fit gate, simulate CP, lock detector and supervisor
+- **PR #60**: feat(sim): PFD fit gate and CP currents simulated; both fail, decision records 0011/0012
+- **Issue #54** (closed): Draw the lock detector for spec row 12 (LOCK within 128 cycles, 20 fF load) and export it
+- **PR #57**: feat(design): lock detector with window sampler, VCTRL movement sensor and 128-cycle filter
+- **Issue #23** (closed): T1 item 1 (design sources): current-starved delay-line schematics, tap buffers and netlist on sg13_lv
+- **PR #56**: docs: record delay-line sanity bench and propose one-stage tap fallback
+- **Issue #53** (closed): Draw the false-lock supervisor (0005 parts 1 and 3, 0008 first-REF-edge mask) and export it
+- **PR #55**: feat: draw false-lock supervisor with start-up REF mask and smoke bench
+
+### 2026-11-01
+
+- **Issue #49** (closed): sim: align dllbench run length and predicate window with the revised spec (PR #42)
+- **PR #52**: feat(harness): derive bench run length per column from lock-time limit
+- **PR #42**: docs: install two-key ratification trees and propose spec ratification (0009)
+- **PR #51**: Bump Repo Skills 0.24.7 -> 0.25.1
+
 ### 2026-10-28
 
 - **PR #47**: docs: add README Reproduce section and cite item-10 hygiene envelope
