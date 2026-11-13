@@ -19,7 +19,8 @@ _None._
 
 `loom:important`; taken before unlabelled work.
 
-- **#23**: T1 item 1 (design sources): current-starved delay-line schematics, tap buffers and netlist on sg13_lv
+- **#25**: T1 item 2 (layout): dll_top GDS with a regular delay-line array, built by a committed script
+- **#58**: T1 item 1 (dll_top): draw dll_top schematic, export netlist, attest item 1
 
 ## Ready
 
@@ -31,7 +32,7 @@ _None._
 
 Issues currently being built (`loom:building`).
 
-- **#41**: Install the two-key ratification path and ratify spec/target-spec.md
+_None._
 
 ## PRs Awaiting Review
 
@@ -50,10 +51,7 @@ _None._
 Issues carrying `loom:curated`.
 
 - **#6**: Track the gap to T1 (klayout-tools design-evidence-tiers.md) *(curated)*
-- **#23**: T1 item 1 (design sources): current-starved delay-line schematics, tap buffers and netlist on sg13_lv *(curated)*
 - **#28**: T1 item 9 (testbenches shipped): one harness bench per spec row, with cold-start docs and --attest 9 *(curated)*
-- **#41**: Install the two-key ratification path and ratify spec/target-spec.md *(curated)*
-- **#45**: T1 item 10 (repo hygiene): cite the existing item-10 envelope in the manifest and give the README a true status and reproduce section *(curated)*
 
 ## Proposed (Architect / Hermit)
 
@@ -69,12 +67,12 @@ _None._
 |------|-------|
 | Operator merge-risk holds | 0 |
 | Very important | 0 |
-| Important | 1 |
+| Important | 2 |
 | Ready (`loom:issue`) | 0 |
-| In Progress (`loom:building`) | 1 |
+| In Progress (`loom:building`) | 0 |
 | PRs awaiting review | 0 |
 | Approved PRs awaiting merge | 0 |
-| Curated | 5 |
+| Curated | 2 |
 | Architect / Hermit proposals | 0 |
 | Active epics | 0 |
 <!-- guide:plan-body:end -->
