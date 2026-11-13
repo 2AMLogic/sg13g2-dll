@@ -20,7 +20,10 @@ supply; the deck normalises every measured node by Vdd):
     and the control voltage moves < 5 mV over them.
   * "profile" selects the extra measurements: `predicate` (rows 2, 8, 12),
     `samples` (row 7: every 16th cycle for the lock time), `phase` (rows 3-5),
-    `power` (row 10).
+    `power` (row 10). The `power` profile grades `pavg` against the column's
+    limit only when the DUT descriptor declares `supply_current: true`; on a
+    DUT that draws no supply current the value is recorded and the row is
+    reported NOT GRADED, never passed vacuously against a 0 mW reading.
 Stdlib only. Every number is simulated, never measured.
 """
 
@@ -174,8 +177,13 @@ def phase_measurements(period, tol, j0):
     return out
 
 
-def power_measurements(pmax_mw, t0, t1):
-    return [meas("pavg", f"avg v(pw) from={fnum(t0)} to={fnum(t1)}", "mW", max=pmax_mw)]
+def power_measurements(pmax_mw, t0, t1, supply_current):
+    """Row-10 average supply power. The limit is attached only when the DUT
+    descriptor declares `supply_current: true`. On a DUT that draws no supply
+    current (the stand-in) the deck's v(pw) is identically zero, so grading it
+    against a max would pass vacuously: record the value, grade nothing."""
+    limits = {"max": pmax_mw} if supply_current else {}
+    return [meas("pavg", f"avg v(pw) from={fnum(t0)} to={fnum(t1)}", "mW", **limits)]
 
 
 def evidence_measurements():
@@ -186,7 +194,7 @@ def evidence_measurements():
     return out
 
 
-def measurements(profile, period, tol, pmax_mw, run):
+def measurements(profile, period, tol, pmax_mw, run, supply_current):
     j_end = window_end(period, run)
     j0 = j_end - WINDOW + 1
     t0 = (j0 - 1) * period
@@ -197,7 +205,7 @@ def measurements(profile, period, tol, pmax_mw, run):
     elif profile == "phase":
         out += phase_measurements(period, tol, j0)
     elif profile == "power":
-        out += power_measurements(pmax_mw, t0, t1)
+        out += power_measurements(pmax_mw, t0, t1, supply_current)
     elif profile != "predicate":
         raise BenchError(f"unknown profile {profile!r}")
     return out + evidence_measurements()
@@ -223,7 +231,7 @@ def render_deck(template, period, dut, include_rel):
     return text
 
 
-def base_request(deck_rel, profile, period, tol, pmax_mw, run):
+def base_request(deck_rel, profile, period, tol, pmax_mw, run, supply_current):
     return {
         "_comment": [
             "DLL row bench base request (issue #28), written by sim/harness/dllbench.py.",
@@ -235,7 +243,7 @@ def base_request(deck_rel, profile, period, tol, pmax_mw, run):
         "netlist_source": "schematic",
         "models": {"pdk": "ihp-sg13g2", "lib": "libs.tech/ngspice/models/cornerMOSlv.lib"},
         "analysis": {"kind": "tran", "args": f"{fnum(5e-12)} {fnum(run)} 0 {fnum(1e-11)}"},
-        "measurements": measurements(profile, period, tol, pmax_mw, run),
+        "measurements": measurements(profile, period, tol, pmax_mw, run, supply_current),
         "options": {
             "osdi_preload": [f"@OSDI_DIR@/{m}" for m in ("psp103.osdi", "psp103_nqs.osdi", "r3_cmc.osdi", "mosvar.osdi")],
             "stage_model_inputs": True,
@@ -258,9 +266,10 @@ def build(bench_dir, out, dut_path, f0, tol, pmax_mw, osdi_dir, corners=None):
     shutil.copy(os.path.join(dut_dir, dut["netlist"]), os.path.join(out, "decks", "dut", dut["netlist"]))
     corner_set = gridspec.load_corners(corners or os.path.join(SIM, "corners.json"))
     states = list(STATES) if cfg["start_states"] == "all" else list(cfg["start_states"])
+    supply_current = bool(dut.get("supply_current"))
     manifest = {"bench": cfg["bench"], "rows": cfg["rows"], "profile": cfg["profile"], "f0_hz": f0, "run_s": run,
                 "tol": tol, "dut": dut["name"], "stand_in": bool(dut.get("stand_in")),
-                "attestable": bool(dut.get("attestable")), "requests": []}
+                "supply_current": supply_current, "requests": []}
     for scale in cfg["freq_scales"]:
         freq = f0 * scale
         period = 1.0 / freq
@@ -269,7 +278,7 @@ def build(bench_dir, out, dut_path, f0, tol, pmax_mw, osdi_dir, corners=None):
         with open(os.path.join(out, deck_rel), "w", encoding="utf-8") as fh:
             fh.write(render_deck(template, period, dut, f"dut/{dut['netlist']}"))
         axes = [state_axes(s, period, dut) for s in states]
-        base = base_request(f"../{deck_rel}", cfg["profile"], period, tol, pmax_mw, run)
+        base = base_request(f"../{deck_rel}", cfg["profile"], period, tol, pmax_mw, run, supply_current)
         base_path = os.path.join(out, "base", f"{tag}.base.request.json")
         gridspec.write_request(base, base_path)
         ic = {a: [row[a] for row in axes] for a in AXES}
@@ -303,6 +312,15 @@ def build(bench_dir, out, dut_path, f0, tol, pmax_mw, osdi_dir, corners=None):
 
 def mvals(corner):
     return {m["name"]: m.get("value") for m in corner.get("measurements", [])}
+
+
+def rows_graded(manifest):
+    """Whether this bench's rows can be graded on the DUT the manifest names.
+    The row-10 power bench cannot be: on a DUT that does not declare
+    `supply_current: true`, the deck's v(pw) is identically zero, `pavg`
+    carries no limit (see power_measurements) and no verdict on the row is
+    available from the run."""
+    return manifest["profile"] != "power" or bool(manifest.get("supply_current"))
 
 
 def state_of(manifest_req, corner):
@@ -426,13 +444,26 @@ def grade(bench_dir, out):
     lines += ["", evidence.render(items, title="Envelope summary").split("\n", 3)[3]]
     failing = [env.get("failed", 0) + env.get("errored", 0) for _, env in items if "error" not in env]
     rows_ok = not problems and not any(failing)
+    graded = rows_graded(manifest)
+    if not graded:
+        rows_verdict = ("NOT GRADED on this DUT -- it does not declare `supply_current: true`, so the deck's "
+                        "v(pw) is identically zero: `pavg` carries no limit and is recorded, not graded")
+    else:
+        rows_verdict = "all corners pass" if rows_ok else "NOT all corners pass (a result, not a harness fault)"
+    rows_name = ", ".join(str(r) for r in cfg["rows"])
     lines += ["", "## Verdict", "",
               f"- harness: {'FAIL' if problems else 'PASS'}",
-              f"- rows {', '.join(str(r) for r in cfg['rows'])} on this DUT: {'all corners pass' if rows_ok else 'NOT all corners pass (a result, not a harness fault)'}"]
+              f"- rows {rows_name} on this DUT: {rows_verdict}"]
+    if not graded and any(failing):
+        lines.append(f"- {sum(failing)} corner(s) failed or errored on the limits every profile carries "
+                     f"(rows 2, 8, 12); that is not a row-{rows_name} verdict")
     if problems:
         lines += [""] + [f"- {p}" for p in problems]
     with open(os.path.join(out, "record.md"), "w", encoding="utf-8") as fh:
         fh.write("\n".join(lines) + "\n")
+    if not graded:
+        print(f"dllbench: rows {rows_name} are NOT GRADED on DUT {manifest['dut']!r} "
+              f"(no `supply_current: true`); see {os.path.join(out, 'record.md')}", file=sys.stderr)
     for p in problems:
         print(f"dllbench: {p}", file=sys.stderr)
     if problems:

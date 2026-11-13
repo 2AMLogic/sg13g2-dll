@@ -2,7 +2,6 @@
   "_comment": "DUT descriptor read by sim/harness/dllbench.py. Repointing the benches at the item-1 netlist (#24) means a sibling descriptor with this shape, not edits to the benches.",
   "name": "standin",
   "stand_in": true,
-  "attestable": false,
   "netlist": "dll_standin.spice",
   "subckt": "dll_standin",
   "ports": ["vdd", "in", "en", "tap0", "tap1", "tap2", "tap3", "tap4", "tap5", "tap6", "tap7", "tap8", "lock", "vc"],

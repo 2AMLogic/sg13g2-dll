@@ -6,6 +6,7 @@
 import json
 import os
 import re
+import shutil
 import sys
 import tempfile
 import unittest
@@ -62,7 +63,10 @@ class Inventory(unittest.TestCase):
     def test_standin_is_flagged(self):
         dut = jload(DUT)
         self.assertTrue(dut["stand_in"])
-        self.assertFalse(dut["attestable"])
+        self.assertFalse(dut["supply_current"])
+        # Every descriptor key must drive behaviour; `attestable` drove none
+        # (attestability of item 9 is sim/inventory.json + `klt signoff`).
+        self.assertNotIn("attestable", dut)
         with open(os.path.join(SIM, "standin", dut["netlist"]), encoding="utf-8") as fh:
             self.assertIn("STAND-IN, not the item-1 netlist", fh.read())
 
@@ -77,12 +81,45 @@ class Structure(unittest.TestCase):
         self.assertEqual(subckt.split()[2:], ports)
 
 
+def powered_dut(tmpdir, **over):
+    """A copy of the stand-in descriptor with keys overridden, beside a copy of
+    its netlist so build() can find it."""
+    dut = jload(DUT)
+    dut.update(over)
+    shutil.copy(os.path.join(SIM, "standin", dut["netlist"]), os.path.join(tmpdir, dut["netlist"]))
+    path = os.path.join(tmpdir, "dut.json")
+    with open(path, "w", encoding="utf-8") as fh:
+        json.dump(dut, fh)
+    return path
+
+
 class Build(unittest.TestCase):
     def build(self, bench, **kw):
         d = tempfile.mkdtemp()
         out = os.path.join(d, "o")
-        dllbench.build(os.path.join(SIM, bench), out, DUT, kw.get("f0", 1e9), kw.get("tol", 0.02), 5.0, "/osdi")
+        dllbench.build(os.path.join(SIM, bench), out, kw.get("dut", DUT),
+                       kw.get("f0", 1e9), kw.get("tol", 0.02), 5.0, "/osdi")
         return out
+
+    def pavg_limits(self, out, tag="f100"):
+        req = jload(os.path.join(out, "requests", f"{tag}.request.json"))
+        return next(m for m in req["measurements"] if m["name"] == "pavg").get("limits")
+
+    def test_power_limit_is_withheld_when_the_dut_draws_no_supply_current(self):
+        out = self.build("power")  # the stand-in: supply_current false
+        self.assertIsNone(self.pavg_limits(out))
+        self.assertFalse(jload(os.path.join(out, "manifest.json"))["supply_current"])
+
+    def test_power_limit_is_attached_when_the_dut_draws_supply_current(self):
+        d = tempfile.mkdtemp()
+        out = self.build("power", dut=powered_dut(d, supply_current=True))
+        self.assertEqual(self.pavg_limits(out), {"max": 5.0})
+        self.assertTrue(jload(os.path.join(out, "manifest.json"))["supply_current"])
+
+    def test_withholding_the_power_limit_keeps_the_structural_check_green(self):
+        # check() requires every request to carry at least one limit; the
+        # predicate limits (rows 2, 8, 12) are in every profile.
+        self.assertEqual(dllbench.check(self.build("power")), 0)
 
     def test_every_bench_builds_and_checks(self):
         for b in BENCHES:
@@ -139,6 +176,48 @@ class Build(unittest.TestCase):
         out = self.build("power")
         with self.assertRaises(dllbench.BenchError):
             dllbench.build(os.path.join(SIM, "power"), out, DUT, 1e9, 0.02, 5.0, "/osdi")
+
+
+class PowerVerdict(unittest.TestCase):
+    """grade()'s row-10 verdict line, on a synthetic envelope (no simulator)."""
+
+    def graded_record(self, **dut_over):
+        d = tempfile.mkdtemp()
+        out = os.path.join(d, "o")
+        dut = powered_dut(d, **dut_over) if dut_over else DUT
+        dllbench.build(os.path.join(SIM, "power"), out, dut, 1e9, 0.02, 5.0, "/osdi")
+        man = jload(os.path.join(out, "manifest.json"))
+        req = man["requests"][0]
+        st = req["states"][0]
+        meas = [{"name": "perr", "value": 0.001}, {"name": "vcpp", "value": 1e-6},
+                {"name": "d8_64", "value": req["period_s"]},
+                {"name": "rail_hi", "value": 0.3}, {"name": "rail_lo", "value": 0.4},
+                {"name": "lock_end", "value": 1.0}, {"name": "pavg", "value": 0.0},
+                {"name": "ic_seen", "value": st["ic"]["vic"]},
+                {"name": "tclk_edge", "value": max(st["ic"]["vtclk"], 0.0) * 1e-9}]
+        meas += [{"name": f"{a}_seen", "value": st["ic"][a]} for a in dllbench.AXES[1:]]
+        env = {"status": "pass", "passed": 1, "corner_count": 1, "failed": 0, "errored": 0,
+               "environment": {"engine": "ngspice", "engine_version": "44"},
+               "corners": [{"corner_id": "tt_27_1v20", "status": "pass",
+                            "supply_v": dict(st["ic"], Vdd=1.2), "measurements": meas}]}
+        with open(os.path.join(out, f"{req['tag']}.envelope.json"), "w", encoding="utf-8") as fh:
+            json.dump(env, fh)
+        dllbench.grade(os.path.join(SIM, "power"), out)
+        with open(os.path.join(out, "record.md"), encoding="utf-8") as fh:
+            text = fh.read()
+        m = re.search(r"^- rows 10 on this DUT: (.*)$", text, re.M)
+        self.assertIsNotNone(m, text)
+        return m.group(1)
+
+    def test_zero_power_reading_is_not_reported_as_a_pass(self):
+        verdict = self.graded_record()  # the stand-in: supply_current false
+        self.assertIn("NOT GRADED", verdict)
+        self.assertNotIn("corners pass", verdict)
+
+    def test_a_dut_that_draws_supply_current_is_graded(self):
+        verdict = self.graded_record(supply_current=True)
+        # a corner verdict either way, never the ungraded line
+        self.assertRegex(verdict, r"^(all corners pass|NOT all corners pass)")
 
 
 class Grading(unittest.TestCase):
