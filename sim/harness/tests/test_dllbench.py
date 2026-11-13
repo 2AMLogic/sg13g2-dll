@@ -6,6 +6,7 @@
 import json
 import os
 import re
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -58,6 +59,21 @@ class Inventory(unittest.TestCase):
     def test_blocked_row_is_marked_not_attestable(self):
         row6 = jload(os.path.join(SIM, "bench-rows.json"))["rows"]["6"]
         self.assertEqual(row6["status"], "blocked")
+
+    def test_jitter_placeholder_refuses_and_claims_no_record(self):
+        """Row 6's placeholder states one reason: the noise-method record is missing.
+
+        It must not report that such a record exists -- a reader who believes it
+        would start a deck against a method nothing fixes (CLAUDE.md, "Jitter
+        needs its method").
+        """
+        p = subprocess.run(
+            ["bash", os.path.join(SIM, "jitter", "run.sh")],
+            capture_output=True, text=True,
+        )
+        self.assertEqual(p.returncode, 4)
+        self.assertIn("BLOCKED -- no decision record fixes the jitter noise method", p.stderr)
+        self.assertNotIn("record exists", p.stderr)
 
     def test_standin_is_flagged(self):
         dut = jload(DUT)
