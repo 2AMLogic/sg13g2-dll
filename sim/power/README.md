@@ -6,6 +6,8 @@ Simulated, never measured.
 
 One request, 45 units, `pavg` in mW from `-i(Vdd)*v(vdd)`. The tt / 1.20 V / 27 C value is in the same table. **The stand-in draws no supply current, so `pavg` is 0 there and means nothing**; the bench is only useful once repointed at the item-1 netlist. `BENCH_PMAX_MW` sets the column's limit.
 
+The harness enforces that: the limit is attached to `pavg` only when the DUT descriptor declares `supply_current: true` (`sim/standin/dut.json` declares `false`). On a DUT that draws no supply current the value is recorded with no limit and `record.md` reports row 10 **NOT GRADED on this DUT** rather than claiming a pass against a 0 mW reading. A descriptor for the item-1 netlist sets the flag `true` and gets the 5 mW limit; the spec row and its limit are unchanged either way.
+
 ## Cold start
 
 From a fresh clone with the PDK installed (`sim/pdk.json`: IHP-Open-PDK v0.3.0; `PDK_ROOT`, OSDI built by `sim/harness/common/build-osdi.sh`):
