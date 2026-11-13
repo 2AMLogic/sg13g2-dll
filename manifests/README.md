@@ -17,6 +17,8 @@ The pin covers the records in this directory and nothing else.
 released klayout-tools 0.8.0 from PyPI (`klayout-tools==0.8.0`) in a throwaway
 uv environment, so `klt signoff` grading is reproducible at a stated version.
 The netlist export (`design/netlist.sh`) and the simulation benches do not go
-through that wrapper — they run the `klt` on `PATH` and record its version per
-run. CI (`.github/workflows/signoff.yml`) runs `scripts/check-signoff.sh`;
-regenerate with `scripts/check-signoff.sh --write`.
+through that wrapper — they run the `klt` on `PATH`. Only some bench runs record
+which version that was (see `sim/README.md`); the netlist export records none,
+because it strips klt's `** klt-netlist-inputs:` provenance header on purpose
+(`design/NOTES.md`). CI (`.github/workflows/signoff.yml`) runs
+`scripts/check-signoff.sh`; regenerate with `scripts/check-signoff.sh --write`.
