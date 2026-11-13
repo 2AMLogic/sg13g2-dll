@@ -10,6 +10,7 @@
 | [`decisions/0005-false-lock-exclusion.md`](decisions/0005-false-lock-exclusion.md) | Harmonic-lock exclusion mechanism and the false-lock criterion |
 | [`decisions/0006-pfd-cp-reuse.md`](decisions/0006-pfd-cp-reuse.md) | Adopt-or-keep for `sg13g2-pll`'s PFD and charge pump; `klt` array capability |
 | [`decisions/0007-rail-1p2v-thin-oxide.md`](decisions/0007-rail-1p2v-thin-oxide.md) | Operator ruling 2026-10-20: rail to 1.2 V thin-oxide; 0002 reconciliation (G1, G2, G4, G5); 20 fF tap load; review calls D/E/G folded in |
+| [`decisions/0013-consumer-requirements-aib-recompare.md`](decisions/0013-consumer-requirements-aib-recompare.md) | `sg13g2-aib` requirements re-compared with the columns corrected (consumer target = this spec's fallback); dispositions of the 250 MHz point, row 3's fallback phase count and row 6's fallback jitter limit, plus a dated correction to 0002's jitter fit; changes no row (proposed) |
 
 Machine-readable corner set: [`../sim/corners.json`](../sim/corners.json)
 (schema 1, consumed by `../sim/harness/gridspec.py`).
