@@ -26,19 +26,19 @@ _None._
 
 Human-approved issues ready for implementation (`loom:issue`).
 
-_None._
+- **#87**: Make the stand-in DUT flags do something: supply_current and attestable are read by nothing, so the power bench passes at 0 mW
 
 ## In Progress
 
 Issues currently being built (`loom:building`).
 
-_None._
+- **#85**: Remove the noise-method grep gate in sim/jitter/run.sh: it matches decision 0001 and reports a record that does not exist
 
 ## PRs Awaiting Review
 
 PRs waiting on Judge (`loom:review-requested`).
 
-_None._
+- **#88**: fix(jitter): refuse unconditionally instead of reporting a record that does not exist
 
 ## Approved (Awaiting Merge)
 
@@ -55,9 +55,8 @@ Issues carrying `loom:curated`.
 
 ## Proposed (Architect / Hermit)
 
-- **#71**: Remove the netlist.sh --check skip in delay-sizing: make the staleness gate ignore the klt header line *(hermit)*
 - **#74**: Consolidate klt sim envelope screening onto evidence.basic_problems: five graders disagree on what a diagnostic is *(hermit)*
-- **#76**: Remove the six per-bench reduced-corner files: read reduced_set from sim/corners.json instead of four hand copies *(hermit)*
+- **#89**: Give klt one true version statement: scripts/klt.sh pins 0.8.0 for one caller while every bench and netlist.sh use the klt on PATH *(hermit)*
 
 ## Epics
 
@@ -70,11 +69,11 @@ _None._
 | Operator merge-risk holds | 0 |
 | Very important | 0 |
 | Important | 2 |
-| Ready (`loom:issue`) | 0 |
-| In Progress (`loom:building`) | 0 |
-| PRs awaiting review | 0 |
+| Ready (`loom:issue`) | 1 |
+| In Progress (`loom:building`) | 1 |
+| PRs awaiting review | 1 |
 | Approved PRs awaiting merge | 0 |
 | Curated | 2 |
-| Architect / Hermit proposals | 3 |
+| Architect / Hermit proposals | 2 |
 | Active epics | 0 |
 <!-- guide:plan-body:end -->

@@ -4,6 +4,15 @@ Chronological record of merged PRs and closed issues. Maintained by the Guide ro
 
 ### 2026-11-13
 
+- **Issue #81** (closed): Remove ten copies of the klt sim submit block: add sim_submit to sim/harness/preflight.sh
+- **PR #84**: refactor(sim): replace ten copies of the klt sim submit block with sim_submit
+- **Issue #83** (closed): Remove the stale hand-written status paragraphs in design/README.md and design/NOTES.md: they say nothing was simulated while committed results show two failed gates
+- **PR #86**: docs(design): replace the stale status prose with pointers to the evidence
+- **Issue #82** (closed): Remove nine copies of the klt sim submit block: one sim_submit in sim/harness/preflight.sh
+- **Issue #76** (closed): Remove the six per-bench reduced-corner files: read reduced_set from sim/corners.json instead of four hand copies
+- **PR #80**: refactor(sim): read reduced-set corners from sim/corners.json, not per-bench copies
+- **Issue #71** (closed): Remove the netlist.sh --check skip in delay-sizing: make the staleness gate ignore the klt header line
+- **PR #79**: fix: strip klt's provenance header in netlist.sh so --check grades content
 - **Issue #72** (closed): Consumer requirements from sg13g2-aib, re-compared at 381d989: 250 MHz, 4-vs-16 phases at 500 MHz, unbounded MC spacing, 5 ps rms jitter
 - **PR #75**: spec: record 0013 disposing the re-compared aib requirements
 
