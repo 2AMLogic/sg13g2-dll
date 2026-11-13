@@ -355,11 +355,20 @@ def grade_corner(profile, period, st, vals, tol, j_end=None):
 
 
 def axis_problems(name, env, manifest_req):
-    """The start-state axes took effect (each swept source reads back its value)."""
+    """The start-state axes took effect (each swept source reads back its value,
+    over as many distinct values as the request declares for that axis).
+
+    The arity expectation is per axis and comes from the manifest, not a fixed
+    floor: the phase and power benches sweep one start state, so every axis
+    declares 1 there, while the nine-state benches declare 5-6 on `vic` and 2
+    on the four time axes. Counting states instead would be wrong in both
+    directions."""
     problems = []
     probes = {a: ("ic_seen" if a == "vic" else f"{a}_seen") for a in AXES}
     for src, m in probes.items():
-        problems += evidence.check_ic_applied(name, env, src, m, tol=0.02 if src == "vic" else 1e-6)
+        declared = len({st["ic"][src] for st in manifest_req["states"]})
+        tol = 0.02 if src == "vic" else 1e-6
+        problems += evidence.check_ic_applied(name, env, src, m, tol=tol, min_states=declared)
     for c in env.get("corners", []):
         st = state_of(manifest_req, c)
         if st is None:

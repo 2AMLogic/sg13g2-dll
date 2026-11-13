@@ -426,6 +426,11 @@ class Evidence(unittest.TestCase):
         self.assertEqual(len(evidence.check_ic_applied("i", stuck, "vic", "v0")), 2)
         one = {"corners": [corner("a", {"vic": 0.0}, v0=0.0)]}
         self.assertTrue(evidence.check_ic_applied("i", one, "vic", "v0"))
+        # a caller that declares a one-state sweep: the arity leg is satisfied,
+        # the per-row read-back leg still bites (issue #92).
+        self.assertEqual(evidence.check_ic_applied("i", one, "vic", "v0", min_states=1), [])
+        off = {"corners": [corner("a", {"vic": 0.0}, v0=0.6)]}
+        self.assertEqual(len(evidence.check_ic_applied("i", off, "vic", "v0", min_states=1)), 1)
 
     def test_expected_count(self):
         ok = {"corner_count": 3, "passed": 3}
