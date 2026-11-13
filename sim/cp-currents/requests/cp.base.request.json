@@ -1,6 +1,6 @@
 {
   "_comment": [
-    "sg13g2-dll charge-pump / cp_bias bench (issue #30). Corners: the three-corner reduced_set of sim/corners.json. Measurements carry no limits; sim/cp-currents/summarize.py grades them against criteria fixed in that file before any result existed.",
+    "sg13g2-dll charge-pump / cp_bias bench (issue #30) BASE request: no corners (the harness owns that axis). run.sh adds them with `gridspec.py --reduced-set`, which reads the three-corner reduced_set of sim/corners.json. Measurements carry no limits; sim/cp-currents/summarize.py grades them against criteria fixed in that file before any result existed.",
     "Simulated, never measured. @OSDI_DIR@ is substituted by run.sh."
   ],
   "engine": "ngspice",
@@ -9,31 +9,6 @@
   "models": {
     "pdk": "ihp-sg13g2",
     "lib": "libs.tech/ngspice/models/cornerMOSlv.lib"
-  },
-  "corners": {
-    "units": [
-      {
-        "process": "mos_tt",
-        "temperature_c": 27,
-        "supply_v": {
-          "Vdd": 1.2
-        }
-      },
-      {
-        "process": "mos_ss",
-        "temperature_c": 125,
-        "supply_v": {
-          "Vdd": 1.08
-        }
-      },
-      {
-        "process": "mos_ff",
-        "temperature_c": -40,
-        "supply_v": {
-          "Vdd": 1.32
-        }
-      }
-    ]
   },
   "analysis": {
     "kind": "tran",
