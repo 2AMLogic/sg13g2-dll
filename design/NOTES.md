@@ -53,9 +53,17 @@ issue (#24), not here.
 `design/netlist.sh` runs `klt netlist --block` for each top and writes
 `design/netlist/*.spice`; `design/netlist.sh --check` writes nothing and exits 3
 when any committed netlist differs from a fresh export. The script, not
-`klt netlist --check`, does the comparison because the raw export embeds the
-absolute checkout path in `** sch_path:` comments; the script rewrites that
-prefix to `design/` first. (Generic tool gap, already tracked as 2AMLogic/klayout-tools#4091.)
+`klt netlist --check`, does the comparison because the raw export carries two
+stamps of the host that produced it, neither of which is design content: the
+absolute checkout path in `** sch_path:` / `** sym_path:` comments (rewritten to
+a `design/` prefix) and klt's own `** klt-netlist-inputs:` provenance header
+(dropped — a newer klt emits it, the 0.8.0 that `scripts/klt.sh` pins does not,
+so leaving it in makes the gate report the klt on PATH instead of staleness).
+Both normalizations run in `export_block`, in write mode and `--check` alike, so
+the committed bytes are reproducible from either klt. (Generic tool gaps, tracked
+as 2AMLogic/klayout-tools#4091 and #5085; klt grew `--relative-paths` and
+`--no-provenance-header` for them, but neither flag exists in the pinned 0.8.0,
+so the script normalizes on its own side.)
 
 ## Evidence status
 
