@@ -47,12 +47,8 @@ for f in 500MHz 1GHz; do
         "${OUT}/base/dl.base.request.json" > "${OUT}/base/${tag}.base.request.json"
     python3 -I "${SIM_DIR}/harness/gridspec.py" "${OUT}/base/${tag}.base.request.json" \
         -o "${OUT}/requests/${tag}.request.json" --reduced-corner "mos_${c}" --ic "VC=${VC}"
-    echo "run.sh: klt sim ${tag}" >&2
-    klt sim "${OUT}/requests/${tag}.request.json" \
-        --wait-for-capacity "${DS_CAPACITY_WAIT_S:-900}" --format json \
-        -o "${OUT}/artifacts/${tag}" --report-out "${OUT}/${tag}.envelope.json" \
-        > /dev/null 2> "${OUT}/${tag}.stderr" || rc=$?
-    tail -2 "${OUT}/${tag}.stderr" >&2 || true
+    sim_submit "${OUT}" "${tag}" "${OUT}/requests/${tag}.request.json" \
+        --wait-for-capacity "${DS_CAPACITY_WAIT_S:-900}" || rc=$?
   done
 done
 python3 -I "${HERE}/summarize.py" "${OUT}" || rc=$?

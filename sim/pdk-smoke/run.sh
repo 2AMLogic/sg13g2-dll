@@ -34,16 +34,12 @@ BACKEND_ARGS=()
 
 rc=0
 for tag in inv_lv inv_hv npn_op; do
-  echo "run.sh: klt sim ${tag}" >&2
   # npn_op is a single unit; the local ngspice cannot load v0.4 OSDI, so it
   # also rides the batch backend unless SMOKE_BACKEND says otherwise.
   extra=("${BACKEND_ARGS[@]}")
   [[ ${#extra[@]} -gt 0 || "${tag}" != npn_op ]] || extra=(--backend batch)
-  klt sim "${OUT}/requests/${tag}.request.json" "${extra[@]}" \
-      --wait-for-capacity "${SMOKE_CAPACITY_WAIT_S:-900}" --format json \
-      -o "${OUT}/artifacts/${tag}" --report-out "${OUT}/${tag}.envelope.json" \
-      > /dev/null 2> "${OUT}/${tag}.stderr" || rc=$?
-  tail -3 "${OUT}/${tag}.stderr" >&2 || true
+  sim_submit "${OUT}" "${tag}" "${OUT}/requests/${tag}.request.json" \
+      "${extra[@]}" --wait-for-capacity "${SMOKE_CAPACITY_WAIT_S:-900}" || rc=$?
 done
 
 python3 -I "${SIM_DIR}/harness/evidence.py" --out "${OUT}/record.md" \

@@ -7,6 +7,9 @@
 #   sim_preflight                          # checks; exits 3 on a missing prerequisite
 #   sim_stage_inputs BENCH_DIR OUT REQ_DST # refuses an existing OUT; copies decks and
 #                                          # requests (@OSDI_DIR@ substituted) into OUT/REQ_DST
+#   sim_submit OUT TAG REQUEST [args...]   # submits REQUEST through `klt sim`; the per-bench
+#                                          # policy args (--backend, --wait-for-capacity) are
+#                                          # the caller's. Returns klt's own exit status.
 #   sim_reduced_corner_vdd SECTION         # prints the Vdd of that reduced_set corner of
 #                                          # sim/corners.json (gridspec.py is the only reader)
 # Sources env.sh, so PDK_ROOT / SG13G2_OSDI_DIR are set in the caller.
@@ -42,6 +45,30 @@ sim_stage_inputs() {
   for r in "${bench}"/requests/*.request.json; do
     sed "s#@OSDI_DIR@#${SG13G2_OSDI_DIR}#g" "${r}" > "${out}/${req_dst}/$(basename "${r}")"
   done
+}
+
+# The one fleet-submit definition every bench runner shares: announce the tag,
+# submit REQUEST through `klt sim`, keep the artifacts under OUT/artifacts/TAG and
+# the report in OUT/TAG.envelope.json, capture stderr to OUT/TAG.stderr and echo
+# its tail so a failed submit always states its reason, then return klt's own exit
+# status so the caller keeps its `|| rc=$?`.
+#
+# Everything that differs by bench is a caller argument, not a knob here: the
+# backend override (`--backend local` for a single-unit smoke, a per-bench
+# BACKEND_ARGS array otherwise) and `--wait-for-capacity`, which every batch
+# submit passes.
+sim_submit() {
+  local out="${1:?usage: sim_submit OUT TAG REQUEST [klt sim args...]}"
+  local tag="${2:?usage: sim_submit OUT TAG REQUEST [klt sim args...]}"
+  local req="${3:?usage: sim_submit OUT TAG REQUEST [klt sim args...]}"
+  shift 3
+  local rc=0
+  echo "run.sh: klt sim ${tag}" >&2
+  klt sim "${req}" "$@" --format json \
+      -o "${out}/artifacts/${tag}" --report-out "${out}/${tag}.envelope.json" \
+      > /dev/null 2> "${out}/${tag}.stderr" || rc=$?
+  tail -3 "${out}/${tag}.stderr" >&2 || true
+  return "${rc}"
 }
 
 # Print the Vdd of one reduced_set corner of sim/corners.json, by model section

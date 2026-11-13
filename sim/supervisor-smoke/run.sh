@@ -27,7 +27,5 @@ sim_stage_inputs "${HERE}" "${OUT}" requests
 { cat "${DESIGN_DIR}/netlist/supervisor.spice"; cat "${HERE}/decks/sup_body.spice"; } > "${OUT}/decks/sup_1GHz.spice"
 
 rc=0
-klt sim "${OUT}/requests/sup.request.json" --backend local --format json \
-    -o "${OUT}/artifacts" --report-out "${OUT}/sup.envelope.json" \
-    > /dev/null 2> "${OUT}/sup.stderr" || rc=$?
+sim_submit "${OUT}" sup "${OUT}/requests/sup.request.json" --backend local || rc=$?
 python3 -I "${SIM_DIR}/harness/smoke_summarize.py" "${OUT}" "${rc}" supervisor-smoke sup || exit $?

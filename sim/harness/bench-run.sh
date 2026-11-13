@@ -44,11 +44,8 @@ bench_main() {
   [[ -z "${BENCH_BACKEND:-}" ]] || backend=(--backend "${BENCH_BACKEND}")
   for req in "${out}"/requests/*.request.json; do
     tag="$(basename "${req}" .request.json)"
-    echo "run.sh: klt sim ${tag}" >&2
-    klt sim "${req}" "${backend[@]}" --wait-for-capacity "${BENCH_CAPACITY_WAIT_S:-900}" --format json \
-        -o "${out}/artifacts/${tag}" --report-out "${out}/${tag}.envelope.json" \
-        > /dev/null 2> "${out}/${tag}.stderr" || rc=$?
-    tail -3 "${out}/${tag}.stderr" >&2 || true
+    sim_submit "${out}" "${tag}" "${req}" \
+        "${backend[@]}" --wait-for-capacity "${BENCH_CAPACITY_WAIT_S:-900}" || rc=$?
   done
   python3 -I "${_BENCH_HARNESS_DIR}/dllbench.py" grade "${bench}" "${out}" || rc=$?
   if [[ ${rc} -ne 0 ]]; then

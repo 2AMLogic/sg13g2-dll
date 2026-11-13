@@ -66,7 +66,7 @@
         "role": "hygiene",
         "path": "sim/delay-sanity/run.sh",
         "passed": true,
-        "content_hash": "sha256:e9696655f01f3844da2d6155d1914ceb455e4849ed1f2e7e76edd60288511e95"
+        "content_hash": "sha256:4703939b602a1ceb76b143c991519823caf96f1d2b34e4d1f649ecc4840fad08"
       },
       {
         "check": "present",
@@ -80,7 +80,7 @@
         "role": "hygiene",
         "path": "sim/pdk-smoke/run.sh",
         "passed": true,
-        "content_hash": "sha256:da85d711dfe812229007b24f1ea98d3204d8fcad61bdfcb867454775da4e5125"
+        "content_hash": "sha256:091a89f60f3ea32d5f63e519b8e5bdc79c0f35c95ee9e4f54e750b22f3ba9b62"
       },
       {
         "check": "command",

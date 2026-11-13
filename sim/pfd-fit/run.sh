@@ -37,12 +37,8 @@ BACKEND_ARGS=()
 
 rc=0
 for tag in pfd_1g pfd_500m ctl_1g; do
-  echo "run.sh: klt sim ${tag}" >&2
-  klt sim "${OUT}/requests/${tag}.request.json" "${BACKEND_ARGS[@]}" \
-      --wait-for-capacity "${PFDFIT_CAPACITY_WAIT_S:-900}" --format json \
-      -o "${OUT}/artifacts/${tag}" --report-out "${OUT}/${tag}.envelope.json" \
-      > /dev/null 2> "${OUT}/${tag}.stderr" || rc=$?
-  tail -3 "${OUT}/${tag}.stderr" >&2 || true
+  sim_submit "${OUT}" "${tag}" "${OUT}/requests/${tag}.request.json" \
+      "${BACKEND_ARGS[@]}" --wait-for-capacity "${PFDFIT_CAPACITY_WAIT_S:-900}" || rc=$?
 done
 
 python3 -I "${HERE}/grade.py" --out "${OUT}/fit-gate.md" \
