@@ -55,7 +55,9 @@ Issues carrying `loom:curated`.
 
 ## Proposed (Architect / Hermit)
 
-_None._
+- **#71**: Remove the netlist.sh --check skip in delay-sizing: make the staleness gate ignore the klt header line *(hermit)*
+- **#74**: Consolidate klt sim envelope screening onto evidence.basic_problems: five graders disagree on what a diagnostic is *(hermit)*
+- **#76**: Remove the six per-bench reduced-corner files: read reduced_set from sim/corners.json instead of four hand copies *(hermit)*
 
 ## Epics
 
@@ -73,6 +75,6 @@ _None._
 | PRs awaiting review | 0 |
 | Approved PRs awaiting merge | 0 |
 | Curated | 2 |
-| Architect / Hermit proposals | 0 |
+| Architect / Hermit proposals | 3 |
 | Active epics | 0 |
 <!-- guide:plan-body:end -->

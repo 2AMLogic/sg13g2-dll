@@ -2,6 +2,11 @@
 
 Chronological record of merged PRs and closed issues. Maintained by the Guide role.
 
+### 2026-11-13
+
+- **Issue #72** (closed): Consumer requirements from sg13g2-aib, re-compared at 381d989: 250 MHz, 4-vs-16 phases at 500 MHz, unbounded MC spacing, 5 ps rms jitter
+- **PR #75**: spec: record 0013 disposing the re-compared aib requirements
+
 ### 2026-11-12
 
 - **PR #69**: Bump Repo Skills 0.25.10 -> 0.26.1
