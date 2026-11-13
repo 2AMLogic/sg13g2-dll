@@ -57,12 +57,8 @@ rc=0
 for tag in pvt ic mc ctl ctl_repeat; do
   req="${R}/${tag}.request.json"
   [[ "${tag}" != ctl_repeat ]] || req="${R}/ctl.request.json"
-  echo "run.sh: klt sim ${tag}" >&2
-  klt sim "${req}" "${BACKEND_ARGS[@]}" \
-      --wait-for-capacity "${EXAMPLE_CAPACITY_WAIT_S:-900}" --format json \
-      -o "${OUT}/artifacts/${tag}" --report-out "${OUT}/${tag}.envelope.json" \
-      > /dev/null 2> "${OUT}/${tag}.stderr" || rc=$?
-  tail -3 "${OUT}/${tag}.stderr" >&2 || true
+  sim_submit "${OUT}" "${tag}" "${req}" \
+      "${BACKEND_ARGS[@]}" --wait-for-capacity "${EXAMPLE_CAPACITY_WAIT_S:-900}" || rc=$?
 done
 
 python3 -I "${SIM_DIR}/harness/evidence.py" --out "${OUT}/record.md" \

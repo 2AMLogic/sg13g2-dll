@@ -10,7 +10,7 @@
 #   DS_B_SCALE=4 sim/delay-sizing/run.sh fine            # finer Vc near the ff dead-zone edge
 #   DS_B_SCALE=4 sim/delay-sizing/run.sh mc              # Monte Carlo matching, ss/1 GHz
 #
-# Env: DS_CAPACITY_WAIT_S (default 600), DS_RESULTS_DIR, DS_VC (comma list),
+# Env: DS_CAPACITY_WAIT_S (default 900), DS_RESULTS_DIR, DS_VC (comma list),
 #      DS_B_SCALE (B starving-device width factor, default 2), DS_MC_N (32),
 #      DS_MC_SEED (20261107), DS_MC_VC (1.0)
 set -euo pipefail
@@ -56,12 +56,8 @@ submit() {
   sed -i "s#@OSDI_DIR@#${SG13G2_OSDI_DIR}#g" "${OUT}/base/${var}_${f}.base.request.json"
   python3 -I "${SIM_DIR}/harness/gridspec.py" "${OUT}/base/${var}_${f}.base.request.json" \
       -o "${OUT}/requests/${tag}.request.json" "${corner_args[@]}" --ic "VC=${vc}" "$@"
-  echo "run.sh: klt sim ${tag}" >&2
-  klt sim "${OUT}/requests/${tag}.request.json" \
-      --wait-for-capacity "${DS_CAPACITY_WAIT_S:-600}" --format json \
-      -o "${OUT}/artifacts/${tag}" --report-out "${OUT}/${tag}.envelope.json" \
-      > /dev/null 2> "${OUT}/${tag}.stderr" || rc=$?
-  tail -2 "${OUT}/${tag}.stderr" >&2 || true
+  sim_submit "${OUT}" "${tag}" "${OUT}/requests/${tag}.request.json" \
+      --wait-for-capacity "${DS_CAPACITY_WAIT_S:-900}" || rc=$?
 }
 
 case "${MODE}" in
@@ -90,10 +86,8 @@ case "${MODE}" in
       mv "${OUT}/requests/${v}_mc_ss_1GHz.request.control.json" "${OUT}/requests/${v}_ctl_ss_1GHz.request.json"
       for t in ctl ctl_repeat; do
         r="${v}_${t}_ss_1GHz"; req="${OUT}/requests/${v}_ctl_ss_1GHz.request.json"
-        echo "run.sh: klt sim ${r}" >&2
-        klt sim "${req}" --wait-for-capacity "${DS_CAPACITY_WAIT_S:-600}" --format json \
-            -o "${OUT}/artifacts/${r}" --report-out "${OUT}/${r}.envelope.json" \
-            > /dev/null 2> "${OUT}/${r}.stderr" || rc=$?
+        sim_submit "${OUT}" "${r}" "${req}" \
+            --wait-for-capacity "${DS_CAPACITY_WAIT_S:-900}" || rc=$?
       done
     done ;;
   *) echo "run.sh: unknown mode ${MODE}" >&2; exit 2 ;;

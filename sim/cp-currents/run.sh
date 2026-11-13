@@ -36,9 +36,6 @@ BACKEND_ARGS=()
 [[ -z "${CPI_BACKEND:-}" ]] || BACKEND_ARGS=(--backend "${CPI_BACKEND}")
 
 rc=0
-klt sim "${OUT}/requests/cp.request.json" "${BACKEND_ARGS[@]}" \
-    --wait-for-capacity "${CPI_CAPACITY_WAIT_S:-900}" --format json \
-    -o "${OUT}/artifacts" --report-out "${OUT}/cp.envelope.json" \
-    > /dev/null 2> "${OUT}/cp.stderr" || rc=$?
-tail -3 "${OUT}/cp.stderr" >&2 || true
+sim_submit "${OUT}" cp "${OUT}/requests/cp.request.json" \
+    "${BACKEND_ARGS[@]}" --wait-for-capacity "${CPI_CAPACITY_WAIT_S:-900}" || rc=$?
 python3 -I "${HERE}/summarize.py" "${OUT}" "${OUT}/delay-sanity.record.md" "${rc}" || exit $?

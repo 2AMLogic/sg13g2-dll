@@ -27,7 +27,5 @@ sim_stage_inputs "${HERE}" "${OUT}" requests
 { cat "${DESIGN_DIR}/netlist/lock_detector.spice"; cat "${HERE}/decks/ld_body.spice"; } > "${OUT}/decks/ld_1GHz.spice"
 
 rc=0
-klt sim "${OUT}/requests/ld.request.json" --backend local --format json \
-    -o "${OUT}/artifacts" --report-out "${OUT}/ld.envelope.json" \
-    > /dev/null 2> "${OUT}/ld.stderr" || rc=$?
+sim_submit "${OUT}" ld "${OUT}/requests/ld.request.json" --backend local || rc=$?
 python3 -I "${SIM_DIR}/harness/smoke_summarize.py" "${OUT}" "${rc}" lock-detector-smoke ld || exit $?
