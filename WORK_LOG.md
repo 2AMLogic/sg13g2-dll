@@ -4,6 +4,10 @@ Chronological record of merged PRs and closed issues. Maintained by the Guide ro
 
 ### 2026-11-13
 
+- **Issue #87** (closed): Make the stand-in DUT flags do something: supply_current and attestable are read by nothing, so the power bench passes at 0 mW
+- **PR #93**: fix(harness): withhold the row-10 power limit on a DUT that draws no supply current
+- **Issue #95** (closed): Remove design/inventory.json: an unreferenced partial item-1 inventory that attests a pass for three of nine tops
+- **PR #98**: chore: delete the unreferenced partial item-1 attestation inventory
 - **Issue #81** (closed): Remove ten copies of the klt sim submit block: add sim_submit to sim/harness/preflight.sh
 - **PR #84**: refactor(sim): replace ten copies of the klt sim submit block with sim_submit
 - **Issue #83** (closed): Remove the stale hand-written status paragraphs in design/README.md and design/NOTES.md: they say nothing was simulated while committed results show two failed gates

@@ -26,19 +26,23 @@ _None._
 
 Human-approved issues ready for implementation (`loom:issue`).
 
-- **#87**: Make the stand-in DUT flags do something: supply_current and attestable are read by nothing, so the power bench passes at 0 mW
+_None._
 
 ## In Progress
 
 Issues currently being built (`loom:building`).
 
 - **#85**: Remove the noise-method grep gate in sim/jitter/run.sh: it matches decision 0001 and reports a record that does not exist
+- **#89**: Give klt one true version statement: scripts/klt.sh pins 0.8.0 for one caller while every bench and netlist.sh use the klt on PATH
+- **#92**: bug: grade() always reports a harness FAIL on the single-start-state benches (phase, power), because check_ic_applied demands >= 2 start states
 
 ## PRs Awaiting Review
 
 PRs waiting on Judge (`loom:review-requested`).
 
 - **#88**: fix(jitter): refuse unconditionally instead of reporting a record that does not exist
+- **#97**: docs: scope the klt 0.8.0 pin claim to the signoff records
+- **#100**: fix(harness): expect per-axis start-state arity from the manifest, not a hard 2
 
 ## Approved (Awaiting Merge)
 
@@ -52,11 +56,16 @@ Issues carrying `loom:curated`.
 
 - **#6**: Track the gap to T1 (klayout-tools design-evidence-tiers.md) *(curated)*
 - **#28**: T1 item 9 (testbenches shipped): one harness bench per spec row, with cold-start docs and --attest 9 *(curated)*
+- **#92**: bug: grade() always reports a harness FAIL on the single-start-state benches (phase, power), because check_ic_applied demands >= 2 start states *(curated)*
+- **#96**: Remove the hv and HBT legs of the PDK pin and device smoke: decision 0007 dropped both families, but every bench preflight still requires their model files *(curated)*
 
 ## Proposed (Architect / Hermit)
 
 - **#74**: Consolidate klt sim envelope screening onto evidence.basic_problems: five graders disagree on what a diagnostic is *(hermit)*
-- **#89**: Give klt one true version statement: scripts/klt.sh pins 0.8.0 for one caller while every bench and netlist.sh use the klt on PATH *(hermit)*
+- **#91**: Make the row 7 and row 12 verdicts grade something: dllbench computes lock time and LOCK consistency, then reports a pass without reading them *(hermit)*
+- **#96**: Remove the hv and HBT legs of the PDK pin and device smoke: decision 0007 dropped both families, but every bench preflight still requires their model files *(hermit)*
+- **#99**: Remove the hardcoded run-condition literals from the sim record writers: backend, simulator version, corner and unit are printed as constants while the envelope records them *(hermit)*
+- **#101**: Remove the second schematic authoring path: 3 of 24 design cells are hand-written outside design/tools/cells.py, so the generator cannot instantiate the delay line *(hermit)*
 
 ## Epics
 
@@ -69,11 +78,11 @@ _None._
 | Operator merge-risk holds | 0 |
 | Very important | 0 |
 | Important | 2 |
-| Ready (`loom:issue`) | 1 |
-| In Progress (`loom:building`) | 1 |
-| PRs awaiting review | 1 |
+| Ready (`loom:issue`) | 0 |
+| In Progress (`loom:building`) | 3 |
+| PRs awaiting review | 3 |
 | Approved PRs awaiting merge | 0 |
-| Curated | 2 |
-| Architect / Hermit proposals | 2 |
+| Curated | 4 |
+| Architect / Hermit proposals | 5 |
 | Active epics | 0 |
 <!-- guide:plan-body:end -->
