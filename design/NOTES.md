@@ -1,8 +1,7 @@
 # Delay line: sizing note (issue #23)
 
-Status: **provisional first-pass sizing, not simulated.** The sanity bench
-(`sim/delay-sanity/`) is written but has not produced a result; see
-"Evidence status". Nothing here is a measured or simulated number.
+Status: see "Evidence status" below — the one statement, in this note, of what
+ran for this block and what it showed.
 
 ## Structure
 

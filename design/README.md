@@ -1,8 +1,11 @@
 # design
 
 Schematic sources (xschem) and the SPICE netlists derived from them. All
-devices are `sg13_lv_*` (1.2 V thin oxide, `spec/decisions/0007`). Nothing here
-has been simulated except the supervisor and the lock detector, each at one corner: see "Status".
+devices are `sg13_lv_*` (1.2 V thin oxide, `spec/decisions/0007`). What has been
+simulated for each block, and what the run showed, is recorded once: in
+[`NOTES.md`](NOTES.md) (each block's "Evidence status") and in the append-only
+`sim/<bench>/results/`; the adoption state of the PFD and charge pump is in
+`reuse.lock.json`. This file keeps no second copy of it.
 
 | Block | Schematic | Netlist | Notes |
 |---|---|---|---|
@@ -44,18 +47,10 @@ xschem is only run through `klt netlist`.
   VCTRL at the high rail. See `spec/decisions/0008`.
 - PFD inputs: `REF` = input clock, `FB` = tap N. DN raises delay, UP lowers it.
 
-## Sizing (first pass, to be replaced by simulation)
+## Sizing
 
 Logic: `inv_lv` P 1 µm / N 0.5 µm, L 0.13 µm (minimum); `nand2_lv` 1 µm all
 devices. Edge detector: 5 inverters. Reset: NAND + 3 inverters. Charge-pump legs
-L 0.5 µm; loop capacitor 26 µm × 26 µm MIM. None of these numbers is justified by
-a result yet.
-
-## Status
-
-- Exports regenerate and `--check` fails on an edited schematic (shown on a
-  loop-filter edit) or hand-edited netlist.
-- The supervisor has a one-corner smoke run (`sim/supervisor-smoke/`, `NOTES.md`).
-- **No other simulation exists.** The 0006 fit gate (`sim/pfd-fit/`) was not run: the
-  batch backend rejected the submit (`InvalidAccessKeyId`) and the local ngspice
-  42 cannot load the v0.4 OSDI models.
+L 0.5 µm; loop capacitor 26 µm × 26 µm MIM. These are the values in
+`design/tools/cells.py` that `mksch.py` draws the schematics from; what each has
+been graded against is in [`NOTES.md`](NOTES.md) and `sim/<bench>/results/`.
