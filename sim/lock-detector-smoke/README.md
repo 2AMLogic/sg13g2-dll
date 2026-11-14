@@ -2,9 +2,10 @@
 
 Smoke bench for the lock detector (`design/lock_detector.sch`, issue #54). One
 typical-corner transient (mos_tt + res_typ + cap_typ, 1.2 V, 27 °C, 1 GHz), **one
-unit**, so it runs with `klt sim --backend local`; it is not a corner or Monte
-Carlo grid and must not be widened into one here (use a `klt sim` request with
-`corners` and let it go to the fleet).
+unit**. It runs through the shared single-unit runner
+`sim/harness/smoke-run.sh`, which is where the backend policy for one unit --
+why it runs locally and why it is never widened into a corner or Monte Carlo
+grid here -- is defined.
 
 The stimulus is ideal (`decks/ld_body.spice`): TAPN is REF delayed by T plus an
 error e, VCTRL an ideal source, LOCK loaded with 20 fF. Timeline:

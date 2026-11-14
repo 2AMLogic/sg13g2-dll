@@ -1,10 +1,10 @@
 # sim/supervisor-smoke
 
 Smoke bench for the false-lock supervisor (`design/supervisor.sch`, issue #53).
-One typical-corner transient (mos_tt + res_typ, 1.2 V, 27 °C, 1 GHz), **one unit**,
-so it runs with `klt sim --backend local`; it is not a corner or Monte Carlo grid
-and must not be widened into one here (use a `klt sim` request with `corners` and
-let it go to the fleet).
+One typical-corner transient (mos_tt + res_typ, 1.2 V, 27 °C, 1 GHz), **one unit**.
+It runs through the shared single-unit runner `sim/harness/smoke-run.sh`, which
+is where the backend policy for one unit -- why it runs locally and why it is
+never widened into a corner or Monte Carlo grid here -- is defined.
 
 It checks three behaviours of `design/NOTES.md` § "False-lock supervisor", with
 ideal delayed copies of REF standing in for the delay line and an RC stand-in for
