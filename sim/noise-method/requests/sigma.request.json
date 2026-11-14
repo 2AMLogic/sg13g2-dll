@@ -1,8 +1,9 @@
 {
   "_comment": [
-    "sg13g2-dll noise-method: seeded sigma_v check, DC-biased + trnoise equivalent (0014).",
-    "Submitted 8 times sequentially by run.sh; @NA@ is substituted into the staged deck by run.sh",
-    "after the derivation. Estimator: sigma = sqrt(vrms^2 - vavg^2) over 5n..90n."
+    "sg13g2-dll noise-method: seeded sigma_v check, DC-biased + shunt trnoise current equivalent (0014).",
+    "Submitted 8 times sequentially by run.sh; @IA@ is substituted into the staged deck by run.sh",
+    "after the sigma-probe calibration run (same deck, IA = 1e-9).",
+    "Estimator: sigma = sqrt(vrms^2 - vavg^2) over 5n..90n."
   ],
   "engine": "ngspice",
   "netlist": "../decks/nm_sigma.spice",

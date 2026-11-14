@@ -31,10 +31,10 @@
   ],
   "options": {
     "osdi_preload": [
-      "@OSDI_DIR@/psp103.osdi",
-      "@OSDI_DIR@/psp103_nqs.osdi",
-      "@OSDI_DIR@/r3_cmc.osdi",
-      "@OSDI_DIR@/mosvar.osdi"
+      "/home/ubuntu/share/pdk/ihp-sg13g2/libs.tech/ngspice/osdi/psp103.osdi",
+      "/home/ubuntu/share/pdk/ihp-sg13g2/libs.tech/ngspice/osdi/psp103_nqs.osdi",
+      "/home/ubuntu/share/pdk/ihp-sg13g2/libs.tech/ngspice/osdi/r3_cmc.osdi",
+      "/home/ubuntu/share/pdk/ihp-sg13g2/libs.tech/ngspice/osdi/mosvar.osdi"
     ],
     "stage_model_inputs": true
   }

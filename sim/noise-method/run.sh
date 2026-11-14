@@ -23,7 +23,7 @@ submit() {
   return "${rc}"
 }
 
-for tag in vth noise noise_rref sr control; do
+for tag in vth noise sr control; do
   submit "${tag}" "${OUT}/requests/${tag}.request.json"
 done
 
@@ -34,12 +34,22 @@ if [[ ${rc_abort} -ne 0 && ${rc_abort} -ne 4 ]]; then
   exit "${rc_abort}"
 fi
 
-NA="$(python3 -I "${HERE}/summarize.py" derive "${OUT}")"
-echo "run.sh: derived NA = ${NA} V/sqrt(Hz)" >&2
-sed -i "s/@NA@/${NA}/g" "${OUT}/decks/nm_sigma.spice"
+python3 -I "${HERE}/summarize.py" derive "${OUT}"
+
+IA_PROBE="1e-9"
+sed -i "s/@IA@/${IA_PROBE}/g" "${OUT}/decks/nm_sigma.spice"
+submit sigma-probe "${OUT}/requests/sigma.request.json"
+
+IA_CAL="$(python3 -I "${HERE}/summarize.py" calibrate "${OUT}")"
+echo "run.sh: calibrated IA = ${IA_CAL} A" >&2
+sed -i "s/${IA_PROBE}/${IA_CAL}/g" "${OUT}/decks/nm_sigma.spice"
+sed -i "s/@IA@/${IA_CAL}/g" "${OUT}/decks/nm_edge.spice"
 
 for i in 1 2 3 4 5 6 7 8; do
   submit "sigma-s${i}" "${OUT}/requests/sigma.request.json"
+done
+for i in 1 2 3 4 5 6 7 8; do
+  submit "edge-s${i}" "${OUT}/requests/edge.request.json"
 done
 
 python3 -I "${HERE}/summarize.py" summarize "${OUT}"
