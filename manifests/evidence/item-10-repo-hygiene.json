@@ -80,7 +80,7 @@
         "role": "hygiene",
         "path": "sim/pdk-smoke/run.sh",
         "passed": true,
-        "content_hash": "sha256:091a89f60f3ea32d5f63e519b8e5bdc79c0f35c95ee9e4f54e750b22f3ba9b62"
+        "content_hash": "sha256:9a13f6bb5c882430760e8a8a19f16425a1d2b89fcfbbf0ddb600aa60c22abd9e"
       },
       {
         "check": "command",
