@@ -2,7 +2,7 @@
   "schema_version": 1,
   "kind": "t1-attestation-inventory",
   "t1_item": 9,
-  "description": "STAND-IN inventory (issue #28 Startable Subset). The benches listed run against the behavioural stand-in in sim/standin/, not the item-1 netlist, so this inventory does not satisfy T1 item 9 until the benches are repointed (#24); row 6 (jitter) is not attestable until a noise-method decision record exists. Row-to-bench map: sim/bench-rows.json.",
+  "description": "STAND-IN inventory (issue #28 Startable Subset). The benches listed run against the behavioural stand-in in sim/standin/, not the item-1 netlist, so this inventory does not satisfy T1 item 9 until the benches are repointed (#24); row 6 (jitter) is not attestable: its noise method is fixed by spec/decisions/0014-row-6-noise-method.md (proposed) and validated by sim/noise-method/, but the DLL jitter deck does not exist. Row-to-bench map: sim/bench-rows.json.",
   "testbenches": [
     "sim/phase/README.md",
     "sim/phase/run.sh",
@@ -18,6 +18,8 @@
     "sim/power/bench.json",
     "sim/jitter/README.md",
     "sim/jitter/run.sh",
+    "sim/noise-method/README.md",
+    "sim/noise-method/run.sh",
     "sim/harness/dll_tb.spice.in",
     "sim/harness/dllbench.py",
     "sim/harness/bench-run.sh",
