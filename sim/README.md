@@ -128,7 +128,7 @@ sim/harness/cold-start.sh
 
 The full grids are run per bench (`sim/<bench>/run.sh`, see each README). `sim/inventory.json` is the `klt signoff --attest 9 --inventory` file (schema read from klt 0.8.1.dev55); it lists the stand-in benches and so does not satisfy item 9 until the benches are repointed.
 
-Tools: ngspice 46 on the batch fleet (the dispatch worker's 42 can run the stand-in but not the OSDI models), klt 0.8.1.dev55, OpenVAF-Reloaded v24.0.1mob (`reuse.lock.json`).
+Tools: ngspice 46, klt 0.8.1.dev55, OpenVAF-Reloaded v24.0.1mob (`reuse.lock.json`). Which backend and simulator a given run actually used is recorded in its own envelope and reproduced in its `record.md`, not stated here.
 
 ## PFD fit gate (`sim/pfd-fit/`)
 
