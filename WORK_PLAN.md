@@ -13,14 +13,14 @@ _None._
 
 `loom:very-important` (one counts per workspace); every stage takes these first.
 
-_None._
+- **#58**: T1 item 1 (dll_top): draw dll_top schematic, export netlist, attest item 1
 
 ## Important
 
 `loom:important`; taken before unlabelled work.
 
 - **#25**: T1 item 2 (layout): dll_top GDS with a regular delay-line array, built by a committed script
-- **#58**: T1 item 1 (dll_top): draw dll_top schematic, export netlist, attest item 1
+- **#41**: Install the two-key ratification path and ratify spec/target-spec.md
 
 ## Ready
 
@@ -33,22 +33,21 @@ _None._
 Issues currently being built (`loom:building`).
 
 - **#85**: Remove the noise-method grep gate in sim/jitter/run.sh: it matches decision 0001 and reports a record that does not exist
-- **#89**: Give klt one true version statement: scripts/klt.sh pins 0.8.0 for one caller while every bench and netlist.sh use the klt on PATH
-- **#92**: bug: grade() always reports a harness FAIL on the single-start-state benches (phase, power), because check_ic_applied demands >= 2 start states
+- **#96**: Remove the hv and HBT legs of the PDK pin and device smoke: decision 0007 dropped both families, but every bench preflight still requires their model files
+- **#99**: Remove the hardcoded run-condition literals from the sim record writers: backend, simulator version, corner and unit are printed as constants while the envelope records them
 
 ## PRs Awaiting Review
 
 PRs waiting on Judge (`loom:review-requested`).
 
-- **#88**: fix(jitter): refuse unconditionally instead of reporting a record that does not exist
-- **#97**: docs: scope the klt 0.8.0 pin claim to the signoff records
-- **#100**: fix(harness): expect per-axis start-state arity from the manifest, not a hard 2
+_None._
 
 ## Approved (Awaiting Merge)
 
 PRs that passed review and are queued for Champion auto-merge (`loom:pr`).
 
-_None._
+- **#88**: fix(jitter): refuse unconditionally instead of reporting a record that does not exist
+- **#103**: refactor(sim): drop the hv and HBT legs from the PDK pin and device smoke
 
 ## Proposed
 
@@ -56,16 +55,15 @@ Issues carrying `loom:curated`.
 
 - **#6**: Track the gap to T1 (klayout-tools design-evidence-tiers.md) *(curated)*
 - **#28**: T1 item 9 (testbenches shipped): one harness bench per spec row, with cold-start docs and --attest 9 *(curated)*
-- **#92**: bug: grade() always reports a harness FAIL on the single-start-state benches (phase, power), because check_ic_applied demands >= 2 start states *(curated)*
+- **#94**: Power bench run.sh would exit 0 (documented as pass) on a DUT where row 10 is NOT GRADED *(curated)*
 - **#96**: Remove the hv and HBT legs of the PDK pin and device smoke: decision 0007 dropped both families, but every bench preflight still requires their model files *(curated)*
 
 ## Proposed (Architect / Hermit)
 
 - **#74**: Consolidate klt sim envelope screening onto evidence.basic_problems: five graders disagree on what a diagnostic is *(hermit)*
 - **#91**: Make the row 7 and row 12 verdicts grade something: dllbench computes lock time and LOCK consistency, then reports a pass without reading them *(hermit)*
-- **#96**: Remove the hv and HBT legs of the PDK pin and device smoke: decision 0007 dropped both families, but every bench preflight still requires their model files *(hermit)*
-- **#99**: Remove the hardcoded run-condition literals from the sim record writers: backend, simulator version, corner and unit are printed as constants while the envelope records them *(hermit)*
 - **#101**: Remove the second schematic authoring path: 3 of 24 design cells are hand-written outside design/tools/cells.py, so the generator cannot instantiate the delay line *(hermit)*
+- **#107**: Stop committing klt's .spiceinit scratch file: 429 byte-identical copies are 19% of the repo's tracked files *(hermit)*
 
 ## Epics
 
@@ -76,13 +74,13 @@ _None._
 | Bucket | Count |
 |------|-------|
 | Operator merge-risk holds | 0 |
-| Very important | 0 |
+| Very important | 1 |
 | Important | 2 |
 | Ready (`loom:issue`) | 0 |
 | In Progress (`loom:building`) | 3 |
-| PRs awaiting review | 3 |
-| Approved PRs awaiting merge | 0 |
+| PRs awaiting review | 0 |
+| Approved PRs awaiting merge | 2 |
 | Curated | 4 |
-| Architect / Hermit proposals | 5 |
+| Architect / Hermit proposals | 4 |
 | Active epics | 0 |
 <!-- guide:plan-body:end -->
