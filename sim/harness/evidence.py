@@ -128,9 +128,16 @@ def check_reproducible(name, env_a, env_b):
     return [f"{name}: {cid} measurement values differ between repeat runs" for cid in a if a[cid] != b[cid]]
 
 
-def check_ic_applied(name, env, source, meas, tol=0.02):
+def check_ic_applied(name, env, source, meas, tol=0.02, min_states=2):
     """The start-state axis took effect: measurement `meas` equals the swept
-    `source` value in every row, and at least two distinct states ran."""
+    `source` value in every row, and at least `min_states` distinct states ran.
+
+    `min_states` is the arity the caller's request declares for THIS axis. A
+    bench that deliberately sweeps one start state passes `min_states=1`: one
+    state is not an axis fault there, and the per-row read-back leg above is
+    what actually proves the axis took effect. The default 2 is the sanity
+    floor for a caller that cannot say what it swept (the `--expect-ic` CLI).
+    """
     problems = []
     for c in env.get("corners", []):
         want = (c.get("supply_v") or {}).get(source)
@@ -140,9 +147,10 @@ def check_ic_applied(name, env, source, meas, tol=0.02):
             continue
         if abs(got - want) > tol:
             problems.append(f"{name} {c['corner_id']}: {meas}={got} but {source}={want}")
-    states = {(c.get("supply_v") or {}).get(source) for c in env.get("corners", [])}
-    if len(states - {None}) < 2:
-        problems.append(f"{name}: an initial-condition sweep needs >= 2 distinct start states, saw {len(states - {None})}")
+    states = {(c.get("supply_v") or {}).get(source) for c in env.get("corners", [])} - {None}
+    if len(states) < min_states:
+        problems.append(f"{name}: {source}: an initial-condition sweep needs "
+                        f">= {min_states} distinct start states, saw {len(states)}")
     return problems
 
 

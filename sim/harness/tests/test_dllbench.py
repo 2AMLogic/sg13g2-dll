@@ -28,6 +28,34 @@ def jload(path):
         return json.load(fh)
 
 
+def probe_of(axis):
+    """The read-back measurement name axis_problems() expects for an axis."""
+    return "ic_seen" if axis == "vic" else f"{axis}_seen"
+
+
+def ic_corner(corner_id, st, **over):
+    """One passing corner of a start-state sweep: every swept source reads back
+    its own value, the first input edge sits at the state's vtclk, and the
+    row-8 predicate passes. `over` overrides measurement values."""
+    ic = st["ic"]
+    vals = {probe_of(a): ic[a] for a in dllbench.AXES}
+    vals["tclk_edge"] = max(ic["vtclk"], 0.0) * 1e-9
+    vals.update({"perr": 0.005, "vcpp": 1e-6, "d8_64": 1.005e-9,
+                 "rail_hi": 0.3, "rail_lo": 0.4, "lock_end": 1.0})
+    vals.update(over)
+    return {"corner_id": corner_id,
+            "supply_v": dict(ic, Vdd=1.2),
+            "measurements": [{"name": k, "value": v} for k, v in vals.items()]}
+
+
+def ic_envelope(corners):
+    """A synthetic all-pass envelope around `corners` (no simulator)."""
+    return {"status": "pass", "corner_count": len(corners), "passed": len(corners),
+            "failed": 0, "errored": 0,
+            "environment": {"engine": "ngspice", "engine_version": "44", "backend": "local"},
+            "corners": corners}
+
+
 class Inventory(unittest.TestCase):
     def test_every_spec_row_is_mapped(self):
         rows = jload(os.path.join(SIM, "bench-rows.json"))["rows"]
@@ -262,6 +290,68 @@ class Grading(unittest.TestCase):
         self.assertAlmostEqual(t, 400 * self.T)
         vals[f"ds_{j_end - j_end % 16}"] = 0.5 * self.T  # a late slip: not settled
         self.assertIsNone(dllbench.lock_time(self.T, {"ref_ns": 0.0}, vals, j_end))
+
+
+class HarnessArity(unittest.TestCase):
+    """The start-state arity leg expects the arity the manifest declares for each
+    axis, not a hard 2 -- so a bench that deliberately sweeps one start state is
+    not a harness fault (issue #92)."""
+
+    def graded(self, bench, states=None, **over):
+        """Build `bench`, write one synthetic envelope per request (one corner per
+        start state, `states` to restrict which), grade it, return (rc, record)."""
+        out = os.path.join(tempfile.mkdtemp(), "o")
+        dllbench.build(os.path.join(SIM, bench), out, DUT, 1e9, 0.02, 5.0, "/osdi")
+        man = jload(os.path.join(out, "manifest.json"))
+        for req in man["requests"]:
+            use = [st for st in req["states"] if states is None or st["name"] in states]
+            self.assertTrue(use, f"{bench} declares none of {states}")
+            env = ic_envelope([ic_corner(f"tt_27_1v2_{st['name']}", st, **over) for st in use])
+            with open(os.path.join(out, f"{req['tag']}.envelope.json"), "w", encoding="utf-8") as fh:
+                json.dump(env, fh)
+        rc = dllbench.grade(os.path.join(SIM, bench), out)
+        with open(os.path.join(out, "record.md"), encoding="utf-8") as fh:
+            return rc, fh.read()
+
+    def test_single_start_state_bench_is_not_a_harness_fault(self):
+        for bench in ("phase", "power"):
+            rc, record = self.graded(bench)
+            self.assertIn("- harness: PASS", record, bench)
+            self.assertNotIn("distinct start states", record, bench)
+            self.assertEqual(rc, 0, bench)
+
+    def test_read_back_leg_still_bites_on_a_single_state_bench(self):
+        # the one leg that actually proves the axis took effect: move the vic
+        # read-back off its swept source value.
+        rc, record = self.graded("power", ic_seen=0.9)
+        self.assertIn("- harness: FAIL", record)
+        self.assertIn("ic_seen=0.9 but vic=0.0", record)
+        self.assertEqual(rc, 1)
+
+    def test_nine_state_benches_keep_grading_clean(self):
+        # the per-axis expectation must not turn the full nine-state grid red
+        # (vic sweeps 6 distinct values at 1 GHz, the other axes 2).
+        for bench in ("false-lock", "lock-time"):
+            rc, record = self.graded(bench)
+            self.assertIn("- harness: PASS", record, bench)
+            self.assertNotIn("distinct start states", record, bench)
+            self.assertEqual(rc, 0, bench)
+
+    def test_multi_state_axis_short_of_its_declared_arity_is_a_problem(self):
+        # s1_min_rail (vic 0.0) and s3_mid (vic 0.5) are 2 distinct vic values --
+        # enough for the old hard floor of 2, short of the 6 the manifest declares.
+        rc, record = self.graded("false-lock", states=("s1_min_rail", "s3_mid"))
+        self.assertIn("- harness: FAIL", record)
+        self.assertIn("vic: an initial-condition sweep needs >= 6 distinct start states, saw 2", record)
+        self.assertEqual(rc, 1)
+
+    def test_declared_arity_is_per_axis_not_the_state_count(self):
+        out = os.path.join(tempfile.mkdtemp(), "o")
+        dllbench.build(os.path.join(SIM, "false-lock"), out, DUT, 1e9, 0.02, 5.0, "/osdi")
+        req = jload(os.path.join(out, "manifest.json"))["requests"][0]
+        self.assertEqual(len(req["states"]), 9)
+        declared = {a: len({st["ic"][a] for st in req["states"]}) for a in dllbench.AXES}
+        self.assertEqual(declared, {"vic": 6, "vton": 2, "vtdis": 2, "vtre": 2, "vtclk": 2})
 
 
 if __name__ == "__main__":
