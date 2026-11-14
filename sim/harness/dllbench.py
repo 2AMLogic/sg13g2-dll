@@ -310,10 +310,6 @@ def build(bench_dir, out, dut_path, f0, tol, pmax_mw, osdi_dir, corners=None):
 
 # ---- grading --------------------------------------------------------------
 
-def mvals(corner):
-    return {m["name"]: m.get("value") for m in corner.get("measurements", [])}
-
-
 def rows_graded(manifest):
     """Whether this bench's rows can be graded on the DUT the manifest names.
     The row-10 power bench cannot be: on a DUT that does not declare
@@ -392,7 +388,7 @@ def axis_problems(name, env, manifest_req):
         if st is None:
             problems.append(f"{name} {c['corner_id']}: corner's start-state sources match no state in the manifest")
             continue
-        edge = mvals(c).get("tclk_edge")
+        edge = evidence.mvals(c).get("tclk_edge")
         want = max(st["ic"]["vtclk"], 0.0) * 1e-9
         if edge is not None and not (want <= edge <= want + 0.5 * manifest_req["period_s"]):
             problems.append(f"{name} {c['corner_id']}: first input edge at {edge:.3g} s, expected near {want:.3g} s")
@@ -420,7 +416,7 @@ def grade(bench_dir, out):
             st = state_of(req, c)
             if st is None:
                 continue
-            f = grade_corner(manifest["profile"], req["period_s"], st, mvals(c), tol, req["window"]["j_end"])
+            f = grade_corner(manifest["profile"], req["period_s"], st, evidence.mvals(c), tol, req["window"]["j_end"])
             key = (req["tag"], st["name"])
             s = summary.setdefault(key, {"n": 0, "locked": 0, "one_period": 0, "row8": 0, "lock_ok": 0,
                                          "lock_time_max": None, "no_lock_time": 0, "multi": 0})

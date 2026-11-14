@@ -53,7 +53,8 @@ def ic_envelope(corners):
     """A synthetic all-pass envelope around `corners` (no simulator)."""
     return {"status": "pass", "corner_count": len(corners), "passed": len(corners),
             "failed": 0, "errored": 0,
-            "environment": {"engine": "ngspice", "engine_version": "44", "backend": "local"},
+            "environment": {"engine": "ngspice", "engine_version": "44",
+                            "backend": {"resolved": "local"}},
             "corners": corners}
 
 

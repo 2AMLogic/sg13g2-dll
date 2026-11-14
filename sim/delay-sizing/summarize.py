@@ -10,6 +10,11 @@ not hidden (a target miss alone is not an error of the run).
 """
 import glob, json, math, os, sys
 
+HERE = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, HERE)
+
+import evidence  # noqa: E402
+
 PERIOD = {"1GHz": 1.0e-9, "500MHz": 2.0e-9}
 RAIL = 0.1
 
@@ -26,7 +31,7 @@ def rows(env, bad, tag):
     for cr in env.get("corners", []):
         for d in cr.get("diagnostics", []):
             bad.append(f"{tag} {cr['corner_id']}: [{d.get('code')}] {str(d.get('message'))[:90]}")
-        m = {x["name"]: x.get("value") for x in cr.get("measurements", [])}
+        m = evidence.mvals(cr)
         out.append((cr["supply_v"].get("VC"), cr["supply_v"].get("Vdd"), m, cr))
     return sorted(out, key=lambda r: (r[0] if r[0] is not None else -1))
 
@@ -100,7 +105,7 @@ def main_grid(mode, out):
         target = PERIOD[fq] / 8
         e = env.get("environment") or {}
         Ls += [f"## {tag} (variant {parts[0]}; T/8 = {target*1e12:.0f} ps; status {env.get('status')}, "
-               f"{env.get('passed')}/{env.get('corner_count')} pass; backend {(e.get('backend') or {}).get('resolved','?')}; "
+               f"{env.get('passed')}/{env.get('corner_count')} pass; backend {evidence.backend_of(e) or '?'}; "
                f"job {(e.get('remote') or {}).get('job_id','-')})", ""]
         L, pts = table(env, var, bad, tag)
         Ls += L + [""]
@@ -152,7 +157,7 @@ def main_mc(out):
         for cr in env["corners"]:
             for d in cr.get("diagnostics", []):
                 bad.append(f"{v} mc {cr['corner_id']}: [{d.get('code')}]")
-            m = {x["name"]: x.get("value") for x in cr.get("measurements", [])}
+            m = evidence.mvals(cr)
             s = steps(m, v)
             if s is None:
                 bad.append(f"{v} mc {cr['corner_id']}: missing edge"); continue

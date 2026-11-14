@@ -23,6 +23,11 @@ import json
 import os
 import sys
 
+HERE = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, HERE)
+
+import evidence  # noqa: E402
+
 C_LOOP = 1.0e-12
 T = 1.0e-9
 PULSE_S = 200e-12
@@ -56,7 +61,7 @@ def kdl_from_envelopes(run_dir):
         pts = []
         for cr in env.get("corners", []):
             vc = (cr.get("supply_v") or {}).get("VC")
-            d8 = {m["name"]: m.get("value") for m in cr.get("measurements", [])}.get("d8")
+            d8 = evidence.mvals(cr).get("d8")
             if vc is not None and d8 is not None:
                 pts.append((vc, d8))
         pts.sort()
@@ -90,7 +95,7 @@ def main(argv):
     corners = env.get("corners", []) if env else []
     vals = []
     for c in corners:
-        v = {m["name"]: m.get("value") for m in c.get("measurements", [])}
+        v = evidence.mvals(c)
         vals.append((c, v))
     if errs or not vals or any(any(v.get(n) is None for n in NEEDED) for _, v in vals):
         lines += ["RESULT: NOT-RUN or incomplete (K6)", "", "Errors (verbatim):", ""]

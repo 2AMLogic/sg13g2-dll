@@ -466,9 +466,14 @@ class Evidence(unittest.TestCase):
         # The jobs line appears only when an envelope carries environment.remote.
         self.assertIn("klt-sim-1", lines[2])
         self.assertEqual(len(evidence.environment_lines(local)), 2)
-        # A backend recorded as a bare string still reads.
-        self.assertEqual(evidence.backend_of({"backend": "local"}), "local")
+        # klt 0.8.0 (the pin) writes environment.backend at a single site,
+        # always the provenance dict {"resolved", ...}, so the dict shape is
+        # the only one the schema produces; a bare string cannot occur and
+        # backend_of deliberately does not handle it.
+        self.assertEqual(evidence.backend_of({"backend": {"resolved": "local"}}), "local")
         self.assertIsNone(evidence.backend_of({}))
+        with self.assertRaises(AttributeError):
+            evidence.backend_of({"backend": "local"})
         self.assertEqual(evidence.environment_lines({"x": {}})[1], "- backend: unrecorded")
 
     def test_kind_and_basic_problems(self):
