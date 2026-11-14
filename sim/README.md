@@ -143,7 +143,8 @@ Decision 0006's gate for `design/pfd.sch`: dead zone and reset-pulse width at
 sibling's reset polarity. `sim/pfd-fit/run.sh` runs it (batch backend, no local
 fallback) and writes `results/<UTC stamp>/fit-gate.md`; the criteria are in
 `sim/pfd-fit/grade.py`, and `make_bench.py` regenerates the decks/requests.
-Unit test of the grader (no simulator): `python3 -I -m unittest discover -s sim/pfd-fit/tests`.
+Unit tests of the grader and of `make_bench.py`'s corner source (no simulator):
+`python3 -I -m unittest discover -s sim/pfd-fit/tests`.
 Result 2026-11-05 (`results/20261105T125120Z/fit-gate.md`): C1/C3 pass, C2 fails at 1 GHz (tt, ss); the sibling-polarity control fails C1; see `spec/decisions/0011-pfd-reset-path-too-slow-at-1ghz.md`.
 
 ## Charge pump (`sim/cp-currents/`)
