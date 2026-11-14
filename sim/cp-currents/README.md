@@ -12,8 +12,12 @@ design/netlist.sh && sim/cp-currents/run.sh
 `decks/cp_body.spice` is the stimulus (ideal UP/DN, `VOUT` held by an ideal source);
 `run.sh` prepends the committed `cp_bias.spice` and `cp.spice` exports. The request
 carries no limits: `summarize.py` grades criteria K1-K6, fixed in its docstring before the
-first result, and takes K_dl from the newest `sim/delay-sanity/results/*/record.md` (a copy
-is stored in each results directory). C_loop is the nominal 1 pF of 0008, not extracted.
+first result, and takes K_dl from the `1GHz_{ss,tt,ff}.envelope.json` files of one *pinned*
+delay-sanity run — the pin is `DELAY_RUN` in `run.sh`, overridable with `CPI_DELAY_RUN`, and
+each results directory names it in `record.md` and keeps a copy of those three envelopes
+under `delay-sanity/`. The pin, rather than "the newest run", is what keeps a later
+delay-sanity run from silently moving the K4 verdict of a cp-currents re-run. C_loop is the
+nominal 1 pF of 0008, not extracted.
 
 Results (append-only, simulated, never measured), exit 6 on a failed criterion:
 
