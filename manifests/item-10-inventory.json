@@ -16,7 +16,7 @@
     "scripts/klt.sh"
   ],
   "checks": [
-    {"name": "readme-cites-spec-issue", "argv": ["grep", "-q", "issue #2", "README.md"]},
+    {"name": "readme-cites-spec-issue", "argv": ["grep", "-q", "issue #41", "README.md"]},
     {"name": "ci-runs-signoff-check", "argv": ["grep", "-q", "scripts/check-signoff.sh", ".github/workflows/signoff.yml"]},
     {"name": "readme-names-design-netlist.sh", "argv": ["grep", "-qF", "design/netlist.sh", "README.md"]},
     {"name": "readme-names-sim-harness-common-build-osdi.sh", "argv": ["grep", "-qF", "sim/harness/common/build-osdi.sh", "README.md"]},
