@@ -223,9 +223,13 @@ class Build(unittest.TestCase):
 
 
 class PowerVerdict(unittest.TestCase):
-    """grade()'s row-10 verdict line, on a synthetic envelope (no simulator)."""
+    """grade()'s row-10 verdict line and the exit status that goes with it, on a
+    synthetic envelope (no simulator)."""
 
-    def graded_record(self, **dut_over):
+    def graded_record(self, env_over=None, envelope=True, **dut_over):
+        """(verdict text, grade() exit status) for one power run. `env_over`
+        overrides envelope-level keys; `envelope=False` writes no envelope at
+        all, which is the harness-problem case."""
         d = tempfile.mkdtemp()
         out = os.path.join(d, "o")
         dut = powered_dut(d, **dut_over) if dut_over else DUT
@@ -240,28 +244,60 @@ class PowerVerdict(unittest.TestCase):
                 {"name": "ic_seen", "value": st["ic"]["vic"]},
                 {"name": "tclk_edge", "value": max(st["ic"]["vtclk"], 0.0) * 1e-9}]
         meas += [{"name": f"{a}_seen", "value": st["ic"][a]} for a in dllbench.AXES[1:]]
-        env = {"status": "pass", "passed": 1, "corner_count": 1, "failed": 0, "errored": 0,
-               "environment": {"engine": "ngspice", "engine_version": "44"},
-               "corners": [{"corner_id": "tt_27_1v20", "status": "pass",
-                            "supply_v": dict(st["ic"], Vdd=1.2), "measurements": meas}]}
-        with open(os.path.join(out, f"{req['tag']}.envelope.json"), "w", encoding="utf-8") as fh:
-            json.dump(env, fh)
-        dllbench.grade(os.path.join(SIM, "power"), out)
+        if envelope:
+            env = {"status": "pass", "passed": 1, "corner_count": 1, "failed": 0, "errored": 0,
+                   "environment": {"engine": "ngspice", "engine_version": "44"},
+                   "corners": [{"corner_id": "tt_27_1v20", "status": "pass",
+                                "supply_v": dict(st["ic"], Vdd=1.2), "measurements": meas}]}
+            env.update(env_over or {})
+            with open(os.path.join(out, f"{req['tag']}.envelope.json"), "w", encoding="utf-8") as fh:
+                json.dump(env, fh)
+        status = dllbench.grade(os.path.join(SIM, "power"), out)
         with open(os.path.join(out, "record.md"), encoding="utf-8") as fh:
             text = fh.read()
         m = re.search(r"^- rows 10 on this DUT: (.*)$", text, re.M)
         self.assertIsNotNone(m, text)
-        return m.group(1)
+        return m.group(1), status
 
     def test_zero_power_reading_is_not_reported_as_a_pass(self):
-        verdict = self.graded_record()  # the stand-in: supply_current false
+        verdict, _ = self.graded_record()  # the stand-in: supply_current false
         self.assertIn("NOT GRADED", verdict)
         self.assertNotIn("corners pass", verdict)
 
     def test_a_dut_that_draws_supply_current_is_graded(self):
-        verdict = self.graded_record(supply_current=True)
+        verdict, _ = self.graded_record(supply_current=True)
         # a corner verdict either way, never the ungraded line
         self.assertRegex(verdict, r"^(all corners pass|NOT all corners pass)")
+
+    def test_an_ungraded_row_does_not_exit_0(self):
+        """0 is documented as "pass" at every bench; a row with no verdict must
+        not claim it, even with a clean envelope."""
+        verdict, status = self.graded_record()
+        self.assertIn("NOT GRADED", verdict)
+        self.assertEqual(status, 6)
+
+    def test_an_ungraded_row_with_a_failed_corner_still_exits_6(self):
+        # envelope-level failed/errored counts are what rows_ok reads; the
+        # status stays "pass" so `problems` is empty and the final return of
+        # grade() -- not the harness-fault return -- decides the exit.
+        verdict, status = self.graded_record(env_over={"failed": 1})
+        self.assertIn("NOT GRADED", verdict)
+        self.assertEqual(status, 6)
+
+    def test_a_graded_row_with_every_corner_passing_exits_0(self):
+        verdict, status = self.graded_record(supply_current=True)
+        self.assertEqual(verdict, "all corners pass")
+        self.assertEqual(status, 0)
+
+    def test_a_graded_row_with_a_failed_corner_exits_6(self):
+        verdict, status = self.graded_record(env_over={"failed": 1}, supply_current=True)
+        self.assertIn("NOT all corners pass", verdict)
+        self.assertEqual(status, 6)
+
+    def test_a_harness_problem_exits_1(self):
+        # no envelope at all: a harness fault outranks the row verdict
+        _, status = self.graded_record(envelope=False)
+        self.assertEqual(status, 1)
 
 
 class Grading(unittest.TestCase):
@@ -330,11 +366,16 @@ class HarnessArity(unittest.TestCase):
             return rc, fh.read()
 
     def test_single_start_state_bench_is_not_a_harness_fault(self):
-        for bench in ("phase", "power"):
+        # 1 is the harness-fault code, and that is what this test is about. The
+        # clean exit differs by bench: `phase` grades its rows on any DUT, so it
+        # is 0; `power` on the stand-in cannot grade row 10, so it is 6 (issue
+        # #94) -- a missing verdict, still not a harness fault.
+        for bench, clean in (("phase", 0), ("power", 6)):
             rc, record = self.graded(bench)
             self.assertIn("- harness: PASS", record, bench)
             self.assertNotIn("distinct start states", record, bench)
-            self.assertEqual(rc, 0, bench)
+            self.assertNotEqual(rc, 1, bench)
+            self.assertEqual(rc, clean, bench)
 
     def test_read_back_leg_still_bites_on_a_single_state_bench(self):
         # the one leg that actually proves the axis took effect: move the vic
