@@ -11,8 +11,8 @@
   "installed_tree_must_contain": [
     "libs.tech/ngspice/models/cornerMOSlv.lib",
     "libs.tech/ngspice/models/cornerMOShv.lib",
-    "libs.tech/ngspice/models/cornerHBT.lib",
-    "libs.tech/ngspice/models/sg13g2_hbt_mod.lib",
+    "libs.tech/ngspice/models/cornerRES.lib",
+    "libs.tech/ngspice/models/cornerCAP.lib",
     "libs.tech/verilog-a/psp103",
     "libs.tech/ngspice/osdi/psp103.osdi",
     "libs.tech/ngspice/osdi/psp103_nqs.osdi",

@@ -36,15 +36,21 @@ One command, from a fresh clone with the PDK installed and OSDI built:
 sim/pdk-smoke/run.sh
 ```
 
-It runs a minimum-size inverter transient for `sg13_lv_*` (1.2 V) and
-`sg13_hv_*` (3.3 V) at `mos_tt`/`mos_ff`/`mos_ss`, and one `npn13G2` DC
-operating point, all through `klt sim` (multi-corner requests go to the batch
-fleet; there is no local fallback). It writes
+It runs a minimum-size `sg13_lv_*` (1.2 V) inverter transient at
+`mos_tt`/`mos_ff`/`mos_ss` through `klt sim` (a multi-corner request goes to
+the batch fleet; there is no local fallback). It writes
 `sim/pdk-smoke/results/<UTC stamp>/` (requests, envelopes, `record.md`) and
 exits non-zero if the OSDI models are missing (exit 3, before any simulation),
 if the batch submit fails, or if any corner reports a diagnostic or does not
 pass. Set `SMOKE_CAPACITY_WAIT_S` to bound the wait for fleet capacity. The
 limits in the requests are sanity gates, not spec numbers.
+
+The smoke is LV-only since issue #96: decision 0007 put the block on 1.2 V
+thin-oxide CMOS with no hv rail and no SiGe HBT, so the `sg13_hv_*` inverter
+and `npn13G2` operating-point legs were removed. The earlier result
+`sim/pdk-smoke/results/20261017T220308Z/` also holds the hv and npn runs made
+before decision 0007, with their own staged decks and requests; it is
+append-only evidence and stays as recorded.
 
 `record.md` names the repo commit, PDK pin, OSDI binary hashes, ngspice
 version and batch jobs of the run.

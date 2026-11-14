@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
-# run.sh -- SG13G2 device-family smoke (issue #3): LV and HV minimum-size
-# inverter transients at mos_tt/mos_ff/mos_ss, plus one npn13G2 DC OP.
+# run.sh -- SG13G2 device-family smoke (issue #3): a minimum-size `sg13_lv_*`
+# inverter transient at mos_tt/mos_ff/mos_ss. The hv inverter and npn13G2 legs
+# were removed with issue #96; decision 0007 put the block on 1.2 V
+# thin-oxide CMOS with no hv rail and no SiGe HBT.
 #
 #   sim/harness/common/build-osdi.sh      # once per PDK install
 #   sim/pdk-smoke/run.sh                  # the smoke
@@ -33,19 +35,13 @@ BACKEND_ARGS=()
 [[ -z "${SMOKE_BACKEND:-}" ]] || BACKEND_ARGS=(--backend "${SMOKE_BACKEND}")
 
 rc=0
-for tag in inv_lv inv_hv npn_op; do
-  # npn_op is a single unit; the local ngspice cannot load v0.4 OSDI, so it
-  # also rides the batch backend unless SMOKE_BACKEND says otherwise.
-  extra=("${BACKEND_ARGS[@]}")
-  [[ ${#extra[@]} -gt 0 || "${tag}" != npn_op ]] || extra=(--backend batch)
-  sim_submit "${OUT}" "${tag}" "${OUT}/requests/${tag}.request.json" \
-      "${extra[@]}" --wait-for-capacity "${SMOKE_CAPACITY_WAIT_S:-900}" || rc=$?
-done
+sim_submit "${OUT}" inv_lv "${OUT}/requests/inv_lv.request.json" \
+    "${BACKEND_ARGS[@]}" --wait-for-capacity "${SMOKE_CAPACITY_WAIT_S:-900}" || rc=$?
 
 python3 -I "${SIM_DIR}/harness/evidence.py" --out "${OUT}/record.md" \
     --title "pdk-smoke record" --provenance "${REPO_ROOT}" \
-    --expect inv_lv=3 --expect inv_hv=3 --expect npn_op=1 \
-    "${OUT}/inv_lv.envelope.json" "${OUT}/inv_hv.envelope.json" "${OUT}/npn_op.envelope.json" || rc=$?
+    --expect inv_lv=3 \
+    "${OUT}/inv_lv.envelope.json" || rc=$?
 if [[ ${rc} -ne 0 ]]; then
   echo "run.sh: FAIL (exit ${rc}) -- see ${OUT}" >&2
   exit "${rc}"
