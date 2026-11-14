@@ -31,14 +31,14 @@
         "role": "hygiene",
         "path": "README.md",
         "passed": true,
-        "content_hash": "sha256:7e03695e8a1f8597dfd5609ad23f8e7108e8a42ae0a8bd3f41266495c4994bae"
+        "content_hash": "sha256:d9a4ace9b09d02cb925b84241854dfb8ee0da2871c772cb47c2e9e480197379d"
       },
       {
         "check": "present",
         "role": "hygiene",
         "path": "design/netlist.sh",
         "passed": true,
-        "content_hash": "sha256:8583aef2d4a3e423227b888fe60cc7c7d27e622ba2fee51983693c4c8203281d"
+        "content_hash": "sha256:2fb7f09884d8eda1ecb3f19170a58e6994186b7d4418a3954a0be5f04258c20a"
       },
       {
         "check": "present",

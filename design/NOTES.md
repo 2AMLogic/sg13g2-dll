@@ -56,13 +56,15 @@ when any committed netlist differs from a fresh export. The script, not
 stamps of the host that produced it, neither of which is design content: the
 absolute checkout path in `** sch_path:` / `** sym_path:` comments (rewritten to
 a `design/` prefix) and klt's own `** klt-netlist-inputs:` provenance header
-(dropped — a newer klt emits it, the 0.8.0 that `scripts/klt.sh` pins does not,
-so leaving it in makes the gate report the klt on PATH instead of staleness).
-Both normalizations run in `export_block`, in write mode and `--check` alike, so
-the committed bytes are reproducible from either klt. (Generic tool gaps, tracked
+(dropped — newer klt releases emit it and 0.8.x does not, so leaving it in makes
+the gate report the klt on PATH instead of staleness). `netlist.sh` runs the klt
+on `PATH` — it is not a caller of the pinned `scripts/klt.sh` wrapper, which
+covers `klt signoff` grading only — so it cannot assume one klt version. Both
+normalizations run in `export_block`, in write mode and `--check` alike, so the
+committed bytes are reproducible from any of them. (Generic tool gaps, tracked
 as 2AMLogic/klayout-tools#4091 and #5085; klt grew `--relative-paths` and
-`--no-provenance-header` for them, but neither flag exists in the pinned 0.8.0,
-so the script normalizes on its own side.)
+`--no-provenance-header` for them, but the script cannot rely on flags that
+older klt lacks, so it normalizes on its own side.)
 
 ## Evidence status
 

@@ -12,6 +12,13 @@
   is its `klt signoff --attest 10` envelope, cited by the manifest under
   `evidence."10"` with the inventory's content hash pinned.
 
-klt is pinned in `scripts/klt.sh` to released klayout-tools 0.8.0 on PyPI
-(`klayout-tools==0.8.0`), run in a throwaway uv environment. CI (`.github/workflows/signoff.yml`) runs
+The pin covers the records in this directory and nothing else.
+`scripts/check-signoff.sh` is the only caller of `scripts/klt.sh`, which runs
+released klayout-tools 0.8.0 from PyPI (`klayout-tools==0.8.0`) in a throwaway
+uv environment, so `klt signoff` grading is reproducible at a stated version.
+The netlist export (`design/netlist.sh`) and the simulation benches do not go
+through that wrapper — they run the `klt` on `PATH`. Only some bench runs record
+which version that was (see `sim/README.md`); the netlist export records none,
+because it strips klt's `** klt-netlist-inputs:` provenance header on purpose
+(`design/NOTES.md`). CI (`.github/workflows/signoff.yml`) runs
 `scripts/check-signoff.sh`; regenerate with `scripts/check-signoff.sh --write`.
