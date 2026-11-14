@@ -447,6 +447,30 @@ class Evidence(unittest.TestCase):
         self.assertIn("v=1.5", rows[2])
         self.assertIn("v=none", rows[3])
 
+    def test_environment_lines_read_the_envelope(self):
+        # Backend, simulator version and host are facts of the run, not
+        # constants of the writer (issue #99). A local run on ngspice 46 must
+        # not be recorded as "batch fleet" on an ngspice the host no longer has.
+        local = {"ld": {"engine": "ngspice", "engine_version": "46", "engine_host": "local",
+                        "backend": {"resolved": "local", "requested": "local"}}}
+        self.assertEqual(evidence.environment_lines(local), [
+            "- ngspice (as run): ngspice 46; engine host: local",
+            "- backend: local",
+        ])
+        batch = {"g": {"engine": "ngspice", "engine_version": "46", "engine_host": "worker",
+                       "backend": {"resolved": "batch", "requested": "batch"},
+                       "remote": {"job_id": "klt-sim-1", "instance_type": "c7i.2xlarge"}}}
+        lines = evidence.environment_lines(batch)
+        self.assertEqual(lines[1], "- backend: batch")
+        self.assertIn("engine host: worker", lines[0])
+        # The jobs line appears only when an envelope carries environment.remote.
+        self.assertIn("klt-sim-1", lines[2])
+        self.assertEqual(len(evidence.environment_lines(local)), 2)
+        # A backend recorded as a bare string still reads.
+        self.assertEqual(evidence.backend_of({"backend": "local"}), "local")
+        self.assertIsNone(evidence.backend_of({}))
+        self.assertEqual(evidence.environment_lines({"x": {}})[1], "- backend: unrecorded")
+
     def test_kind_and_basic_problems(self):
         self.assertEqual(evidence.kind(mc_env({"a": 1})), "mc")
         self.assertEqual(evidence.kind({"corners": [corner("a", {"vic": 1})]}, "vic"), "ic")

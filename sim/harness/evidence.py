@@ -165,9 +165,7 @@ def render(items, ic_source=None, title="Harness evidence record"):
         lines.append(f"## {name} ({k})")
         lines.append(f"- status: {env.get('status')}; corners: {env.get('passed')}/{env.get('corner_count')} pass")
         e = env.get("environment") or {}
-        backend = e.get("backend")
-        backend = backend.get("resolved") if isinstance(backend, dict) else backend
-        lines.append(f"- engine: {e.get('engine')} {e.get('engine_version')}; backend: {backend}")
+        lines.append(f"- engine: {e.get('engine')} {e.get('engine_version')}; backend: {backend_of(e)}")
         job = (e.get("remote") or {}).get("job_id")
         if job:
             lines.append(f"- batch job: {job}")
@@ -179,19 +177,46 @@ def render(items, ic_source=None, title="Harness evidence record"):
     return "\n".join(lines)
 
 
+def backend_of(environment):
+    """The backend `klt sim` resolved, read from an envelope's `environment`."""
+    b = (environment or {}).get("backend")
+    return b.get("resolved") if isinstance(b, dict) else b
+
+
+def environment_lines(envs):
+    """Engine, engine host, backend and batch jobs as the envelopes recorded them.
+
+    `envs` maps request tag -> that envelope's `environment` block. Every fact
+    here is read, never asserted: a run on another backend, simulator version
+    or host records what it actually used, and the batch-jobs line appears only
+    when an envelope carries `environment.remote`.
+    """
+    engines = sorted({f"{v.get('engine')} {v.get('engine_version')}" for v in envs.values()})
+    hosts = sorted({str(v["engine_host"]) for v in envs.values() if v.get("engine_host")})
+    backends = sorted({str(b) for b in map(backend_of, envs.values()) if b})
+    remote = {t: {k: (v.get("remote") or {}).get(k) for k in ("job_id", "instance_type", "ami_id", "lifecycle")}
+              for t, v in envs.items() if v.get("remote")}
+    lines = [
+        f"- ngspice (as run): {', '.join(engines) or 'unrecorded'}"
+        + (f"; engine host: {', '.join(hosts)}" if hosts else ""),
+        f"- backend: {', '.join(backends) or 'unrecorded'}",
+    ]
+    if remote:
+        lines.append(f"- batch jobs: {json.dumps(remote)}")
+    return lines
+
+
 def _git(root, *args):
     return subprocess.run(["git", "-C", root, *args], capture_output=True, text=True).stdout.strip()
 
 
 def provenance_lines(root, items):
-    """Commit, PDK pin, OSDI hashes, tool versions and batch jobs for a record."""
+    """Commit, PDK pin, OSDI hashes, run environment and tool versions for a record."""
     with open(os.path.join(root, "sim", "pdk.json"), encoding="utf-8") as fh:
         pin = json.load(fh)
     envs = {tag_of(p): e.get("environment") or {} for p, e in items if "error" not in e}
     first = next(iter(envs.values()), {})
-    engines = sorted({f"{v.get('engine')} {v.get('engine_version')}" for v in envs.values()})
     osdi = {o["name"]: o["sha256"] for o in first.get("osdi_preload", [])}
-    remote = {t: {k: (v.get("remote") or {}).get(k) for k in ("job_id", "instance_type", "ami_id", "lifecycle")} for t, v in envs.items()}
     dirty = bool(_git(root, "status", "--porcelain", "--", "sim", "reuse.lock.json"))
     klt = subprocess.run(["klt", "--version"], capture_output=True, text=True).stdout.strip()
     return [
@@ -199,10 +224,7 @@ def provenance_lines(root, items):
         f"- PDK pin: IHP-Open-PDK `{pin['release_tag']}` (`sim/pdk.json`)",
         "- OSDI models (sha256 of the binaries the run loaded): " + "; ".join(f"`{k}` {v[:16]}…" for k, v in osdi.items()),
         f"- OSDI build: `sim/harness/common/build-osdi.sh` (OpenVAF-Reloaded {pin['osdi_toolchain']['compiler_tag']}), see `reuse.lock.json`",
-        f"- ngspice (as run, on the batch fleet): {', '.join(engines)}; the dispatch worker's local ngspice 42 cannot load these OSDI v0.4 models",
-        f"- klt: {klt}",
-        f"- backend: batch fleet; jobs: {json.dumps(remote)}",
-    ]
+    ] + environment_lines(envs) + [f"- klt: {klt}"]
 
 
 def measurement_rows(items):
