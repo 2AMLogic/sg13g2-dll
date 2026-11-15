@@ -1,5 +1,5 @@
 v {xschem version=3.4.8RC file_version=1.3
-pfd -- tri-state PFD: 2x edgedet + 2x srlatch_fast, reset = AND(UP,DN) delayed by NAND + 1 inverter (issue #113)
+pfd -- tri-state PFD: 2x edgedet + 2x srlatch_fast; reset asserts when UP AND DN (0008): NAND(UP,DN) drives the latches' active-low RN directly, so the reset loop is three gates (issue #113)
 }
 G {}
 K {}
@@ -18,29 +18,24 @@ C {lab_pin.sym} 300 -40 0 0 {name=l7 lab=VDD}
 C {lab_pin.sym} 300 40 0 0 {name=l8 lab=VSS}
 C {srlatch_fast.sym} 600 0 0 0 {name=XLU}
 C {lab_pin.sym} 540 -10 0 0 {name=l9 lab=set_up}
-C {lab_pin.sym} 540 10 0 0 {name=l10 lab=reset}
+C {lab_pin.sym} 540 10 0 0 {name=l10 lab=reset_n}
 C {lab_pin.sym} 660 -10 0 0 {name=l11 lab=UP}
 C {lab_pin.sym} 660 10 0 0 {name=l12 lab=upb_n}
 C {lab_pin.sym} 600 -40 0 0 {name=l13 lab=VDD}
 C {lab_pin.sym} 600 40 0 0 {name=l14 lab=VSS}
 C {srlatch_fast.sym} 900 0 0 0 {name=XLD}
 C {lab_pin.sym} 840 -10 0 0 {name=l15 lab=set_dn}
-C {lab_pin.sym} 840 10 0 0 {name=l16 lab=reset}
+C {lab_pin.sym} 840 10 0 0 {name=l16 lab=reset_n}
 C {lab_pin.sym} 960 -10 0 0 {name=l17 lab=DN}
 C {lab_pin.sym} 960 10 0 0 {name=l18 lab=dnb_n}
 C {lab_pin.sym} 900 -40 0 0 {name=l19 lab=VDD}
 C {lab_pin.sym} 900 40 0 0 {name=l20 lab=VSS}
-C {nand2x_lv.sym} 1200 0 0 0 {name=XNR}
+C {nand4x_lv.sym} 1200 0 0 0 {name=XNR}
 C {lab_pin.sym} 1140 -10 0 0 {name=l21 lab=UP}
 C {lab_pin.sym} 1140 10 0 0 {name=l22 lab=DN}
-C {lab_pin.sym} 1260 0 0 0 {name=l23 lab=reset_n0}
+C {lab_pin.sym} 1260 0 0 0 {name=l23 lab=reset_n}
 C {lab_pin.sym} 1200 -40 0 0 {name=l24 lab=VDD}
 C {lab_pin.sym} 1200 40 0 0 {name=l25 lab=VSS}
-C {inv4x_lv.sym} 0 220 0 0 {name=XR1}
-C {lab_pin.sym} -60 220 0 0 {name=l26 lab=reset_n0}
-C {lab_pin.sym} 60 220 0 0 {name=l27 lab=reset}
-C {lab_pin.sym} 0 180 0 0 {name=l28 lab=VDD}
-C {lab_pin.sym} 0 260 0 0 {name=l29 lab=VSS}
 C {ipin.sym} -400 -300 0 0 {name=p1 lab=REF}
 C {ipin.sym} -400 -260 0 0 {name=p2 lab=FB}
 C {opin.sym} -400 -220 0 0 {name=p3 lab=UP}

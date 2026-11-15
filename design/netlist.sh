@@ -39,7 +39,7 @@ OUT_DIR="${HERE}/netlist"
 BLOCKS=(pfd cp cp_bias loop_filter delay_cell tap_buffer delay_line supervisor lock_detector)
 expected_subckts() {
   case "$1" in
-    pfd)         echo "pfd edgedet srlatch_fast nand2_lv inv_lv inv2x_lv nand2x_lv inv4x_lv" ;;
+    pfd)         echo "pfd edgedet srlatch_fast nand2_lv inv_lv nand2x_lv nand4x_lv inv4x_lv" ;;
     cp)          echo "cp cp_leg_p cp_leg_n cp_dumpbuf inv_lv" ;;
     cp_bias)     echo "cp_bias" ;;
     loop_filter) echo "loop_filter" ;;
