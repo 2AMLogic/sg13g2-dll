@@ -80,8 +80,11 @@ transient; an ngspice transient contains only the noise of explicitly declared
 - **Committed measurement.** `sim/noise-method/` runs the known case as a
   90 ns transient **without** any declared noise source: the rms on the
   AC-coupled monitor node (0.1 pF / 1 MOhm to ground, high-pass 1.6 kHz; the
-  monitor is part of every deck of this bench, the derivation included — see
-  the Amendment below) reads zero to the solver's numerical floor (measured
+  monitor is part of the decks that measure or derive monitor-referred
+  quantities — the derivation, sigma, edge and control decks; the `.dc`
+  sweep (`nm_vth.spice`), the slew-rate (`nm_sr.spice`) and abort-probe
+  (`nm_abort.spice`) decks carry `Cl` only — see the Amendment below) reads
+  zero to the solver's numerical floor (measured
   6.8e-14 V, equal to the monitor's DC residual, so the AC content is
   identically zero) at mos_tt/27 °C. The same stage **with** a declared
   `trnoise` source shows a non-zero monitor rms and carries the
@@ -217,8 +220,24 @@ was committed and are re-derived by every `sim/noise-method/run.sh`
 invocation (the analyses involved are deterministic; the bench fails if a
 re-derivation drifts beyond the tolerances in the last column). The
 `sigma_v`-derived rows carry the values amended by the derivation-deck fix
-(Amendment below); `vth`, the OP output level and `SR` are
-monitor-independent and stand as first measured.
+(Amendment below); `vth` and the OP output level are monitor-independent and
+stand as first measured (`vth` from a `.dc` sweep, where `Cm` blocks DC;
+`op_out` re-measured 0.600319 V on the monitored control deck, identical to
+its unmonitored value). `SR` is **not** monitor-independent: measured on a
+monitored copy of `nm_sr.spice` (deck and request identical to the bench's,
+`Cm out m 0.1p` / `Rm m 0 1Meg` appended and nothing else changed;
+mos_tt/27 °C, klt 0.9.2.dev1029 / ngspice-47; verification probe run outside
+the repo, so no stamp carries it), the falling-edge slew rate drops to
+3.076923e10 V/s on falling edge 2 and 3.086420e10 V/s on edge 3, against
+the unmonitored 3.115265e10 V/s — −1.23 %/−0.93 %, outside the ±1 %
+tolerance this table assigns `SR` — while the 0.605→0.595 V crossing slope
+is unchanged (3.125000e10 V/s). `SR` therefore stays on its unmonitored
+deck, and the `sigma_t` target combines a monitored `sigma_v` with an
+unmonitored `SR`; that inconsistency is bounded at ~1 % of the target and is
+absorbed into the finding reported in the Outcome (arithmetic, not a
+measurement: a consistently-monitored `SR` would move the target to
+2.232–2.239e-13 s and the pooled verdict from −39.9 % to −40.5 %…−40.7 % —
+same direction, same magnitude).
 
 | quantity | value | source | reproduction tolerance |
 |---|---|---|---|
@@ -227,8 +246,8 @@ monitor-independent and stand as first measured.
 | `sigma_v` (onoise, 1 MHz–300 GHz) | 6.889353e-3 V | `.noise` band integral, monitored deck | ±1 % |
 | inoise band integral | 4.527237e-3 V | `.noise` band integral, monitored deck | ±1 % |
 | density, 10 MHz / 1 GHz / 100 GHz | 578.3 n / 78.1 n / 830.2 pV/sqrt(Hz) | `.noise` spot, monitored deck | ±1 % |
-| slew rate `SR` | 3.115265e10 V/s | noiseless edge transient, 0.65→0.55 V crossings, falling edges 2 and 3 (identical) | ±1 % |
-| **expected timing spread `sigma_t`** | **2.211482e-13 s (221.15 fs)** | `sigma_v / SR` | derived |
+| slew rate `SR` | 3.115265e10 V/s | noiseless edge transient, unmonitored deck (`nm_sr.spice`), 0.65→0.55 V crossings, falling edges 2 and 3 (identical) | ±1 % |
+| **expected timing spread `sigma_t`** | **2.211482e-13 s (221.15 fs)** | `sigma_v / SR` (monitored / unmonitored decks, see above) | derived |
 | control monitor rms (no source) | ≈ 0 (floor 6.8e-14 V) | `RMS(v(m))`, 90 ns | ≤ 1e-12 V |
 
 **Validation criteria (fixed before the runs; the first formulation's run
@@ -249,7 +268,12 @@ failed the first of them, which drove the Revision above):**
   run at ±10 %; the first seeded sets failed that clause on scatter alone —
   runs at −14 % and +10 % of target with a sound mean — and the clause was
   replaced before the final validated run. The tolerance has not moved since;
-  only the target value has, with the derivation-deck fix.)
+  only the target value has, with the derivation-deck fix.) One property of
+  the target kept visible here rather than only in the Amendment's honesty
+  note: the target is the monitored circuit's output rms noise, `Rm`'s
+  Johnson noise included — a share no transient reproduces (an ngspice
+  transient contains only declared sources) — and the calibration absorbs it
+  by construction when it sizes `IA` against the same measured target.
 - **`sigma_t` (8 seeded runs, PULSE-driven deck at the same `IA`):** per run,
   the rms of the 45 crossing-time errors against the deterministic grid;
   the **pooled** rms across the 8 runs within **±25 %** of 2.211482e-13 s

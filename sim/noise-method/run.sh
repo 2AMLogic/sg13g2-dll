@@ -5,6 +5,7 @@ set -euo pipefail
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SIM_DIR="$(cd "${HERE}/.." && pwd)"
 REPO_ROOT="$(cd "${SIM_DIR}/.." && pwd)"
+IA_PROBE="1e-9"
 
 # shellcheck source=/dev/null
 source "${SIM_DIR}/harness/preflight.sh"
@@ -43,9 +44,9 @@ restage_deck() { # fresh copy of the pristine deck, then size @IA@ -- never a ba
   sed -i "s/@IA@/${amp}/g" "${OUT}/decks/${deck}"
 }
 
-restage_deck nm_sigma.spice "1e-9"
+restage_deck nm_sigma.spice "${IA_PROBE}"
 submit sigma-probe "${OUT}/requests/sigma.request.json"
-IA_1="$(python3 -I "${HERE}/summarize.py" calibrate "${OUT}" sigma-probe "1e-9")"
+IA_1="$(python3 -I "${HERE}/summarize.py" calibrate "${OUT}" sigma-probe "${IA_PROBE}")"
 restage_deck nm_sigma.spice "${IA_1}"
 
 submit sigma-refine1 "${OUT}/requests/sigma.request.json"
