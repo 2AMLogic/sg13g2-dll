@@ -33,9 +33,10 @@ Issue #137 hardened the guard itself, in this file only:
   file whose text $-mentions a guarded knob must have those mentions
   parsed. The mentions scan is a deliberately cruder superset of KNOB_READ,
   so a parser that stops matching fails loudly instead of vacuously. A
-  guarded knob used in an expansion shape the mentions scan does not see
-  (e.g. ``${KNOB%pattern}``) would need both taught -- the mismatch fails
-  the suite rather than passing silently.
+  shape KNOB_READ misses but the mentions scan still sees (e.g.
+  ``${KNOB%pattern}``) fails the suite as that mismatch, rather than
+  passing silently; a shape neither sees (e.g. ``$((KNOB))``, ``${!KNOB}``
+  -- no runner or helper uses either today) would need both taught.
 
 Before #120 the DS_ prefix was read by two delay benches: exporting DS_VC to
 drive one silently replaced the other's swept axis (including delay-sizing's
