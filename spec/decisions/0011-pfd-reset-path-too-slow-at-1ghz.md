@@ -39,7 +39,7 @@ fallback target already passes unchanged. Any redraw re-runs `sim/pfd-fit/run.sh
 
 ## Update 2026-11-15 (issue #113): both proposed redraws ran; neither closes C2 at ss with C1 intact
 
-- **Status of this record**: the sections above are unchanged; this section appends the measured outcome
+- **Status of this record**: the sections above are unchanged; this section appends the simulated outcome
   of the follow-up issue. All figures below are simulated, never measured. Criteria C1-C3 are unchanged
   (`sim/pfd-fit/grade.py`); C2 was **not** relaxed.
 
@@ -62,20 +62,37 @@ Three gate runs now exist, all on the batch fleet, ngspice 47, reduced corner se
    adopted; `srlatch_fast`'s committed form is the variant in run 2. At ss an unsettled start-up cycle
    also produced no UP pulse at all (width 0), which alone fails C2's 30 ps floor.
 
-### Why the two criteria fight (measured anchors, no new model)
+One change of character in run 2's record worth naming: its `ctl_1g` control at tt produced **no UP/DN
+pulse at all** (width 0, both lanes, every cycle) where the 2026-11-05 control gave ~145..153 ps pulses
+failing C1 on insensitivity. The widened `srlatch_fast` NANDs hold the latch reset against the edgedet
+set pulse under the sibling's active-low polarity. It is still a C1 failure (AC3's revised requirement
+holds); it demonstrates a stuck-reset corner, not a dead zone, and is not a broken deck.
+
+### Why the two criteria fight (simulated anchors, no new model)
 
 The UP/DN pulse ends when both the lane's own set pulse has ended *and* the shared reset has propagated.
-Crossing times from run 2's envelope and the local probe put the set-release chain (edgedet pulse end ->
-`srlatch`/`srlatch_fast` input inverter) at ~+403 ps after the edge at ss (probe variant: +438.6 ps), and
-the reset loop at +353 ps (run 2) above the lane's rise. When the loop is shortened below the set-release
-margin, the lanes' falls decouple from the reset and (wUP - wDN) stops tracking the offset — exactly the
-run-3 C1 ratios above. When the loop is long enough to bind C1 at the +-10 ps offsets, the width *is* the
-loop, which measured 353..472 ps at ss across the three runs. No state measured in these runs has C1
-passing at ss with a width under 250 ps, and shortening the loop trades C1 failure for C2 progress at a
-measured boundary between 229 and 353 ps. Closing ss inside option space (1)/(2) would require the
-set-release chain itself to arrive ~150 ps earlier at ss, i.e. a shorter edge-detector pulse or a
-different latch family — **a PFD topology change, not a reset-path redraw**, and out of this issue's
-scope.
+The probe record `results/20261115T081500Z` (single ss/1.08 V/125 C corner of run 2's deck, byte-identical
+to that record's `decks/pfd_1g.spice`; the PFD-internal nodes `set_up`/`set_dn`/`reset` probed alongside
+`ref`/`fb`/`up`/`dn` in `probe_ss.envelope.json`) anchors both chains at ss, per input edge:
+
+- The edgedet pulse ends at **+347 ps**: set_up/set_dn fall 346.8..346.9 ps after the edge, both lanes,
+  every cycle of the probe; the lane itself rises at ~+260 ps.
+- The shared reset rises **+413 ps** after the edge at offset 0 — +396.4..+560.5 ps across the +-160 ps
+  sweep, tracking the offset because it fires on NAND(UP,DN) — so at offset 0 it arrives ~66 ps *after*
+  the set pulse has already ended.
+- The pulse therefore ends on the latch's reset path, not at set release: UP/DN falls 196.7..203.2 ps
+  after reset rises, in every cycle of the probe. That pins the width at reset arrival minus the lane
+  rise: **352.6..357.9 ps at offset 0** — run 2's C2 figure.
+
+This also reads run 3 without new machinery: its three-gate reset arrives before the set pulse ends, so
+the pulse end moves to the latch's set-release path and the width stops tracking the offset — exactly
+its committed ss record (near-constant 229..235 ps widths, the C1 ratios above). The two criteria cross
+at the set-release time: C1 needs the reset to arrive after the set pulse ends (>= ~+347 ps at the
+graded offsets), while C2 needs the pulse to end within 250 ps of the lane rise, i.e. the reset to
+arrive by ~+310 ps (250 + ~260 lane rise - ~199 latch reset path). +347 > +310, so no reset-path sizing
+closes ss, and shortening the loop trades C1 failure for C2 progress. Closing ss needs a shorter
+edge-detector pulse or a different latch family — **a PFD topology change, not a reset-path redraw** —
+and is out of this issue's scope.
 
 ### Consequence and paths forward (a human decides; no agent relaxes 0006)
 
