@@ -141,8 +141,8 @@ def sd(v):
 
 def main_mc(out):
     Ls = ["# delay-sizing Monte Carlo matching record", "",
-          "SIMULATED, never measured. ss/1.08 V/125 C, 1 GHz, one Vc, mismatch-only Monte Carlo (`mos_ss_mismatch`); "
-          "negative control on `mos_ss` (no mismatch) must give sigma exactly 0 and repeat identically.", ""]
+          "SIMULATED, never measured. 1 GHz, mismatch-only Monte Carlo; "
+          "negative control must give sigma exactly 0 and repeat identically.", ""]
     bad = []
     for v in ("a", "b"):
         env = load(os.path.join(out, f"{v}_mc_ss_1GHz.envelope.json"))
@@ -152,6 +152,7 @@ def main_mc(out):
             bad.append(f"{v} mc missing/error"); continue
         mc = (env.get("environment") or {}).get("monte_carlo")
         Ls += [f"## candidate {v.upper()}: n={len(env.get('corners', []))} runs, monte_carlo {json.dumps(mc)}; "
+               f"mismatch corners {evidence.corners_of(env)}, control corners {evidence.corners_of(ctl)}; "
                f"job {((env.get('environment') or {}).get('remote') or {}).get('job_id','-')}", ""]
         ds = []
         for cr in env["corners"]:
