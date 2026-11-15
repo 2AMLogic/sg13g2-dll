@@ -1,0 +1,262 @@
+{
+ "_comment": [
+  "sg13g2-dll noise-method: seeded edge-jitter check, PULSE drive + shunt trnoise current (0014).",
+  "Submitted 8 times sequentially by run.sh; @IA@ is substituted into the staged deck by run.sh",
+  "after the sigma-probe calibration. Crossing times at 0.65 V, falling edges 2..46;",
+  "sigma_t per run = rms(t_i - t_det_i) against the deterministic grid from the SR derivation."
+ ],
+ "engine": "ngspice",
+ "netlist": "../decks/nm_edge.spice",
+ "models": {
+  "pdk": "ihp-sg13g2",
+  "lib": "libs.tech/ngspice/models/cornerMOSlv.lib"
+ },
+ "corners": {
+  "process": [
+   "mos_tt"
+  ],
+  "temperature_c": [
+   27
+  ]
+ },
+ "analysis": {
+  "kind": "tran",
+  "args": "1p 95n"
+ },
+ "measurements": [
+  {
+   "name": "t_e1",
+   "spice": ".meas tran t_e1 WHEN v(out)=0.65 FALL=2",
+   "unit": "s"
+  },
+  {
+   "name": "t_e2",
+   "spice": ".meas tran t_e2 WHEN v(out)=0.65 FALL=3",
+   "unit": "s"
+  },
+  {
+   "name": "t_e3",
+   "spice": ".meas tran t_e3 WHEN v(out)=0.65 FALL=4",
+   "unit": "s"
+  },
+  {
+   "name": "t_e4",
+   "spice": ".meas tran t_e4 WHEN v(out)=0.65 FALL=5",
+   "unit": "s"
+  },
+  {
+   "name": "t_e5",
+   "spice": ".meas tran t_e5 WHEN v(out)=0.65 FALL=6",
+   "unit": "s"
+  },
+  {
+   "name": "t_e6",
+   "spice": ".meas tran t_e6 WHEN v(out)=0.65 FALL=7",
+   "unit": "s"
+  },
+  {
+   "name": "t_e7",
+   "spice": ".meas tran t_e7 WHEN v(out)=0.65 FALL=8",
+   "unit": "s"
+  },
+  {
+   "name": "t_e8",
+   "spice": ".meas tran t_e8 WHEN v(out)=0.65 FALL=9",
+   "unit": "s"
+  },
+  {
+   "name": "t_e9",
+   "spice": ".meas tran t_e9 WHEN v(out)=0.65 FALL=10",
+   "unit": "s"
+  },
+  {
+   "name": "t_e10",
+   "spice": ".meas tran t_e10 WHEN v(out)=0.65 FALL=11",
+   "unit": "s"
+  },
+  {
+   "name": "t_e11",
+   "spice": ".meas tran t_e11 WHEN v(out)=0.65 FALL=12",
+   "unit": "s"
+  },
+  {
+   "name": "t_e12",
+   "spice": ".meas tran t_e12 WHEN v(out)=0.65 FALL=13",
+   "unit": "s"
+  },
+  {
+   "name": "t_e13",
+   "spice": ".meas tran t_e13 WHEN v(out)=0.65 FALL=14",
+   "unit": "s"
+  },
+  {
+   "name": "t_e14",
+   "spice": ".meas tran t_e14 WHEN v(out)=0.65 FALL=15",
+   "unit": "s"
+  },
+  {
+   "name": "t_e15",
+   "spice": ".meas tran t_e15 WHEN v(out)=0.65 FALL=16",
+   "unit": "s"
+  },
+  {
+   "name": "t_e16",
+   "spice": ".meas tran t_e16 WHEN v(out)=0.65 FALL=17",
+   "unit": "s"
+  },
+  {
+   "name": "t_e17",
+   "spice": ".meas tran t_e17 WHEN v(out)=0.65 FALL=18",
+   "unit": "s"
+  },
+  {
+   "name": "t_e18",
+   "spice": ".meas tran t_e18 WHEN v(out)=0.65 FALL=19",
+   "unit": "s"
+  },
+  {
+   "name": "t_e19",
+   "spice": ".meas tran t_e19 WHEN v(out)=0.65 FALL=20",
+   "unit": "s"
+  },
+  {
+   "name": "t_e20",
+   "spice": ".meas tran t_e20 WHEN v(out)=0.65 FALL=21",
+   "unit": "s"
+  },
+  {
+   "name": "t_e21",
+   "spice": ".meas tran t_e21 WHEN v(out)=0.65 FALL=22",
+   "unit": "s"
+  },
+  {
+   "name": "t_e22",
+   "spice": ".meas tran t_e22 WHEN v(out)=0.65 FALL=23",
+   "unit": "s"
+  },
+  {
+   "name": "t_e23",
+   "spice": ".meas tran t_e23 WHEN v(out)=0.65 FALL=24",
+   "unit": "s"
+  },
+  {
+   "name": "t_e24",
+   "spice": ".meas tran t_e24 WHEN v(out)=0.65 FALL=25",
+   "unit": "s"
+  },
+  {
+   "name": "t_e25",
+   "spice": ".meas tran t_e25 WHEN v(out)=0.65 FALL=26",
+   "unit": "s"
+  },
+  {
+   "name": "t_e26",
+   "spice": ".meas tran t_e26 WHEN v(out)=0.65 FALL=27",
+   "unit": "s"
+  },
+  {
+   "name": "t_e27",
+   "spice": ".meas tran t_e27 WHEN v(out)=0.65 FALL=28",
+   "unit": "s"
+  },
+  {
+   "name": "t_e28",
+   "spice": ".meas tran t_e28 WHEN v(out)=0.65 FALL=29",
+   "unit": "s"
+  },
+  {
+   "name": "t_e29",
+   "spice": ".meas tran t_e29 WHEN v(out)=0.65 FALL=30",
+   "unit": "s"
+  },
+  {
+   "name": "t_e30",
+   "spice": ".meas tran t_e30 WHEN v(out)=0.65 FALL=31",
+   "unit": "s"
+  },
+  {
+   "name": "t_e31",
+   "spice": ".meas tran t_e31 WHEN v(out)=0.65 FALL=32",
+   "unit": "s"
+  },
+  {
+   "name": "t_e32",
+   "spice": ".meas tran t_e32 WHEN v(out)=0.65 FALL=33",
+   "unit": "s"
+  },
+  {
+   "name": "t_e33",
+   "spice": ".meas tran t_e33 WHEN v(out)=0.65 FALL=34",
+   "unit": "s"
+  },
+  {
+   "name": "t_e34",
+   "spice": ".meas tran t_e34 WHEN v(out)=0.65 FALL=35",
+   "unit": "s"
+  },
+  {
+   "name": "t_e35",
+   "spice": ".meas tran t_e35 WHEN v(out)=0.65 FALL=36",
+   "unit": "s"
+  },
+  {
+   "name": "t_e36",
+   "spice": ".meas tran t_e36 WHEN v(out)=0.65 FALL=37",
+   "unit": "s"
+  },
+  {
+   "name": "t_e37",
+   "spice": ".meas tran t_e37 WHEN v(out)=0.65 FALL=38",
+   "unit": "s"
+  },
+  {
+   "name": "t_e38",
+   "spice": ".meas tran t_e38 WHEN v(out)=0.65 FALL=39",
+   "unit": "s"
+  },
+  {
+   "name": "t_e39",
+   "spice": ".meas tran t_e39 WHEN v(out)=0.65 FALL=40",
+   "unit": "s"
+  },
+  {
+   "name": "t_e40",
+   "spice": ".meas tran t_e40 WHEN v(out)=0.65 FALL=41",
+   "unit": "s"
+  },
+  {
+   "name": "t_e41",
+   "spice": ".meas tran t_e41 WHEN v(out)=0.65 FALL=42",
+   "unit": "s"
+  },
+  {
+   "name": "t_e42",
+   "spice": ".meas tran t_e42 WHEN v(out)=0.65 FALL=43",
+   "unit": "s"
+  },
+  {
+   "name": "t_e43",
+   "spice": ".meas tran t_e43 WHEN v(out)=0.65 FALL=44",
+   "unit": "s"
+  },
+  {
+   "name": "t_e44",
+   "spice": ".meas tran t_e44 WHEN v(out)=0.65 FALL=45",
+   "unit": "s"
+  },
+  {
+   "name": "t_e45",
+   "spice": ".meas tran t_e45 WHEN v(out)=0.65 FALL=46",
+   "unit": "s"
+  }
+ ],
+ "options": {
+  "osdi_preload": [
+   "@OSDI_DIR@/psp103.osdi",
+   "@OSDI_DIR@/psp103_nqs.osdi",
+   "@OSDI_DIR@/r3_cmc.osdi",
+   "@OSDI_DIR@/mosvar.osdi"
+  ],
+  "stage_model_inputs": true
+ }
+}

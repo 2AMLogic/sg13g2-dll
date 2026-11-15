@@ -1,0 +1,102 @@
+{
+  "_comment": [
+    "lock-detector smoke bench (issue #54): typical corner, ONE unit (single corner, so `klt sim --backend local` is permitted). Limits are smoke gates derived from spec row 12 (lag <= 128 cycles each way) plus the 64-cycle predicate window, not spec numbers. Simulated, never measured.",
+    "Stimulus timeline is in decks/ld_body.spice. Times below are absolute ns of that timeline.",
+    "/home/ubuntu/share/pdk/ihp-sg13g2/libs.tech/ngspice/osdi is substituted by run.sh. The corner adds cornerRES (res_typ) for the vmov_cmp rppd low-pass and cornerCAP (cap_typ) for its MIM capacitor."
+  ],
+  "engine": "ngspice",
+  "netlist": "../decks/ld_1GHz.spice",
+  "netlist_source": "schematic",
+  "models": {
+    "pdk": "ihp-sg13g2",
+    "lib": "libs.tech/ngspice/models/cornerMOSlv.lib"
+  },
+  "analysis": {
+    "kind": "tran",
+    "args": "20p 800n"
+  },
+  "measurements": [
+    {
+      "name": "lock_max_before_220n",
+      "spice": ".meas tran lock_max_before_220n max v(lock) from=20n to=220n",
+      "unit": "V",
+      "limits": {
+        "min": -0.1,
+        "max": 0.1
+      }
+    },
+    {
+      "name": "t_rise1",
+      "spice": ".meas tran t_rise1 when v(lock)=0.6 rise=1 td=220n",
+      "unit": "s",
+      "limits": {
+        "min": 2.84e-07,
+        "max": 4.12e-07
+      }
+    },
+    {
+      "name": "t_fall1",
+      "spice": ".meas tran t_fall1 when v(lock)=0.6 fall=1 td=480n",
+      "unit": "s",
+      "limits": {
+        "min": 5.2e-07,
+        "max": 6.48e-07
+      }
+    },
+    {
+      "name": "t_rise2",
+      "spice": ".meas tran t_rise2 when v(lock)=0.6 rise=1 td=530n",
+      "unit": "s",
+      "limits": {
+        "min": 6.44e-07,
+        "max": 7.72e-07
+      }
+    },
+    {
+      "name": "t_edge_lock",
+      "spice": ".meas tran t_edge_lock trig v(lock) val=0.12 rise=2 targ v(lock) val=1.08 rise=2",
+      "unit": "s",
+      "limits": {
+        "min": 0,
+        "max": 3e-10
+      }
+    }
+  ],
+  "options": {
+    "osdi_preload": [
+      "/home/ubuntu/share/pdk/ihp-sg13g2/libs.tech/ngspice/osdi/psp103.osdi",
+      "/home/ubuntu/share/pdk/ihp-sg13g2/libs.tech/ngspice/osdi/psp103_nqs.osdi",
+      "/home/ubuntu/share/pdk/ihp-sg13g2/libs.tech/ngspice/osdi/r3_cmc.osdi",
+      "/home/ubuntu/share/pdk/ihp-sg13g2/libs.tech/ngspice/osdi/mosvar.osdi"
+    ],
+    "stage_model_inputs": true,
+    "keep_artifacts": true,
+    "timeout_s": 900
+  },
+  "corners": {
+    "process": [
+      {
+        "name": "tt",
+        "sections": [
+          "mos_tt",
+          {
+            "lib": "libs.tech/ngspice/models/cornerRES.lib",
+            "section": "res_typ"
+          },
+          {
+            "lib": "libs.tech/ngspice/models/cornerCAP.lib",
+            "section": "cap_typ"
+          }
+        ]
+      }
+    ],
+    "temperature_c": [
+      27
+    ],
+    "supply_v": {
+      "Vdd": [
+        1.2
+      ]
+    }
+  }
+}

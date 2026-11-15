@@ -1,0 +1,56 @@
+{
+  "_comment": [
+    "sg13g2-dll noise-method: device-noise derivation at the OP (0014).",
+    "sigma_v = onoise band integral over the fixed 1 MHz - 300 GHz band; spots for the record."
+  ],
+  "engine": "ngspice",
+  "netlist": "../decks/nm_noise.spice",
+  "models": {
+    "pdk": "ihp-sg13g2",
+    "lib": "libs.tech/ngspice/models/cornerMOSlv.lib"
+  },
+  "corners": {
+    "process": ["mos_tt"],
+    "temperature_c": [27]
+  },
+  "analysis": {
+    "kind": "noise",
+    "args": "v(out) Vin dec 10 1e6 3e11"
+  },
+  "measurements": [
+    {
+      "name": "sv_band",
+      "noise": {"quantity": "onoise", "band_hz": [1e6, 3e11]},
+      "unit": "V"
+    },
+    {
+      "name": "iv_band",
+      "noise": {"quantity": "inoise", "band_hz": [1e6, 3e11]},
+      "unit": "V"
+    },
+    {
+      "name": "s_10M",
+      "noise": {"quantity": "onoise", "at_hz": 1e7},
+      "unit": "V/sqrtHz"
+    },
+    {
+      "name": "s_1G",
+      "noise": {"quantity": "onoise", "at_hz": 1e9},
+      "unit": "V/sqrtHz"
+    },
+    {
+      "name": "s_100G",
+      "noise": {"quantity": "onoise", "at_hz": 1e11},
+      "unit": "V/sqrtHz"
+    }
+  ],
+  "options": {
+    "osdi_preload": [
+      "@OSDI_DIR@/psp103.osdi",
+      "@OSDI_DIR@/psp103_nqs.osdi",
+      "@OSDI_DIR@/r3_cmc.osdi",
+      "@OSDI_DIR@/mosvar.osdi"
+    ],
+    "stage_model_inputs": true
+  }
+}

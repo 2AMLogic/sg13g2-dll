@@ -4,6 +4,14 @@ Chronological record of merged PRs and closed issues. Maintained by the Guide ro
 
 ### 2026-11-14
 
+- **Issue #99** (closed): Remove the hardcoded run-condition literals from the sim record writers: backend, simulator version, corner and unit are printed as constants while the envelope records them
+- **PR #106**: refactor(sim): read run conditions from the envelope instead of printing them as constants
+- **Issue #94** (closed): Power bench run.sh would exit 0 (documented as pass) on a DUT where row 10 is NOT GRADED
+- **PR #110**: fix: exit 6, not 0, when a bench row gets no verdict
+- **Issue #96** (closed): Remove the hv and HBT legs of the PDK pin and device smoke: decision 0007 dropped both families, but every bench preflight still requires their model files
+- **PR #103**: refactor(sim): drop the hv and HBT legs from the PDK pin and device smoke
+- **Issue #85** (closed): Remove the noise-method grep gate in sim/jitter/run.sh: it matches decision 0001 and reports a record that does not exist
+- **PR #88**: fix(jitter): refuse unconditionally instead of reporting a record that does not exist
 - **Issue #104** (closed): Remove the markdown-table scrape in cp-currents: K4 re-parses delay-sanity record.md instead of reading its envelopes
 - **PR #105**: refactor: read K_dl from the delay-sanity envelopes, pin the source run
 - **Issue #92** (closed): bug: grade() always reports a harness FAIL on the single-start-state benches (phase, power), because check_ic_applied demands >= 2 start states

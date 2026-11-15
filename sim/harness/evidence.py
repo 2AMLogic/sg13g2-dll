@@ -119,9 +119,14 @@ def check_signal_present(name, env):
     return [f"{name}: mismatch-on Monte Carlo shows zero spread in every measurement"]
 
 
+def mvals(corner):
+    """{measurement name: value} for one corner block of an envelope."""
+    return {m["name"]: m.get("value") for m in corner.get("measurements", [])}
+
+
 def _values(env):
     return {
-        c["corner_id"]: {m["name"]: m.get("value") for m in c.get("measurements", [])}
+        c["corner_id"]: mvals(c)
         for c in env.get("corners", [])
     }
 
@@ -147,7 +152,7 @@ def check_ic_applied(name, env, source, meas, tol=0.02, min_states=2):
     problems = []
     for c in env.get("corners", []):
         want = (c.get("supply_v") or {}).get(source)
-        got = {m["name"]: m.get("value") for m in c.get("measurements", [])}.get(meas)
+        got = mvals(c).get(meas)
         if want is None or got is None:
             problems.append(f"{name} {c['corner_id']}: missing {source!r} or measurement {meas!r}")
             continue
@@ -184,9 +189,18 @@ def render(items, ic_source=None, title="Harness evidence record"):
 
 
 def backend_of(environment):
-    """The backend `klt sim` resolved, read from an envelope's `environment`."""
-    b = (environment or {}).get("backend")
-    return b.get("resolved") if isinstance(b, dict) else b
+    """The backend `klt sim` resolved, read from an envelope's `environment`.
+
+    klt 0.8.0 (the pin in scripts/klt.sh) writes `environment.backend` at
+    exactly one site, always as the provenance dict {"resolved", "source",
+    "requested"} its sim.py builds before assigning it, so the dict is the
+    only shape the schema produces and `resolved` is read straight out of it.
+    A missing backend (an envelope from an older klt, or a fixture that
+    records no environment) reads as None. A bare string is not a shape the
+    pin can produce and is deliberately not handled -- the summarizers route
+    through here so there is one spelling of that contract, not three.
+    """
+    return ((environment or {}).get("backend") or {}).get("resolved")
 
 
 def environment_lines(envs):
