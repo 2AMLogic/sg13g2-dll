@@ -28,3 +28,19 @@ The `td=` values in `requests/sup.request.json` come from the first committed ru
 (a file-scope `.meas` cannot read another `.meas`); re-derive them if the design
 or stimulus changes. Limits are smoke gates, not spec numbers. Results are
 simulated, never measured. No negative control (mask removed) was run.
+
+## Evidence currency and the ss probe (issue #145)
+
+`results/20261115T184803Z/` is the record on the **three-stage device-level
+`edgedet`** (`XMPD1..XMND3`, 0.16 µm devices, PR #141) and passes all six gates;
+its provenance section states the commit and the chain. The two earlier records
+(`20261105T052155Z`, `20261114T092421Z`) pre-date that chain and are superseded
+for it.
+
+The ss corner is covered by a **probe, not a graded result**:
+`results/20261115T185844Z-probe/` runs the same stimulus at ss / 1.080 V / 125 °C
+plus a tt control unit, graded on crossing counts (corner-portable; no `td=`
+re-derivation), and **measures a failure**: RST never releases at ss (the
+`win_det` TAPH sample mis-latches, `over_n` holds, the counter stays disabled,
+the one-shot never fires). See that directory's `record.md` for method and
+attribution, and `design/NOTES.md` § "Evidence status" for the summary.

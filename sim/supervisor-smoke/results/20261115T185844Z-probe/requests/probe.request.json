@@ -1,0 +1,230 @@
+{
+  "_comment": [
+    "supervisor ss probe (issue #145): single-corner diagnostic. NOT a graded spec result",
+    "(sim/corners.json: the reduced set is never a recorded result) and NOT the tt smoke gate --",
+    "sim/supervisor-smoke/requests/sup.request.json is untouched.",
+    "Question (issue #145): PR #141 shortened the shared edgedet one-shot from five inverter stages",
+    "to three device-level stages (XMPD1..XMND3, 0.16 u); does pt still drive the plain srlatch at",
+    "ss/1.080 V/125 C, i.e. does RST assert via the rail time-out path at all?",
+    "Deck = design/netlist/supervisor.spice (three-stage edgedet) + decks/sup_body.spice, stimulus",
+    "byte-identical to the tt smoke bench (the stimulus is not what changed).",
+    "Corner = the bench's own corner with the MOS section moved to mos_ss; the passive sections",
+    "(cornerRES res_typ, needed by the rppd ladder in rail_cmp) stay typ, per sim/corners.json,",
+    "whose corner axes are MOS x supply x temperature only.",
+    "Graded on crossing counts and crossing times, NOT on the tt-calibrated .meas windows of the",
+    "smoke request: crossing counting is corner-portable, so no tt offset is re-derived for this",
+    "corner (issue #145 finding 4 answered by construction). The capture spans the stimulus (ref),",
+    "the win_det window samples (a_up, a_dn_n, b_up), over_n, the rail-comparator outputs (nhi, near), the",
+    "counter enable, the one-shot input and output (to, pt), the gated set term and the latch",
+    "output (set, RST), so a failure is attributable to the stage that stopped.",
+    "Second unit = the SAME capture at the bench's own tt corner (mos_tt / 1.2 V / 27 C): a",
+    "control, so every ss observation is read against what the identical stimulus and capture",
+    "produce where the block is known to pass.",
+    "Submitted through the grid/batch path (--backend batch --wait-for-capacity 600).",
+    "Simulated, never measured."
+  ],
+  "engine": "ngspice",
+  "netlist": "../decks/probe.spice",
+  "netlist_source": "schematic",
+  "models": {
+    "pdk": "ihp-sg13g2",
+    "lib": "libs.tech/ngspice/models/cornerMOSlv.lib"
+  },
+  "analysis": {
+    "kind": "tran",
+    "args": "10p 100n"
+  },
+  "measurements": [
+    {
+      "name": "t_ref",
+      "crossings": {
+        "signal": "v(ref)",
+        "level": {
+          "frac_of": "Vdd",
+          "fraction": 0.5
+        },
+        "edge": "rise",
+        "max": 1000
+      }
+    },
+    {
+      "name": "t_a_up",
+      "crossings": {
+        "signal": "v(xdut.xwin.a_up)",
+        "level": {
+          "frac_of": "Vdd",
+          "fraction": 0.5
+        },
+        "edge": "either",
+        "max": 1000
+      }
+    },
+    {
+      "name": "t_a_dn_n",
+      "crossings": {
+        "signal": "v(xdut.xwin.a_dn_n)",
+        "level": {
+          "frac_of": "Vdd",
+          "fraction": 0.5
+        },
+        "edge": "either",
+        "max": 1000
+      }
+    },
+    {
+      "name": "t_b_up",
+      "crossings": {
+        "signal": "v(xdut.xwin.b_up)",
+        "level": {
+          "frac_of": "Vdd",
+          "fraction": 0.5
+        },
+        "edge": "either",
+        "max": 1000
+      }
+    },
+    {
+      "name": "t_over_n",
+      "crossings": {
+        "signal": "v(xdut.over_n)",
+        "level": {
+          "frac_of": "Vdd",
+          "fraction": 0.5
+        },
+        "edge": "either",
+        "max": 1000
+      }
+    },
+    {
+      "name": "t_nhi",
+      "crossings": {
+        "signal": "v(xdut.nhi)",
+        "level": {
+          "frac_of": "Vdd",
+          "fraction": 0.5
+        },
+        "edge": "either",
+        "max": 1000
+      }
+    },
+    {
+      "name": "t_near",
+      "crossings": {
+        "signal": "v(xdut.near)",
+        "level": {
+          "frac_of": "Vdd",
+          "fraction": 0.5
+        },
+        "edge": "either",
+        "max": 1000
+      }
+    },
+    {
+      "name": "t_cnt_en",
+      "crossings": {
+        "signal": "v(xdut.cnt_en)",
+        "level": {
+          "frac_of": "Vdd",
+          "fraction": 0.5
+        },
+        "edge": "either",
+        "max": 1000
+      }
+    },
+    {
+      "name": "t_to",
+      "crossings": {
+        "signal": "v(xdut.to)",
+        "level": {
+          "frac_of": "Vdd",
+          "fraction": 0.5
+        },
+        "edge": "rise",
+        "max": 1000
+      }
+    },
+    {
+      "name": "t_pt",
+      "crossings": {
+        "signal": "v(xdut.pt)",
+        "level": {
+          "frac_of": "Vdd",
+          "fraction": 0.5
+        },
+        "edge": "either",
+        "max": 1000
+      }
+    },
+    {
+      "name": "t_set",
+      "crossings": {
+        "signal": "v(xdut.set)",
+        "level": {
+          "frac_of": "Vdd",
+          "fraction": 0.5
+        },
+        "edge": "either",
+        "max": 1000
+      }
+    },
+    {
+      "name": "t_rst",
+      "crossings": {
+        "signal": "v(rst)",
+        "level": {
+          "frac_of": "Vdd",
+          "fraction": 0.5
+        },
+        "edge": "either",
+        "max": 1000
+      }
+    }
+  ],
+  "options": {
+    "osdi_preload": [
+      "/home/ubuntu/share/pdk/ihp-sg13g2/libs.tech/ngspice/osdi/psp103.osdi",
+      "/home/ubuntu/share/pdk/ihp-sg13g2/libs.tech/ngspice/osdi/psp103_nqs.osdi",
+      "/home/ubuntu/share/pdk/ihp-sg13g2/libs.tech/ngspice/osdi/r3_cmc.osdi",
+      "/home/ubuntu/share/pdk/ihp-sg13g2/libs.tech/ngspice/osdi/mosvar.osdi"
+    ],
+    "stage_model_inputs": true,
+    "keep_artifacts": true,
+    "timeout_s": 1200
+  },
+  "corners": {
+    "units": [
+      {
+        "process": {
+          "name": "ss",
+          "sections": [
+            "mos_ss",
+            {
+              "lib": "libs.tech/ngspice/models/cornerRES.lib",
+              "section": "res_typ"
+            }
+          ]
+        },
+        "temperature_c": 125,
+        "supply_v": {
+          "Vdd": 1.08
+        }
+      },
+      {
+        "process": {
+          "name": "tt",
+          "sections": [
+            "mos_tt",
+            {
+              "lib": "libs.tech/ngspice/models/cornerRES.lib",
+              "section": "res_typ"
+            }
+          ]
+        },
+        "temperature_c": 27,
+        "supply_v": {
+          "Vdd": 1.2
+        }
+      }
+    ]
+  }
+}
