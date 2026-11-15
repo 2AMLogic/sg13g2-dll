@@ -66,7 +66,7 @@
         "role": "hygiene",
         "path": "sim/delay-sanity/run.sh",
         "passed": true,
-        "content_hash": "sha256:4703939b602a1ceb76b143c991519823caf96f1d2b34e4d1f649ecc4840fad08"
+        "content_hash": "sha256:14a565f1ab45d106f02d9584c3c57de74f035d95e5ac53de61d3da8d8443d80c"
       },
       {
         "check": "present",
