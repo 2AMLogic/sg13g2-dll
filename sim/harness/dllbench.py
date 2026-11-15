@@ -412,7 +412,12 @@ def grade(bench_dir, out):
             continue
         env = evidence.load(path)
         items.append((path, env))
-        problems += evidence.basic_problems(os.path.basename(path), env)
+        # "fail" is klt's graded-result token -- a corner missed its limit --
+        # so its status line must not screen as a harness fault; the failed
+        # count below drives the row verdict instead. "inconclusive" and
+        # "pass_partial" are also results to klt, but here they stay faults:
+        # #74 owns whether they become row verdicts.
+        problems += evidence.basic_problems(os.path.basename(path), env, result_status=("fail",))
         if "error" in env:
             continue
         problems += axis_problems(os.path.basename(path), env, req)
@@ -451,20 +456,36 @@ def grade(bench_dir, out):
         lines.append(f"| {tag} | {name} | {s['n']} | {s['locked']} | {s['one_period']} | {s['row8']} | "
                      f"{s['lock_ok']} | {s['multi']} | {lt} | {s['no_lock_time']} |")
     lines += ["", evidence.render(items, title="Envelope summary").split("\n", 3)[3]]
-    failing = [env.get("failed", 0) + env.get("errored", 0) for _, env in items if "error" not in env]
+    # An ERRORED corner is a harness fault, not a row result: it counts into
+    # `problems` (exit 1) and can never produce the row verdict's result
+    # wording. Only a FAILED corner -- klt status "fail" -- is a result, and
+    # only its count drives `failing` below.
+    for path, env in items:
+        if "error" not in env and env.get("errored", 0):
+            problems.append(f"{os.path.basename(path)}: {env['errored']} corner(s) errored "
+                            f"(a harness fault: the simulator could not run them)")
+    failing = [env.get("failed", 0) for _, env in items if "error" not in env]
     rows_ok = not problems and not any(failing)
     graded = rows_graded(manifest)
     if not graded:
         rows_verdict = ("NOT GRADED on this DUT -- it does not declare `supply_current: true`, so the deck's "
                         "v(pw) is identically zero: `pavg` carries no limit and is recorded, not graded")
+    elif rows_ok:
+        rows_verdict = "all corners pass"
+    elif problems:
+        # a fault outranks the row verdict: an errored corner, an unreadable
+        # coverage token or a missing envelope leaves the rows without a
+        # verdict at all. "inconclusive"/"pass_partial" land here too -- #74
+        # owns whether they become row verdicts.
+        rows_verdict = "NO VERDICT -- a harness fault above outranks the row limits"
     else:
-        rows_verdict = "all corners pass" if rows_ok else "NOT all corners pass (a result, not a harness fault)"
+        rows_verdict = "NOT all corners pass (a result, not a harness fault)"
     rows_name = ", ".join(str(r) for r in cfg["rows"])
     lines += ["", "## Verdict", "",
               f"- harness: {'FAIL' if problems else 'PASS'}",
               f"- rows {rows_name} on this DUT: {rows_verdict}"]
     if not graded and any(failing):
-        lines.append(f"- {sum(failing)} corner(s) failed or errored on the limits every profile carries "
+        lines.append(f"- {sum(failing)} corner(s) failed on the limits every profile carries "
                      f"(rows 2, 8, 12); that is not a row-{rows_name} verdict")
     if problems:
         lines += [""] + [f"- {p}" for p in problems]
@@ -478,8 +499,9 @@ def grade(bench_dir, out):
     if problems:
         return 1
     # 0 is documented as "pass" at every bench: never return it for a row that
-    # received no verdict. Ungraded is 6, the repo's "ran, but no passing
-    # verdict" code, same as a corner that fails its row; record.md says which.
+    # received no verdict. 6 is the repo's "ran, but no passing verdict" code:
+    # a NOT-GRADED row, or a corner that FAILED its limits -- a result. A
+    # corner the simulator ERRORED on is 1, a harness fault; record.md says which.
     return 0 if graded and rows_ok else 6
 
 
