@@ -29,7 +29,7 @@
 # is NOT-RUN and quotes the engine/backend error verbatim. Nothing here launches
 # ngspice. Results are simulated, never measured, and append-only.
 #
-# Env: SS_RESULTS_DIR   results directory for this invocation
+# Env: UNITSMOKE_RESULTS_DIR   results directory for this invocation
 #                       (default <bench dir>/results/<UTC stamp>)
 # Exit: 0 pass, 3 missing prerequisite, 6 ran but a gate failed or NOT-RUN.
 # shellcheck shell=bash
@@ -51,7 +51,7 @@ smoke_main() {
 
   local stamp out rc=0
   stamp="$(date -u +%Y%m%dT%H%M%SZ)"
-  out="${SS_RESULTS_DIR:-${bench}/results/${stamp}}"
+  out="${UNITSMOKE_RESULTS_DIR:-${bench}/results/${stamp}}"
   sim_stage_inputs "${bench}" "${out}" requests
   { cat "${design_dir}/netlist/${netlist}"; cat "${bench}/decks/${tag}_body.spice"; } \
       > "${out}/decks/${deck}"

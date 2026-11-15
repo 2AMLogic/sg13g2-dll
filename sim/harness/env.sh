@@ -20,7 +20,6 @@ if [[ -z "${PDK_ROOT:-}" ]]; then
 fi
 
 if [[ -n "${PDK_ROOT:-}" && -d "${PDK_ROOT}/${PDK}/libs.tech/ngspice" ]]; then
-  export SG13G2_NGSPICE_MODELS="${PDK_ROOT}/${PDK}/libs.tech/ngspice/models"
   export SG13G2_OSDI_DIR="${PDK_ROOT}/${PDK}/libs.tech/ngspice/osdi"
   echo "sg13g2: PDK_ROOT=${PDK_ROOT} PDK=${PDK}" >&2
 else

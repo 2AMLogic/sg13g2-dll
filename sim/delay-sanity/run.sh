@@ -7,7 +7,7 @@
 #
 #   design/netlist.sh && sim/delay-sanity/run.sh
 #
-# Env: DS_CAPACITY_WAIT_S (default 900), DS_RESULTS_DIR, DS_VC (comma list)
+# Env: DSAN_CAPACITY_WAIT_S (default 900), DSAN_RESULTS_DIR, DSAN_VC (comma list)
 set -euo pipefail
 
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -19,12 +19,12 @@ sim_preflight
 "${DESIGN_DIR}/netlist.sh" --check
 
 STAMP="$(date -u +%Y%m%dT%H%M%SZ)"
-OUT="${DS_RESULTS_DIR:-${HERE}/results/${STAMP}}"
+OUT="${DSAN_RESULTS_DIR:-${HERE}/results/${STAMP}}"
 sim_stage_inputs "${HERE}" "${OUT}" base
 mkdir -p "${OUT}/requests"
 # the corner source itself, so a result directory still states what it ran at
 cp "${SIM_DIR}/corners.json" "${OUT}/"
-VC="${DS_VC:-0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0,1.08}"
+VC="${DSAN_VC:-0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0,1.08}"
 
 declare -A PERIOD=([500MHz]=2n [1GHz]=1n)
 declare -A HALF=([500MHz]=1n [1GHz]=0.5n)
@@ -48,7 +48,7 @@ for f in 500MHz 1GHz; do
     python3 -I "${SIM_DIR}/harness/gridspec.py" "${OUT}/base/${tag}.base.request.json" \
         -o "${OUT}/requests/${tag}.request.json" --reduced-corner "mos_${c}" --ic "VC=${VC}"
     sim_submit "${OUT}" "${tag}" "${OUT}/requests/${tag}.request.json" \
-        --wait-for-capacity "${DS_CAPACITY_WAIT_S:-900}" || rc=$?
+        --wait-for-capacity "${DSAN_CAPACITY_WAIT_S:-900}" || rc=$?
   done
 done
 python3 -I "${HERE}/summarize.py" "${OUT}" || rc=$?
