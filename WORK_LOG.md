@@ -4,6 +4,12 @@ Chronological record of merged PRs and closed issues. Maintained by the Guide ro
 
 ### 2026-11-15
 
+- **PR #149**: sim: re-run supervisor and lock-detector smoke on the 3-stage edgedet; record ss probe failures
+- **PR #147**: test: assert every read guarded knob is named in its Env block
+- **PR #141**: design: 3-stage edgedet chain + sized srlatch_fast; gate still fails ss C2, two-knob refutation measured
+- **Issue #145** (closed): Shared edgedet shortened 5 -> 3 stages: supervisor and lock_detector smoke evidence is now stale and unverified
+- **Issue #142** (closed): Extend test_bench_env_namespaces.py with a documentation assertion: every *_RESULTS_DIR reader carries an # Env: line
+- **Issue #136** (closed): PFD fit gate: C2 is still open at ss/1 GHz after the reset-path redraw (decision 0011 follow-up)
 - **PR #143**: docs: document NOISE_METHOD_RESULTS_DIR knob in noise-method runner header
 - **PR #144**: test: harden the bench env-namespace guard against silent coverage loss
 - **PR #139**: fix: read recorded PVT corners from the envelope in cp-currents and delay-sizing headers
