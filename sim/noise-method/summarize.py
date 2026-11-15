@@ -153,6 +153,19 @@ def calibrate(out, tag, ia_current):
     print(f"{ia:.6e}")
 
 
+def calibrate2(out, ia_1):
+    sv = measurements(envelope(out, "noise"))["sv_band"]
+    sigmas = []
+    for tag in ("sigma-refine1", "sigma-refine2"):
+        m = noise_sigma(measurements(envelope(out, tag)))
+        if not m or m <= 0:
+            print(f"summarize: refinement run {tag} measured no noise: {m}", file=sys.stderr)
+            sys.exit(1)
+        sigmas.append(m)
+    ia = float(ia_1) * sv / (sum(sigmas) / len(sigmas))
+    print(f"{ia:.6e}")
+
+
 def summarize(out):
     out = pathlib.Path(out)
     derived, ctl_sigma, problems = derive_all(out)
@@ -165,8 +178,9 @@ def summarize(out):
     probe = measurements(envelope(out, "sigma-probe"))
     sigma_probe = noise_sigma(probe)
     ia_1 = IA_PROBE * sv / sigma_probe
-    cal = measurements(envelope(out, "sigma-refine"))
-    sigma_cal = noise_sigma(cal)
+    cal = measurements(envelope(out, "sigma-refine1"))
+    cal2 = measurements(envelope(out, "sigma-refine2"))
+    sigma_cal = (noise_sigma(cal) + noise_sigma(cal2)) / 2
     ia_cal = ia_1 * sv / sigma_cal
     sr605 = 0.01 / (sr["t595_2"] - sr["t605_2"])
 
@@ -387,9 +401,11 @@ def main():
     usage = {
         "derive": lambda: derive(sys.argv[2]),
         "calibrate": lambda: calibrate(sys.argv[2], sys.argv[3], sys.argv[4]),
+        "calibrate2": lambda: calibrate2(sys.argv[2], sys.argv[3]),
         "summarize": lambda: summarize(sys.argv[2]),
     }
-    if len(sys.argv) != 3 + (2 if sys.argv[1] == "calibrate" else 0) or sys.argv[1] not in usage:
+    expected_args = {"derive": 3, "calibrate": 5, "calibrate2": 4, "summarize": 3}
+    if sys.argv[1] not in usage or len(sys.argv) != expected_args[sys.argv[1]]:
         print(__doc__, file=sys.stderr)
         sys.exit(2)
     usage[sys.argv[1]]()

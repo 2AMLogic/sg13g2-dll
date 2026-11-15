@@ -260,7 +260,50 @@ failed the first of them, which drove the Revision above):**
 - The 8 run outputs of each set must additionally be pairwise distinct (two
   identical results would mean a shared noise stream — the pid caveat).
 
-## Outcome
+## Outcome (2026-11-15, `sim/noise-method/results/20261115T004032Z/`)
 
-Filled after the run; see the appended section once
-`sim/noise-method/results/` exists in the tree.
+Stamp `20261115T004032Z` (17 local `klt sim` runs: 4 deterministic derivation,
+1 abort probe, 3 calibration, 8 + 8 seeded). Verdict: **the `sigma_v` criteria
+PASS; the `sigma_t` criterion FAILS, and that failure is the record's finding.**
+
+- **The noise machinery delivers the derived target.** With the iterated
+  calibration the 8 seeded DC-biased runs average 8.064768e-3 V — **+1.87 %**
+  against the `.noise` target 7.916701e-3 V, inside ±10 % (per-run values
+  −5.6 % to +8.0 %, reported in the stamp; the scatter is the window
+  statistic, see Revision 4). Control run 6.8e-14 V ≈ 0; the 8 streams are
+  pairwise distinct; the abort probe reproduced the `timestep_too_small`
+  diagnostic (quoted above, at t = 2e-10 s).
+- **The derived timing figure does not survive a switched stage.** The 8
+  seeded PULSE-driven edge runs measure `sigma_t` = 1.28–1.66e-13 s per run,
+  pooled 1.457586e-13 s over 360 edges — **42.6 % below** the derived
+  `sigma_v / SR` = 2.541261e-13 s, far outside the ±25 % criterion, and
+  tightly clustered (8/8 runs at −35 % to −49 %): a systematic deficit, not
+  scatter. The static slope measured exactly at the crossing (0.595–0.605 V)
+  is 3.125e10 V/s — within 0.3 % of the 0.55→0.65 V figure — so the slew
+  rate is not the cause. The leading explanation: the `.noise` derivation
+  integrates the noise of the *statically biased* stage, whose low-frequency
+  wander accumulates indefinitely; the PULSE-driven stage spends most of each
+  period at the rails, where its output resistance collapses (~picosecond
+  decay) and that accumulated wander is reset before each crossing — the
+  crossing samples only what the last transition window rebuilt. The known
+  case measures that switched/static ratio at **≈ 0.56**.
+- **What this means for row 6.** A DLL jitter figure derived as
+  `sigma_v / SR` from `.noise` at the locked operating point carries a
+  measured ~1.8× conservatism relative to what a switching delay stage
+  actually exhibits on this toolchain; any figure produced that way must
+  state it. Conversely the shunt-current equivalent **can** ride a
+  PULSE-driven deck (the edge runs do it 8 times), so row 6's deck is not
+  forced into the derived figure: it can measure edge jitter directly on the
+  switched loop and use `sigma_v / SR` as the static reference the result is
+  reported against.
+- **Seeds:** 8 independent pid-seeded runs per set, streams pairwise
+  distinct; seed values not recordable ([klayout-tools#5772](https://github.com/2AMLogic/klayout-tools/issues/5772)).
+- Earlier stamps kept as evidence: `20261114T233835Z` (the first
+  formulation's falsified run: every seeded transient measured zero noise at
+  the density-derived amplitude) and `20261115T000238Z` (the per-run ±10 %
+  clause failing on window scatter with a sound mean, which drove the
+  criteria amendment).
+
+The record stays `proposed`. Row 6 remains `blocked` in `sim/bench-rows.json`
+until a DLL jitter deck exists.
+
