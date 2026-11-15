@@ -37,6 +37,16 @@
       "name": "t55_3",
       "spice": ".meas tran t55_3 WHEN v(out)=0.55 FALL=3",
       "unit": "s"
+    },
+    {
+      "name": "t605_2",
+      "spice": ".meas tran t605_2 WHEN v(out)=0.605 FALL=2",
+      "unit": "s"
+    },
+    {
+      "name": "t595_2",
+      "spice": ".meas tran t595_2 WHEN v(out)=0.595 FALL=2",
+      "unit": "s"
     }
   ],
   "options": {

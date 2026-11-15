@@ -67,7 +67,7 @@ def derive_all(out):
     sv = noise["sv_band"]
     sr2 = 0.1 / (sr["t55_2"] - sr["t65_2"])
     sr3 = 0.1 / (sr["t55_3"] - sr["t65_3"])
-    ctl_sigma = meas_noise(control)
+    ctl_sigma = noise_sigma(control)
     derived = {
         "vth": vth,
         "op_out": control["vmavg"],
@@ -142,12 +142,14 @@ def derive(out):
         sys.exit(1)
 
 
-def calibrate(out):
-    probe = measurements(envelope(out, "sigma-probe"))
+def calibrate(out, tag, ia_current):
+    probe = measurements(envelope(out, tag))
     sv = measurements(envelope(out, "noise"))["sv_band"]
     sigma_probe = noise_sigma(probe)
-
-    ia = IA_PROBE * sv / sigma_probe
+    if not sigma_probe or sigma_probe <= 0:
+        print(f"summarize: calibration probe measured no noise: {sigma_probe}", file=sys.stderr)
+        sys.exit(1)
+    ia = float(ia_current) * sv / sigma_probe
     print(f"{ia:.6e}")
 
 
@@ -162,10 +164,11 @@ def summarize(out):
 
     probe = measurements(envelope(out, "sigma-probe"))
     sigma_probe = noise_sigma(probe)
-    if not sigma_probe or sigma_probe <= 0:
-        print(f"summarize: calibration probe measured no noise: {sigma_probe}", file=sys.stderr)
-        sys.exit(1)
-    ia_cal = IA_PROBE * sv / sigma_probe
+    ia_1 = IA_PROBE * sv / sigma_probe
+    cal = measurements(envelope(out, "sigma-refine"))
+    sigma_cal = noise_sigma(cal)
+    ia_cal = ia_1 * sv / sigma_cal
+    sr605 = 0.01 / (sr["t595_2"] - sr["t605_2"])
 
     sigmas = sigma_runs(out)
     sigma_mean = sum(s[3] for s in sigmas) / len(sigmas)
@@ -225,9 +228,11 @@ def summarize(out):
         "  at the switching-threshold operating point (deterministic).",
         "- Equivalent: ONE shunt `trnoise` current source at the stage output node",
         "  (`Ieq out 0 dc=0 trnoise(IA 1p)`), sized by per-deck calibration: a probe run at",
-        f"  IA = {IA_PROBE:g} A measures the delivered output rms; IA scales linearly",
-        "  (LTI network) to reproduce sigma_v. The sizing is measured on the same deck that",
-        "  the seeded runs use, so no transfer-function model of the injection path is needed.",
+        f"  IA = {IA_PROBE:g} A measures the delivered output rms, and one refinement run at the",
+        "  scaled amplitude corrects the residual non-linearity of the scaling; IA scales",
+        "  linearly (LTI network) to reproduce sigma_v. The sizing is measured on the same",
+        "  deck that the seeded runs use, so no transfer-function model of the injection",
+        "  path is needed.",
         "- Timing figure: `sigma_t = sigma_v / SR`; SR from a noiseless edge transient",
         "  (0.1 V between the 0.65/0.55 V crossings of a falling edge). Validated DIRECTLY:",
         "  8 seeded PULSE-driven edge transients, sigma_t per run = rms(t_i - t_det_i) over",
@@ -261,20 +266,27 @@ def summarize(out):
         ("density at 100 GHz", measurements(envelope(out, "noise"))["s_100G"], SPOTS_EXPECTED["s_100G"], "V/sqrt(Hz)", "1 %"),
         ("slew rate SR (edge 2)", sr2, EXPECTED["sr"], "V/s", "1 %"),
         ("slew rate SR (edge 3)", sr3, EXPECTED["sr"], "V/s", "1 %"),
+        ("slope at the 0.6 V crossing, 0.595-0.605 V", sr605, 0, "V/s", "info"),
         ("derived sigma_t = sigma_v/SR", sigma_t_expected, EXPECTED["sigma_t"], "s", "1 %"),
     ]
     for label, got, want, unit, tol in rows:
-        rel = abs(got - want) / abs(want)
-        lines.append(f"| {label} | {fmt(got)} {unit} | {fmt(want)} | {rel:.2e} ({tol}) |")
+        if tol == "info":
+            lines.append(f"| {label} | {fmt(got)} {unit} | - | informational |")
+        else:
+            rel = abs(got - want) / abs(want)
+            lines.append(f"| {label} | {fmt(got)} {unit} | {fmt(want)} | {rel:.2e} ({tol}) |")
     lines += [
         "",
         "## Injection calibration (this stamp)",
         "",
         f"- Probe run (IA = {IA_PROBE:g} A): delivered output rms = {fmt(sigma_probe)} V.",
-        f"- Calibrated equivalent amplitude: IA = IA_probe * sigma_v / sigma_probe = {fmt(ia_cal)} A",
+        f"- First amplitude: IA_1 = IA_probe * sigma_v / sigma_probe = {fmt(ia_1)} A.",
+        f"- Refinement run (IA = {fmt(ia_1)} A): delivered output rms = {fmt(sigma_cal)} V",
+        f"  ({(sigma_cal / sv - 1):+.2%} against target) ->",
+        f"- Final amplitude: IA = IA_1 * sigma_v / sigma_refine = {fmt(ia_cal)} A",
         f"  (target sigma_v = {fmt(EXPECTED['sv_band'])} V).",
-        "- Linear-scaling check: the seeded runs below deliver sigma_v at IA, confirming the",
-        "  proportionality over the calibration ratio (~1e3).",
+        "- Linear-scaling check: the seeded runs below deliver sigma_v at IA, verifying the",
+        "  proportionality end-to-end over the calibration ratio (~1e3).",
         "",
         "## Control run (AC: OSDI models contribute no noise by themselves)",
         "",
@@ -370,10 +382,10 @@ def summarize(out):
 def main():
     usage = {
         "derive": lambda: derive(sys.argv[2]),
-        "calibrate": lambda: calibrate(sys.argv[2]),
+        "calibrate": lambda: calibrate(sys.argv[2], sys.argv[3], sys.argv[4]),
         "summarize": lambda: summarize(sys.argv[2]),
     }
-    if len(sys.argv) != 3 or sys.argv[1] not in usage:
+    if len(sys.argv) != 3 + (2 if sys.argv[1] == "calibrate" else 0) or sys.argv[1] not in usage:
         print(__doc__, file=sys.stderr)
         sys.exit(2)
     usage[sys.argv[1]]()

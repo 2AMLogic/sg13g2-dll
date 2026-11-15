@@ -1,0 +1,9 @@
+* noise-method known case: seeded sigma_v check, DC-biased + shunt trnoise current equivalent (0014)
+Vdd vdd 0 1.2
+Vin in 0 0.570258
+Ieq out 0 dc=0 trnoise(@IA@ 1p)
+XMP out in vdd vdd sg13_lv_pmos w=0.15u l=0.13u ng=1 m=1
+XMN out in 0 0 sg13_lv_nmos w=0.15u l=0.13u ng=1 m=1
+Cl out 0 2f
+Cm out m 0.1p
+Rm m 0 1Meg

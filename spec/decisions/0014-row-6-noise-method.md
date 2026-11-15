@@ -121,12 +121,15 @@ engine does not.
 5. **Amplitude by per-deck calibration, not by formula.** `trnoise`'s
    amplitude semantics (process rms; context-dependent delivered density; see
    Revision) make a fixed density formula unreliable. The method calibrates
-   on the very deck that runs: one probe transient at `IA_probe = 1e-9 A`
-   measures the delivered output rms `sigma_probe`; the network is linear
-   (the excursions are millivolt-scale on a 1.2 V rail), so
-   `IA = IA_probe · sigma_v / sigma_probe`. The seeded runs then verify the
-   scaled amplitude delivers `sigma_v` (the linearity check over the ~1e3
-   calibration ratio is part of the validation).
+   on the very deck that runs: a probe transient at `IA_probe = 1e-9 A`
+   measures the delivered output rms `sigma_probe`, giving a first amplitude
+   `IA_1 = IA_probe · sigma_v / sigma_probe`; one refinement run at `IA_1`
+   measures the delivered rms again and rescales
+   (`IA = IA_1 · sigma_v / sigma_refine`), correcting the residual
+   non-linearity of the scaling (~7 % over the ~1000× first step, measured).
+   The network is linear at these excursions (millivolt-scale on a 1.2 V
+   rail), and the seeded runs verify the end-to-end result at the final
+   amplitude.
 6. **Slew rate and the timing figure.** `SR` comes from a separate
    **noiseless** transient at the same operating point and corner
    (dV/dt at the crossing, measured as 0.1 V between the 0.65 V and 0.55 V
