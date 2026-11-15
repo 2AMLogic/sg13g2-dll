@@ -111,8 +111,10 @@ and is out of this issue's scope.
 
 **What was built.** `design/edgedet.sch` shortened from a five-inverter to a **three-stage
 device-level chain (0.16u channels, odd count preserved)**, moving the ss set-pulse end from
-**+346.9 ps to +288.7 ps** (-58.2 ps, matching the rescope's estimate of ~+247..255 within the
-measured per-stage spread). The shorter set pulse does not flip the committed
+**+346.9 ps to +288.7 ps** (-58.2 ps; the rescope's ~+247..255 estimate extrapolated the old
+chain's ~49.9 ps/stage (249.5 ps / 5), but the shorter chain measures ~59.7 ps/stage
+(179.1 ps / 3, `results/20261115T125504Z`), which is why the end landed at +288.7 rather
+than inside the estimated range). The shorter set pulse does not flip the committed
 `srlatch_fast` at ss — XIS (`inv_lv`) crosses the NAND's NMOS threshold ~86 ps after the set
 edge and Q peaks at ~0.75 V and collapses without latching (no reset ever fires) — so the cell
 was redrawn with **device-level 4u NAND2 gates and a 2x S-inverter** (`XIS inv2x_lv`) and the

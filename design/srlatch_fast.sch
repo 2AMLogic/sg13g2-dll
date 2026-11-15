@@ -31,31 +31,31 @@ C {lab_pin.sym} 1220 -30 0 0 {name=l17 lab=Q}
 C {lab_pin.sym} 1180 0 0 0 {name=l18 lab=SB}
 C {lab_pin.sym} 1220 30 0 0 {name=l19 lab=midq}
 C {lab_pin.sym} 1220 0 0 0 {name=l20 lab=VSS}
-C {sg13g2_pr/sg13_lv_nmos.sym} 1500 0 0 0 {name=MNQ2 model=sg13_lv_nmos w=4u l=0.13u ng=1 m=1 spiceprefix=X}
-C {lab_pin.sym} 1520 -30 0 0 {name=l21 lab=midq}
-C {lab_pin.sym} 1480 0 0 0 {name=l22 lab=QB}
-C {lab_pin.sym} 1520 30 0 0 {name=l23 lab=VSS}
-C {lab_pin.sym} 1520 0 0 0 {name=l24 lab=VSS}
-C {sg13g2_pr/sg13_lv_pmos.sym} 1800 0 0 0 {name=MPB1 model=sg13_lv_pmos w=4u l=0.13u ng=1 m=1 spiceprefix=X}
-C {lab_pin.sym} 1820 30 0 0 {name=l25 lab=QB}
-C {lab_pin.sym} 1780 0 0 0 {name=l26 lab=RB}
-C {lab_pin.sym} 1820 -30 0 0 {name=l27 lab=VDD}
-C {lab_pin.sym} 1820 0 0 0 {name=l28 lab=VDD}
-C {sg13g2_pr/sg13_lv_pmos.sym} 2100 0 0 0 {name=MPB2 model=sg13_lv_pmos w=4u l=0.13u ng=1 m=1 spiceprefix=X}
-C {lab_pin.sym} 2120 30 0 0 {name=l29 lab=QB}
-C {lab_pin.sym} 2080 0 0 0 {name=l30 lab=Q}
-C {lab_pin.sym} 2120 -30 0 0 {name=l31 lab=VDD}
-C {lab_pin.sym} 2120 0 0 0 {name=l32 lab=VDD}
-C {sg13g2_pr/sg13_lv_nmos.sym} 2400 0 0 0 {name=MNB1 model=sg13_lv_nmos w=4u l=0.13u ng=1 m=1 spiceprefix=X}
-C {lab_pin.sym} 2420 -30 0 0 {name=l33 lab=QB}
-C {lab_pin.sym} 2380 0 0 0 {name=l34 lab=RB}
-C {lab_pin.sym} 2420 30 0 0 {name=l35 lab=midb}
-C {lab_pin.sym} 2420 0 0 0 {name=l36 lab=VSS}
-C {sg13g2_pr/sg13_lv_nmos.sym} 2700 0 0 0 {name=MNB2 model=sg13_lv_nmos w=4u l=0.13u ng=1 m=1 spiceprefix=X}
-C {lab_pin.sym} 2720 -30 0 0 {name=l37 lab=midb}
-C {lab_pin.sym} 2680 0 0 0 {name=l38 lab=Q}
-C {lab_pin.sym} 2720 30 0 0 {name=l39 lab=VSS}
-C {lab_pin.sym} 2720 0 0 0 {name=l40 lab=VSS}
+C {sg13g2_pr/sg13_lv_nmos.sym} 0 220 0 0 {name=MNQ2 model=sg13_lv_nmos w=4u l=0.13u ng=1 m=1 spiceprefix=X}
+C {lab_pin.sym} 20 190 0 0 {name=l21 lab=midq}
+C {lab_pin.sym} -20 220 0 0 {name=l22 lab=QB}
+C {lab_pin.sym} 20 250 0 0 {name=l23 lab=VSS}
+C {lab_pin.sym} 20 220 0 0 {name=l24 lab=VSS}
+C {sg13g2_pr/sg13_lv_pmos.sym} 300 220 0 0 {name=MPB1 model=sg13_lv_pmos w=4u l=0.13u ng=1 m=1 spiceprefix=X}
+C {lab_pin.sym} 320 250 0 0 {name=l25 lab=QB}
+C {lab_pin.sym} 280 220 0 0 {name=l26 lab=RB}
+C {lab_pin.sym} 320 190 0 0 {name=l27 lab=VDD}
+C {lab_pin.sym} 320 220 0 0 {name=l28 lab=VDD}
+C {sg13g2_pr/sg13_lv_pmos.sym} 600 220 0 0 {name=MPB2 model=sg13_lv_pmos w=4u l=0.13u ng=1 m=1 spiceprefix=X}
+C {lab_pin.sym} 620 250 0 0 {name=l29 lab=QB}
+C {lab_pin.sym} 580 220 0 0 {name=l30 lab=Q}
+C {lab_pin.sym} 620 190 0 0 {name=l31 lab=VDD}
+C {lab_pin.sym} 620 220 0 0 {name=l32 lab=VDD}
+C {sg13g2_pr/sg13_lv_nmos.sym} 900 220 0 0 {name=MNB1 model=sg13_lv_nmos w=4u l=0.13u ng=1 m=1 spiceprefix=X}
+C {lab_pin.sym} 920 190 0 0 {name=l33 lab=QB}
+C {lab_pin.sym} 880 220 0 0 {name=l34 lab=RB}
+C {lab_pin.sym} 920 250 0 0 {name=l35 lab=midb}
+C {lab_pin.sym} 920 220 0 0 {name=l36 lab=VSS}
+C {sg13g2_pr/sg13_lv_nmos.sym} 1200 220 0 0 {name=MNB2 model=sg13_lv_nmos w=4u l=0.13u ng=1 m=1 spiceprefix=X}
+C {lab_pin.sym} 1220 190 0 0 {name=l37 lab=midb}
+C {lab_pin.sym} 1180 220 0 0 {name=l38 lab=Q}
+C {lab_pin.sym} 1220 250 0 0 {name=l39 lab=VSS}
+C {lab_pin.sym} 1220 220 0 0 {name=l40 lab=VSS}
 C {ipin.sym} -400 -300 0 0 {name=p1 lab=S}
 C {ipin.sym} -400 -260 0 0 {name=p2 lab=R}
 C {opin.sym} -400 -220 0 0 {name=p3 lab=Q}

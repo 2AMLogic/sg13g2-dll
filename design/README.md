@@ -9,7 +9,7 @@ simulated for each block, and what the run showed, is recorded once: in
 
 | Block | Schematic | Netlist | Notes |
 |---|---|---|---|
-| PFD | `pfd.sch` (+ `edgedet`, `srlatch_fast`, `nand2_lv`, `inv_lv`, `inv2x_lv`, `nand2x_lv`, `inv4x_lv`) | `netlist/pfd.spice` | topology of `sg13g2-pll@83e59fe`, redrawn; reset path NAND + 1 inverter on PFD-local 2x/4x cells (`spec/decisions/0008`, `0011`) |
+| PFD | `pfd.sch` (+ `edgedet`, `srlatch_fast`, `nand2_lv`, `inv_lv`, `inv2x_lv`, `nand2x_lv`, `inv4x_lv`) | `netlist/pfd.spice` | topology of `sg13g2-pll@83e59fe`, redrawn; reset path NAND + 1 inverter on PFD-local 2x/4x cells (`spec/decisions/0008`, `0011`); `edgedet`/`srlatch_fast` partly inline `sg13_lv` devices (#136) |
 | Charge pump | `cp.sch` (+ `cp_leg_p`, `cp_leg_n`, `cp_dumpbuf`) | `netlist/cp.spice` | cascoded current-steering; bias pins `IBP ICP IBN ICN` are external |
 | CP bias | `cp_bias.sch` | `netlist/cp_bias.spice` | one long-channel PMOS sets Iref; diode stacks give mirror and cascode gates |
 | Loop filter | `loop_filter.sch` | `netlist/loop_filter.spice` | first-order: one MIM capacitor, `VCTRL` to `VSS` |
@@ -50,9 +50,10 @@ xschem is only run through `klt netlist`.
 ## Sizing
 
 Logic: `inv_lv` P 1 µm / N 0.5 µm, L 0.13 µm (minimum); `nand2_lv` 1 µm all
-devices. Edge detector: 5 inverters. Reset: NAND + 1 inverter on PFD-local
-cells (`nand2x_lv`, `inv4x_lv`, and `srlatch_fast` — the `srlatch` topology with
-its internal NANDs and R-input inverter widened 2x, issue #113). Charge-pump legs
+devices. Edge detector: 3 inverters, 0.16 µm channels (issue #136). Reset: NAND +
+1 inverter on PFD-local cells (`nand2x_lv`, `inv4x_lv`, and `srlatch_fast` —
+the `srlatch` topology drawn as inline 4 µm `sg13_lv` NAND devices with a 2x
+S-inverter and 4x R-input inverter, issue #113; resized in issue #136). Charge-pump legs
 L 0.5 µm; loop capacitor 26 µm × 26 µm MIM. These are the values in
 `design/tools/cells.py` that `mksch.py` draws the schematics from; what each has
 been graded against is in [`NOTES.md`](NOTES.md) and `sim/<bench>/results/`.

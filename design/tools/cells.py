@@ -56,13 +56,14 @@ c.mos("MN2", "n", "2u", L, D="mid", G="A2", S="VSS", B="VSS")
 
 # ------------------------------------------------------------------------ PFD --
 c = add(Cell("edgedet", logic_ports(["X"], ["OUT"]),
-             "rising-edge pulse generator: X AND NOT(X delayed by 5 inverters)"))
-c.sub("XD1", "inv_lv", A="X", Y="d1", VDD="VDD", VSS="VSS")
-c.sub("XD2", "inv_lv", A="d1", Y="d2", VDD="VDD", VSS="VSS")
-c.sub("XD3", "inv_lv", A="d2", Y="d3", VDD="VDD", VSS="VSS")
-c.sub("XD4", "inv_lv", A="d3", Y="d4", VDD="VDD", VSS="VSS")
-c.sub("XD5", "inv_lv", A="d4", Y="d5", VDD="VDD", VSS="VSS")
-c.sub("XN1", "nand2_lv", A1="X", A2="d5", Y="ntmp", VDD="VDD", VSS="VSS")
+             "rising-edge pulse generator: X AND NOT(X delayed by 3 inverters, 0.16u channels for the issue #136 window)"))
+c.mos("MPD1", "p", "1u", "0.16u", D="d1", G="X", S="VDD", B="VDD")
+c.mos("MND1", "n", "0.5u", "0.16u", D="d1", G="X", S="VSS", B="VSS")
+c.mos("MPD2", "p", "1u", "0.16u", D="d2", G="d1", S="VDD", B="VDD")
+c.mos("MND2", "n", "0.5u", "0.16u", D="d2", G="d1", S="VSS", B="VSS")
+c.mos("MPD3", "p", "1u", "0.16u", D="d3", G="d2", S="VDD", B="VDD")
+c.mos("MND3", "n", "0.5u", "0.16u", D="d3", G="d2", S="VSS", B="VSS")
+c.sub("XN1", "nand2_lv", A1="X", A2="d3", Y="ntmp", VDD="VDD", VSS="VSS")
 c.sub("XOUT", "inv_lv", A="ntmp", Y="OUT", VDD="VDD", VSS="VSS")
 
 c = add(Cell("srlatch", logic_ports(["S", "R"], ["Q", "QB"]),
@@ -73,11 +74,17 @@ c.sub("XNQ", "nand2_lv", A1="SB", A2="QB", Y="Q", VDD="VDD", VSS="VSS")
 c.sub("XNQB", "nand2_lv", A1="RB", A2="Q", Y="QB", VDD="VDD", VSS="VSS")
 
 c = add(Cell("srlatch_fast", logic_ports(["S", "R"], ["Q", "QB"]),
-             "set/reset latch from two 2x NAND2 with inverted inputs (S, R active high); PFD-local fast variant of srlatch for the reset loop (issue #113)"))
-c.sub("XIS", "inv_lv", A="S", Y="SB", VDD="VDD", VSS="VSS")
-c.sub("XIR", "inv2x_lv", A="R", Y="RB", VDD="VDD", VSS="VSS")
-c.sub("XNQ", "nand2x_lv", A1="SB", A2="QB", Y="Q", VDD="VDD", VSS="VSS")
-c.sub("XNQB", "nand2x_lv", A1="RB", A2="Q", Y="QB", VDD="VDD", VSS="VSS")
+             "set/reset latch, cross-coupled device-level NAND2 (4u) with inverted inputs (S, R active high); PFD-local fast variant of srlatch for the reset loop (issue #113; resized in issue #136: device NANDs, 2x S-inverter, 4x R-inverter)"))
+c.sub("XIS", "inv2x_lv", A="S", Y="SB", VDD="VDD", VSS="VSS")
+c.sub("XIR", "inv4x_lv", A="R", Y="RB", VDD="VDD", VSS="VSS")
+c.mos("MPQ1", "p", "4u", L, D="Q", G="SB", S="VDD", B="VDD")
+c.mos("MPQ2", "p", "4u", L, D="Q", G="QB", S="VDD", B="VDD")
+c.mos("MNQ1", "n", "4u", L, D="Q", G="SB", S="midq", B="VSS")
+c.mos("MNQ2", "n", "4u", L, D="midq", G="QB", S="VSS", B="VSS")
+c.mos("MPB1", "p", "4u", L, D="QB", G="RB", S="VDD", B="VDD")
+c.mos("MPB2", "p", "4u", L, D="QB", G="Q", S="VDD", B="VDD")
+c.mos("MNB1", "n", "4u", L, D="QB", G="RB", S="midb", B="VSS")
+c.mos("MNB2", "n", "4u", L, D="midb", G="Q", S="VSS", B="VSS")
 
 c = add(Cell("pfd", "REF:i:l FB:i:l UP:o:r DN:o:r VDD:io:t VSS:io:b",
              "tri-state PFD: 2x edgedet + 2x srlatch_fast, reset = AND(UP,DN) delayed by NAND + 1 inverter (issue #113)"))
