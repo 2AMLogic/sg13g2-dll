@@ -2,8 +2,26 @@
 
 Chronological record of merged PRs and closed issues. Maintained by the Guide role.
 
+### 2026-11-15
+
+- **Issue #111** (closed): Row benches document exit 6 for "a corner fails its row", but a real failing corner reaches exit 1 first
+- **PR #131**: fix: grade a failed corner as exit 6 and an errored corner as exit 1
+- **Issue #113** (closed): Redraw the PFD reset path so the fit gate's C2 passes at 1 GHz (decision 0011)
+- **PR #129**: design(pfd): redraw the reset path on PFD-local cells; ss/1GHz fit-gate C2 stays open (0011)
+- **Issue #115** (closed): Write the row 6 noise-method decision record and validate it on a known case
+- **PR #128**: feat: row 6 noise-method decision record (0014) and its known-case validation bench
+- **Issue #125** (closed): Deduplicate evidence.backend_of and dllbench.mvals: three backend spellings, one of which raises AttributeError
+- **PR #127**: refactor: deduplicate backend_of and mvals into sim/harness/evidence.py
+- **Issue #121** (closed): Collapse the two single-unit smoke runners onto one shared smoke_main: 23 of 31 lines are byte-identical
+- **PR #126**: refactor(sim): collapse both single-unit smoke runners onto one smoke_main
+- **PR #112**: docs: roadmap as of 2026-11-13
+
 ### 2026-11-14
 
+- **Issue #114** (closed): Run delay-tap candidate B at 3x widening over the full grid and compare with the 4x result
+- **PR #124**: sim: record delay-tap candidate B at 3x widening and compare with 4x
+- **Issue #109** (closed): Consolidate the second reduced-set corner reader: sim/pfd-fit/make_bench.py rebuilds corners.units inline instead of gridspec.load_reduced_set
+- **PR #122**: refactor(sim): read pfd-fit corners through gridspec, not a second json reader
 - **Issue #99** (closed): Remove the hardcoded run-condition literals from the sim record writers: backend, simulator version, corner and unit are printed as constants while the envelope records them
 - **PR #106**: refactor(sim): read run conditions from the envelope instead of printing them as constants
 - **Issue #94** (closed): Power bench run.sh would exit 0 (documented as pass) on a DUT where row 10 is NOT GRADED
