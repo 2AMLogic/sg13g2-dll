@@ -1,0 +1,27 @@
+name: unit tests
+
+# Simulator-free stdlib unittest suites. This job deliberately does NOT run
+# sim/harness/cold-start.sh: sim_preflight (sim/harness/preflight.sh) requires
+# a full IHP SG13G2 PDK install, four compiled .osdi models and a klt on PATH,
+# none of which a stock runner has — see issue #118 for the measurement.
+# Each root gets its own step so a failure in one does not mask the other.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  unit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Harness unit tests
+        run: python3 -I -m unittest discover -s sim/harness/tests
+      - name: PFD-fit unit tests
+        run: python3 -I -m unittest discover -s sim/pfd-fit/tests
