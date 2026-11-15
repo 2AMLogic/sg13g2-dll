@@ -75,7 +75,7 @@ cleared, and the one-shot never receives an edge.
 |---|---|---|
 | `ref` | 800 rises | identical stimulus |
 | `refd` | 800 rises, 0.612..799.611 ns | alive (~100 ps delay at tt) |
-| `s1` | 3 (60.736, 520.941, 580.738 ns) | same three transitions as ss -- the window samplers behave identically at both corners |
+| `s1` | 3 (60.736, 520.802, 580.738 ns) | same three transitions as ss -- the window samplers behave identically at both corners |
 | `s2_n` | 1 (rise 0.749 ns) | same pattern as ss |
 | `still` | 32 (63.075..220.904 ns) | bounces with the injected 50 MHz ripple, then **settles high at 220.9 ns** once VCTRL is quiet |
 | `good` | 33 (61.212..581.205 ns) | predicate goes good as designed |

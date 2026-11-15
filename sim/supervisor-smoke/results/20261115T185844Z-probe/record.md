@@ -35,8 +35,12 @@ i.e. does RST assert via the rail time-out path at all?
   finding 4 answered by construction).
 - Submitted through the grid/batch path (`--backend batch
   --wait-for-capacity 600`); batch job `klt-sim-26a6110f6647`, ngspice 47 on the
-  fleet. The envelope records one engine warning on the ss unit ("Dynamic gmin
-  stepping failed", a failed convergence aid); the transient completed.
+  fleet. The envelope records one engine warning on **each** unit -- the ss unit
+  and the tt control alike ("Dynamic gmin stepping failed", a failed convergence
+  aid); both transients completed (`engine_exit_code` 0). The warning is
+  therefore not a discriminator between the two corners: it accompanies the tt
+  unit that reproduces the full working sequence as well as the ss unit that
+  fails.
 - Per-node waveforms: `artifacts/probe/<corner>/crossings_N.raw` (full
   transient of each probed node) were produced and inspected for grading -- the
   stuck-level statements below quote them -- but are not committed: the repo
