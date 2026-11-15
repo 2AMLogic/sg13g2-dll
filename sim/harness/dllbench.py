@@ -413,10 +413,10 @@ def grade(bench_dir, out):
         env = evidence.load(path)
         items.append((path, env))
         # "fail" is klt's graded-result token -- a corner missed its limit --
-        # so its status line must not screen as a harness fault; the failed
-        # count below drives the row verdict instead. "inconclusive" and
-        # "pass_partial" are also results to klt, but here they stay faults:
-        # #74 owns whether they become row verdicts.
+        # so its status line must not screen as a harness fault; the token or
+        # the failed count below drives the row verdict instead.
+        # "inconclusive" and "pass_partial" are also results to klt, but here
+        # they stay faults: #74 owns whether they become row verdicts.
         problems += evidence.basic_problems(os.path.basename(path), env, result_status=("fail",))
         if "error" in env:
             continue
@@ -459,12 +459,16 @@ def grade(bench_dir, out):
     # An ERRORED corner is a harness fault, not a row result: it counts into
     # `problems` (exit 1) and can never produce the row verdict's result
     # wording. Only a FAILED corner -- klt status "fail" -- is a result, and
-    # only its count drives `failing` below.
+    # the token or the failed count drives `failing` below.
     for path, env in items:
         if "error" not in env and env.get("errored", 0):
             problems.append(f"{os.path.basename(path)}: {env['errored']} corner(s) errored "
                             f"(a harness fault: the simulator could not run them)")
-    failing = [env.get("failed", 0) for _, env in items if "error" not in env]
+    # a "fail" token with failed == 0 is klt's Monte Carlo sigma-window failure
+    # (a mean +/- k*sigma window outside the limits, sim.py:4705): a real limit
+    # violation with no individual sample failing. The token alone decides.
+    failing = [env.get("failed", 0) or (1 if env.get("status") == "fail" else 0)
+               for _, env in items if "error" not in env]
     rows_ok = not problems and not any(failing)
     graded = rows_graded(manifest)
     if not graded:

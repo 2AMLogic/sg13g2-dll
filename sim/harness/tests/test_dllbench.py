@@ -315,6 +315,18 @@ class PowerVerdict(unittest.TestCase):
         self.assertIn("- harness: PASS", text)
         self.assertNotIn("harness: FAIL", text)
 
+    def test_a_fail_token_with_zero_failed_count_is_a_result(self):
+        """klt's Monte Carlo sigma-window failure: status "fail" with
+        failed == 0 -- every individual sample passed but the mean +/- k*sigma
+        window missed the limits. The token alone is authoritative: exit 6
+        with "NOT all corners pass", never 0 "all corners pass"."""
+        verdict, status, text = self.graded_record(
+            env_over={"status": "fail", "failed": 0, "passed": 1}, supply_current=True, full=True)
+        self.assertEqual(status, 6)
+        self.assertEqual(verdict, "NOT all corners pass (a result, not a harness fault)")
+        self.assertIn("- harness: PASS", text)
+        self.assertNotIn("harness: FAIL", text)
+
     def test_an_errored_corner_exits_1_and_is_never_recorded_as_a_result(self):
         """status "error" / errored >= 1: the simulator could not run a corner,
         a harness fault. Exit 1, and record.md never describes the run as a
