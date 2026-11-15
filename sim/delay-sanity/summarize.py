@@ -9,7 +9,7 @@ either way). Per-tap spacing = d_k - d_(k-1) (d_0 = 0: T0 is the reference).
 import json, os, sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, HERE)
+sys.path.insert(0, os.path.join(os.path.dirname(HERE), "harness"))
 
 import evidence  # noqa: E402
 
