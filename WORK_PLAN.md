@@ -24,7 +24,6 @@ _None._
 - **#41**: Install the two-key ratification path and ratify spec/target-spec.md
 - **#91**: Make the row 7 and row 12 verdicts grade something: dllbench computes lock time and LOCK consistency, then reports a pass without reading them
 - **#101**: Remove the second schematic authoring path: 3 of 24 design cells are hand-written outside design/tools/cells.py, so the generator cannot instantiate the delay line
-- **#136**: PFD fit gate: C2 is still open at ss/1 GHz after the reset-path redraw (decision 0011 follow-up)
 - **#140**: Operator ruling: closing the PFD fit gate at ss/1 GHz (C2, issue #136)
 
 ## Ready
@@ -37,7 +36,7 @@ _None._
 
 Issues currently being built (`loom:building`).
 
-- **#136**: PFD fit gate: C2 is still open at ss/1 GHz after the reset-path redraw (decision 0011 follow-up)
+_None._
 
 ## PRs Awaiting Review
 
@@ -49,7 +48,7 @@ _None._
 
 PRs that passed review and are queued for Champion auto-merge (`loom:pr`).
 
-- **#141**: design: 3-stage edgedet chain + sized srlatch_fast; gate still fails ss C2, two-knob refutation measured
+_None._
 
 ## Proposed
 
@@ -57,8 +56,6 @@ Issues carrying `loom:curated`.
 
 - **#6**: Track the gap to T1 (klayout-tools design-evidence-tiers.md) *(curated)*
 - **#28**: T1 item 9 (testbenches shipped): one harness bench per spec row, with cold-start docs and --attest 9 *(curated)*
-- **#136**: PFD fit gate: C2 is still open at ss/1 GHz after the reset-path redraw (decision 0011 follow-up) *(curated)*
-- **#142**: Extend test_bench_env_namespaces.py with a documentation assertion: every *_RESULTS_DIR reader carries an # Env: line *(curated)*
 
 ## Proposed (Architect / Hermit)
 
@@ -79,12 +76,12 @@ _None._
 |------|-------|
 | Operator merge-risk holds | 0 |
 | Very important | 1 |
-| Important | 7 |
+| Important | 6 |
 | Ready (`loom:issue`) | 0 |
-| In Progress (`loom:building`) | 1 |
+| In Progress (`loom:building`) | 0 |
 | PRs awaiting review | 0 |
-| Approved PRs awaiting merge | 1 |
-| Curated | 4 |
+| Approved PRs awaiting merge | 0 |
+| Curated | 2 |
 | Architect / Hermit proposals | 6 |
 | Active epics | 0 |
 <!-- guide:plan-body:end -->
