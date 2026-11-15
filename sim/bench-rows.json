@@ -28,7 +28,7 @@
     "6": {
       "bench": "sim/jitter",
       "status": "blocked",
-      "blocked_on": "noise-method decision record; harness and cold start only"
+      "blocked_on": "the noise method is fixed by spec/decisions/0014-row-6-noise-method.md (proposed, validated by sim/noise-method); the DLL jitter deck itself does not exist"
     },
     "7": {
       "bench": "sim/lock-time",

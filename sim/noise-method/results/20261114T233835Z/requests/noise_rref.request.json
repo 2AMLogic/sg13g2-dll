@@ -1,0 +1,41 @@
+{
+  "_comment": [
+    "sg13g2-dll noise-method: ENBW identity run, 1M series reference resistor (0014).",
+    "ENBW = (sigma_R^2 - sigma_v^2)/(4kTR); sigma_v comes from noise.request.json."
+  ],
+  "engine": "ngspice",
+  "netlist": "../decks/nm_noise_rref.spice",
+  "models": {
+    "pdk": "ihp-sg13g2",
+    "lib": "libs.tech/ngspice/models/cornerMOSlv.lib"
+  },
+  "corners": {
+    "process": ["mos_tt"],
+    "temperature_c": [27]
+  },
+  "analysis": {
+    "kind": "noise",
+    "args": "v(out) Vin dec 10 1e6 3e11"
+  },
+  "measurements": [
+    {
+      "name": "sv_band",
+      "noise": {"quantity": "onoise", "band_hz": [1e6, 3e11]},
+      "unit": "V"
+    },
+    {
+      "name": "s_1M",
+      "noise": {"quantity": "onoise", "at_hz": 1e6},
+      "unit": "V/sqrtHz"
+    }
+  ],
+  "options": {
+    "osdi_preload": [
+      "/home/ubuntu/share/pdk/ihp-sg13g2/libs.tech/ngspice/osdi/psp103.osdi",
+      "/home/ubuntu/share/pdk/ihp-sg13g2/libs.tech/ngspice/osdi/psp103_nqs.osdi",
+      "/home/ubuntu/share/pdk/ihp-sg13g2/libs.tech/ngspice/osdi/r3_cmc.osdi",
+      "/home/ubuntu/share/pdk/ihp-sg13g2/libs.tech/ngspice/osdi/mosvar.osdi"
+    ],
+    "stage_model_inputs": true
+  }
+}

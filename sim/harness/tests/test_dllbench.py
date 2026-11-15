@@ -90,20 +90,21 @@ class Inventory(unittest.TestCase):
         row6 = jload(os.path.join(SIM, "bench-rows.json"))["rows"]["6"]
         self.assertEqual(row6["status"], "blocked")
 
-    def test_jitter_placeholder_refuses_and_claims_no_record(self):
-        """Row 6's placeholder states one reason: the noise-method record is missing.
+    def test_jitter_placeholder_refuses_and_names_the_missing_deck(self):
+        """Row 6's placeholder states one reason: the DLL jitter deck is missing.
 
-        It must not report that such a record exists -- a reader who believes it
-        would start a deck against a method nothing fixes (CLAUDE.md, "Jitter
-        needs its method").
+        Since 0014 the noise method is fixed, so the block must not claim a
+        missing record (a reader who believes it would re-derive a method that
+        already exists), and it must name the record the future deck implements.
         """
         p = subprocess.run(
             ["bash", os.path.join(SIM, "jitter", "run.sh")],
             capture_output=True, text=True,
         )
         self.assertEqual(p.returncode, 4)
-        self.assertIn("BLOCKED -- no decision record fixes the jitter noise method", p.stderr)
-        self.assertNotIn("record exists", p.stderr)
+        self.assertIn("BLOCKED -- row 6 has no DLL jitter deck", p.stderr)
+        self.assertIn("0014-row-6-noise-method.md", p.stderr)
+        self.assertNotIn("no decision record", p.stderr)
 
     def test_standin_is_flagged(self):
         dut = jload(DUT)
