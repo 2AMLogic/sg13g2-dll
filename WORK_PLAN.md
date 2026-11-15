@@ -24,34 +24,32 @@ _None._
 - **#41**: Install the two-key ratification path and ratify spec/target-spec.md
 - **#91**: Make the row 7 and row 12 verdicts grade something: dllbench computes lock time and LOCK consistency, then reports a pass without reading them
 - **#101**: Remove the second schematic authoring path: 3 of 24 design cells are hand-written outside design/tools/cells.py, so the generator cannot instantiate the delay line
-- **#113**: Redraw the PFD reset path so the fit gate's C2 passes at 1 GHz (decision 0011)
-- **#114**: Run delay-tap candidate B at 3x widening over the full grid and compare with the 4x result
-- **#115**: Write the row 6 noise-method decision record and validate it on a known case
+- **#136**: PFD fit gate: C2 is still open at ss/1 GHz after the reset-path redraw (decision 0011 follow-up)
+- **#140**: Operator ruling: closing the PFD fit gate at ss/1 GHz (C2, issue #136)
 
 ## Ready
 
 Human-approved issues ready for implementation (`loom:issue`).
 
-- **#114**: Run delay-tap candidate B at 3x widening over the full grid and compare with the 4x result
-- **#121**: Collapse the two single-unit smoke runners onto one shared smoke_main: 23 of 31 lines are byte-identical
+_None._
 
 ## In Progress
 
 Issues currently being built (`loom:building`).
 
-- **#109**: Consolidate the second reduced-set corner reader: sim/pfd-fit/make_bench.py rebuilds corners.units inline instead of gridspec.load_reduced_set
+- **#136**: PFD fit gate: C2 is still open at ss/1 GHz after the reset-path redraw (decision 0011 follow-up)
 
 ## PRs Awaiting Review
 
 PRs waiting on Judge (`loom:review-requested`).
 
-- **#122**: refactor(sim): read pfd-fit corners through gridspec, not a second json reader
+_None._
 
 ## Approved (Awaiting Merge)
 
 PRs that passed review and are queued for Champion auto-merge (`loom:pr`).
 
-_None._
+- **#141**: design: 3-stage edgedet chain + sized srlatch_fast; gate still fails ss C2, two-knob refutation measured
 
 ## Proposed
 
@@ -59,9 +57,8 @@ Issues carrying `loom:curated`.
 
 - **#6**: Track the gap to T1 (klayout-tools design-evidence-tiers.md) *(curated)*
 - **#28**: T1 item 9 (testbenches shipped): one harness bench per spec row, with cold-start docs and --attest 9 *(curated)*
-- **#111**: Row benches document exit 6 for "a corner fails its row", but a real failing corner reaches exit 1 first *(curated)*
-- **#114**: Run delay-tap candidate B at 3x widening over the full grid and compare with the 4x result *(curated)*
-- **#118**: CI never runs sim/harness/tests: the 83 harness unit tests are executed only by hand *(curated)*
+- **#136**: PFD fit gate: C2 is still open at ss/1 GHz after the reset-path redraw (decision 0011 follow-up) *(curated)*
+- **#142**: Extend test_bench_env_namespaces.py with a documentation assertion: every *_RESULTS_DIR reader carries an # Env: line *(curated)*
 
 ## Proposed (Architect / Hermit)
 
@@ -71,7 +68,6 @@ Issues carrying `loom:curated`.
 - **#107**: Stop committing klt's .spiceinit scratch file: 429 byte-identical copies are 19% of the repo's tracked files *(hermit)*
 - **#116**: Stop vendoring design-evidence-tiers.md: the pinned klayout-tools 0.8.0 wheel already ships the identical 1053 lines *(hermit)*
 - **#117**: Remove dead parameters in the sim harness: k_sigma, lib_section, and mksch CAP have no readers *(hermit)*
-- **#120**: Give each bench its own env-knob namespace: DS_VC and DS_RESULTS_DIR are read by two benches, SS_RESULTS_DIR by two more *(hermit)*
 
 ## Epics
 
@@ -83,12 +79,12 @@ _None._
 |------|-------|
 | Operator merge-risk holds | 0 |
 | Very important | 1 |
-| Important | 8 |
-| Ready (`loom:issue`) | 2 |
+| Important | 7 |
+| Ready (`loom:issue`) | 0 |
 | In Progress (`loom:building`) | 1 |
-| PRs awaiting review | 1 |
-| Approved PRs awaiting merge | 0 |
-| Curated | 5 |
-| Architect / Hermit proposals | 7 |
+| PRs awaiting review | 0 |
+| Approved PRs awaiting merge | 1 |
+| Curated | 4 |
+| Architect / Hermit proposals | 6 |
 | Active epics | 0 |
 <!-- guide:plan-body:end -->
