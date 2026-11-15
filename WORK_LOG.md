@@ -4,6 +4,18 @@ Chronological record of merged PRs and closed issues. Maintained by the Guide ro
 
 ### 2026-11-15
 
+- **PR #143**: docs: document NOISE_METHOD_RESULTS_DIR knob in noise-method runner header
+- **PR #144**: test: harden the bench env-namespace guard against silent coverage loss
+- **PR #139**: fix: read recorded PVT corners from the envelope in cp-currents and delay-sizing headers
+- **PR #133**: test: pin the committed envelope corpus to klt's backend provenance shape
+- **PR #135**: fix: give each sim bench its own env-knob namespace
+- **PR #132**: ci: gate the sim harness and pfd-fit unit suites in GitHub Actions
+- **Issue #134** (closed): sim/noise-method/run.sh reads NOISE_METHOD_RESULTS_DIR with no # Env: header line
+- **Issue #137** (closed): test_bench_env_namespaces guard: hardcoded helper list and nested-default parser blind spots
+- **Issue #119** (closed): Two record writers still hand-copy the reduced_set corner triple that #99 removed from the other three
+- **Issue #130** (closed): Pin the envelope backend shape, not just backend_of's reaction to a bad one: a klt pin bump can still crash a summarizer mid-record
+- **Issue #120** (closed): Give each bench its own env-knob namespace: DS_VC and DS_RESULTS_DIR are read by two benches, SS_RESULTS_DIR by two more
+- **Issue #118** (closed): CI never runs sim/harness/tests: the 83 harness unit tests are executed only by hand
 - **Issue #111** (closed): Row benches document exit 6 for "a corner fails its row", but a real failing corner reaches exit 1 first
 - **PR #131**: fix: grade a failed corner as exit 6 and an errored corner as exit 1
 - **Issue #113** (closed): Redraw the PFD reset path so the fit gate's C2 passes at 1 GHz (decision 0011)
