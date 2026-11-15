@@ -102,3 +102,69 @@ and is out of this issue's scope.
 - Option (3) of the original proposal — a ratified ss-specific relaxation of C2 — and the topology
   change sketched above both need human ratification and a new decision record; neither is done here.
 
+
+### Update 2026-11-15 (issue #136): the edge-detector chain knob, measured — the window it opens at ss is unreachable by the reset path
+
+- **Status of this record**: appends the simulated outcome of the chain-length experiment the
+  2026-11-15 curator rescope of #136 proposed. All figures are simulated, never measured.
+  Criteria C1-C3 are unchanged (`sim/pfd-fit/grade.py`); C2 was **not** relaxed.
+
+**What was built.** `design/edgedet.sch` shortened from a five-inverter to a **three-stage
+device-level chain (0.16u channels, odd count preserved)**, moving the ss set-pulse end from
+**+346.9 ps to +288.7 ps** (-58.2 ps, matching the rescope's estimate of ~+247..255 within the
+measured per-stage spread). The shorter set pulse does not flip the committed
+`srlatch_fast` at ss — XIS (`inv_lv`) crosses the NAND's NMOS threshold ~86 ps after the set
+edge and Q peaks at ~0.75 V and collapses without latching (no reset ever fires) — so the cell
+was redrawn with **device-level 4u NAND2 gates and a 2x S-inverter** (`XIS inv2x_lv`; the
+R-input inverter and the reset-path cells `nand2x_lv`/`inv4x_lv` are unchanged). With this,
+the PFD produces clean, offset-tracking pulses again: the probe record
+`results/20261115T125504Z` and gate record `results/20261115T124912Z` show **C1 ratios
+1.00..1.05 at every corner at both frequencies** — better tracking than run 2.
+
+**Gate result (`results/20261115T124912Z`, batch fleet, ngspice 47, jobs
+`klt-sim-3f16b4237455` / `klt-sim-b447e41afeff` / `klt-sim-8f492193fe10`):**
+
+- `pfd_1g`: tt **PASS** (229..233 ps), ff **PASS** (154..157 ps), **ss FAIL** — C2 width
+  **362..370 ps** against 30..250 ps. **C1/C3 PASS at every corner** — ss is again the only
+  failing criterion, exactly as in run 2.
+- `pfd_500m`: **PASS** at tt, ss and ff.
+- `ctl_1g`: **FAILS C1 at every corner** (tt/ff zero-width pulses as in run 2; ss ~143..146 ps
+  pulses with ratios -0.19..0.06). 0008's reset-polarity argument is unchanged.
+
+**Why ss still fails — the two-knob argument, now measured on both knobs.** The chain change
+does exactly what the rescope predicted: it moves C1's floor under C2's ceiling, opening a
+window. With the probe/gate anchors at ss (offset-0, settled cycles): set pulse ends
+**+288.7 ps**; the lane rises **+264.6 ps** (flip F = 155.0 ps, 24.1 ps inside the set pulse);
+the latch release path is **194.9 ps** (UP falls 194.9 ps after the shared reset rises). C1
+needs the reset to arrive at or after **+288.7 ps**; C2 caps the width at 250 ps, i.e. the
+reset must arrive by **UP_rise + (250 - 194.9) = +319.7 ps**. The window
+**[+288.7, +319.7] is 31 ps wide — it exists**. The reset arrives at **+431.8 ps**:
+`path` (NAND(UP,DN) -> XR1 -> reset) = **167.2 ps**, and the window needs path <= **55.1 ps**.
+
+The reset-path sizing space was then measured end to end (every variant probed at ss, offset 0):
+
+| reset-path sizing | path (ps) | note |
+|---|---|---|
+| XNR `nand2x_lv` 2u + XR1 `inv4x_lv` (committed cells) | 167.2 | this issue's gate config |
+| XNR 6u + XR1 `inv4x_lv` at 8u/4u | 149.4 | fastest measured |
+| XNR 6u + XR1 8u/4u + XIR 2x | 169.2 | |
+
+The floor is structural at ss/1.08 V/125 C: `path` is two ss gate delays (the NAND discharge
+of `reset_n0` into XR1's input gate, then XR1's rise into the two latch R-input inverter
+gates), each 35..90 ps at these loads. Widening XNR beyond ~6u is self-defeating: its input
+gates sit on the UP/DN nodes, and each +2u of NAND width pushes the flip F past the set-pulse
+end (measured: XNR 6u -> F 163.7, margin 15.3 ps; 4u-6u NANDs *inside* `srlatch_fast` (6u..
+8u devices, and a buffered-Q variant) all drove F to or past the set-release edge — the latch
+then fails to latch and the widths stop tracking the offset, run 3's failure mode). The
+latch release floor is also pinned: UP falls when XNQ discharges the ~5 fF UP node (including
+the bench's 4 fF) through a stack that must stay 4u for the flip, plus XNQB and XIR —
+**>= ~195 ps measured** (194.9, best).
+
+So: `path >= ~149 ps` measured (bounded below ~100 ps structurally) against a window ceiling
+of **55.1 ps** — **C1 and C2 remain jointly unsatisfiable at ss at 1 GHz within the ratified
+latch family and the reset-path sizing space**. The impossibility claim now spans both
+measured knobs (chain length *and* reset path), not one. The chain change stands as a real
+improvement — it is what moved the window into existence, and it widened the ff and tt
+margins — but it does not close ss. Per 0006, an operator decision is filed with the ranked
+options (latch-family topology change / ss-specific C2 relaxation / accept the 500 MHz
+fallback); C2 was **not** relaxed here, and `reuse.lock.json`'s `pfd` entry stays `adopting`.
