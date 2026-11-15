@@ -163,12 +163,13 @@ XC5 qb5 qb4 NEAR TO qb5 VDD VSS dffr_lv
 *.opin OUT
 *.iopin VDD
 *.iopin VSS
-XD1 X d1 VDD VSS inv_lv
-XD2 d1 d2 VDD VSS inv_lv
-XD3 d2 d3 VDD VSS inv_lv
-XD4 d3 d4 VDD VSS inv_lv
-XD5 d4 d5 VDD VSS inv_lv
-XN1 X d5 ntmp VDD VSS nand2_lv
+XMPD1 d1 X VDD VDD sg13_lv_pmos w=1u l=0.16u ng=1 m=1
+XMND1 d1 X VSS VSS sg13_lv_nmos w=0.5u l=0.16u ng=1 m=1
+XMPD2 d2 d1 VDD VDD sg13_lv_pmos w=1u l=0.16u ng=1 m=1
+XMND2 d2 d1 VSS VSS sg13_lv_nmos w=0.5u l=0.16u ng=1 m=1
+XMPD3 d3 d2 VDD VDD sg13_lv_pmos w=1u l=0.16u ng=1 m=1
+XMND3 d3 d2 VSS VSS sg13_lv_nmos w=0.5u l=0.16u ng=1 m=1
+XN1 X d3 ntmp VDD VSS nand2_lv
 XOUT ntmp OUT VDD VSS inv_lv
 .ends
 
