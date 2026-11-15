@@ -8,7 +8,7 @@ S {}
 E {}
 C {sg13g2_pr/sg13_lv_pmos.sym} 0 0 0 0 {name=MPD1 model=sg13_lv_pmos w=1u l=0.16u ng=1 m=1 spiceprefix=X}
 C {lab_pin.sym} 20 30 0 0 {name=l5b lab=d1}
-C {lab_pin.sym} -20 0 0 0 {name=l25 lab=X}
+C {lab_pin.sym} -20 0 0 0 {name=l255 lab=X}
 C {lab_pin.sym} 20 -30 0 0 {name=l35 lab=VDD}
 C {lab_pin.sym} 20 0 0 0 {name=l45 lab=VDD}
 C {sg13g2_pr/sg13_lv_nmos.sym} 300 0 0 0 {name=MND1 model=sg13_lv_nmos w=0.5u l=0.16u ng=1 m=1 spiceprefix=X}
