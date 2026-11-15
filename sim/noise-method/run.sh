@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 # run.sh -- noise-method known-case bench (issue #115, spec/decisions/0014).
+# Env: NOISE_METHOD_RESULTS_DIR   results directory (default <bench>/results/<UTC stamp>)
 set -euo pipefail
 
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
