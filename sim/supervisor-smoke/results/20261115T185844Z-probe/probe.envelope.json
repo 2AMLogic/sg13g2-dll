@@ -1,0 +1,1667 @@
+{
+  "schema_version": 3,
+  "netlist": {
+    "path": "sim/supervisor-smoke/results/20261115T185844Z-probe/decks/probe.spice",
+    "scope": "repo"
+  },
+  "status": "pass",
+  "corner_count": 2,
+  "passed": 2,
+  "failed": 0,
+  "errored": 0,
+  "inconclusive": 0,
+  "diagnostic_counts": {
+    "by_code": {
+      "nonconvergence": 2
+    },
+    "by_severity": {
+      "warning": 2
+    },
+    "corners_with_diagnostics": 2
+  },
+  "metrics": {
+    "sim__corner__count": 2,
+    "sim__corner__passed_count": 2,
+    "sim__corner__failed_count": 0,
+    "sim__corner__errored_count": 0,
+    "sim__corner__inconclusive_count": 0
+  },
+  "environment": {
+    "engine": "ngspice",
+    "engine_version": "47",
+    "ngspice_binary": "/usr/local/bin/ngspice",
+    "engine_build": {
+      "version_banner": "******\n** ngspice-47 : Circuit level simulation program\n** Compiled with KLU Direct Linear Solver\n** The U. C. Berkeley CAD Group\n** Copyright 1985-1994, Regents of the University of California.\n** Copyright 2001-2026, The ngspice team.\n** Please get your ngspice manual from https://ngspice.sourceforge.io/docs.html\n** Please file your bug-reports at http://ngspice.sourceforge.net/bugrep.html\n** Creation Date: Fri Nov 13 23:19:32 UTC 2026\n******",
+      "binary_sha256": "39ca1adb826660324c3626f72bd946ec40704f0f3fc8e243c623f76e24b3eee2",
+      "probe": "ok",
+      "reason": null
+    },
+    "models_lib": {
+      "path": null,
+      "scope": "external"
+    },
+    "models_lib_sha256": "03d505847c880d233b341be115a1e5460edf4d8e9b3e8a7df791a52fa4455d67",
+    "models_lib_sha256_scope": "client",
+    "netlist_sha256": "d2fa3e3e43d2a83b0a2575e655ad5ae847694d1ea53d3699b88b363e67424cec",
+    "netlist_closure": [
+      {
+        "path": "sim/supervisor-smoke/results/20261115T185844Z-probe/decks/probe.spice",
+        "scope": "repo",
+        "sha256": "d2fa3e3e43d2a83b0a2575e655ad5ae847694d1ea53d3699b88b363e67424cec"
+      }
+    ],
+    "netlist_identity": "sha256:32c5dae5db7ca9fd673202b550515b94959e1cf6570641d575943532a2a2d721",
+    "netlist_source": "schematic",
+    "osdi_preload": [
+      {
+        "name": "psp103.osdi",
+        "path": null,
+        "scope": "external",
+        "sha256": "2e4299c4683997e26469410dc1ab36b02ced924b1ac0972d6c4eae360e1fc796"
+      },
+      {
+        "name": "psp103_nqs.osdi",
+        "path": null,
+        "scope": "external",
+        "sha256": "839b164483205601c09032951f6c41d3580f15e506dc40a7202950d3afbdfc7d"
+      },
+      {
+        "name": "r3_cmc.osdi",
+        "path": null,
+        "scope": "external",
+        "sha256": "4fead17bc2e9cbfe3df6f106e9dbd6f2cdcd48c002af9c56c2ca0b0712fce350"
+      },
+      {
+        "name": "mosvar.osdi",
+        "path": null,
+        "scope": "external",
+        "sha256": "25e64a374ab523dbfeb7ffed75dcb8b086ee10f06120a9074bd68b92d7b0fb41"
+      }
+    ],
+    "corner_section_libs": [
+      {
+        "name": "cornerRES.lib",
+        "path": null,
+        "scope": "external",
+        "sha256": "2c18502104146804444a567abfe7d00520752bf75426809f9d79f40198fe9c1e"
+      }
+    ],
+    "staged_model_inputs": [
+      {
+        "name": "cornerMOSlv.lib",
+        "field": "models.lib",
+        "kind": "library",
+        "sha256": "07f15f24b990ab9eff8e1000457ad180a5199b48fc17217ac3572bdcdfbf5f72",
+        "rewritten": true,
+        "source_sha256": "03d505847c880d233b341be115a1e5460edf4d8e9b3e8a7df791a52fa4455d67",
+        "transform": "include-path-rewrite"
+      },
+      {
+        "name": "cornerRES.lib",
+        "field": "corners.units[0].process.sections[1].lib",
+        "kind": "library",
+        "sha256": "8c27e705a59d4221a5107b8fe95d388f3e166414d0fe214acfd2f07dcbb22b61",
+        "rewritten": true,
+        "source_sha256": "2c18502104146804444a567abfe7d00520752bf75426809f9d79f40198fe9c1e",
+        "transform": "include-path-rewrite"
+      },
+      {
+        "name": "psp103.osdi",
+        "field": "options.osdi_preload[0]",
+        "kind": "osdi",
+        "sha256": "2e4299c4683997e26469410dc1ab36b02ced924b1ac0972d6c4eae360e1fc796",
+        "rewritten": false,
+        "source_sha256": "2e4299c4683997e26469410dc1ab36b02ced924b1ac0972d6c4eae360e1fc796"
+      },
+      {
+        "name": "psp103_nqs.osdi",
+        "field": "options.osdi_preload[1]",
+        "kind": "osdi",
+        "sha256": "839b164483205601c09032951f6c41d3580f15e506dc40a7202950d3afbdfc7d",
+        "rewritten": false,
+        "source_sha256": "839b164483205601c09032951f6c41d3580f15e506dc40a7202950d3afbdfc7d"
+      },
+      {
+        "name": "r3_cmc.osdi",
+        "field": "options.osdi_preload[2]",
+        "kind": "osdi",
+        "sha256": "4fead17bc2e9cbfe3df6f106e9dbd6f2cdcd48c002af9c56c2ca0b0712fce350",
+        "rewritten": false,
+        "source_sha256": "4fead17bc2e9cbfe3df6f106e9dbd6f2cdcd48c002af9c56c2ca0b0712fce350"
+      },
+      {
+        "name": "mosvar.osdi",
+        "field": "options.osdi_preload[3]",
+        "kind": "osdi",
+        "sha256": "25e64a374ab523dbfeb7ffed75dcb8b086ee10f06120a9074bd68b92d7b0fb41",
+        "rewritten": false,
+        "source_sha256": "25e64a374ab523dbfeb7ffed75dcb8b086ee10f06120a9074bd68b92d7b0fb41"
+      },
+      {
+        "name": "sg13g2_moslv_mod.lib",
+        "field": "models.lib",
+        "kind": "dependency",
+        "sha256": "0aa1a5630a7c8fb8ae896c57c475954ff5885c4831311f8cd9c9e64d6cbb8332",
+        "rewritten": true,
+        "source_sha256": "124c48af28aee8f4788170b50dbb4d798e7d830c6bb37516f749e16f676fa9db",
+        "transform": "include-path-rewrite"
+      },
+      {
+        "name": "sg13g2_moslv_mismatch.lib",
+        "field": "models.lib",
+        "kind": "dependency",
+        "sha256": "2d3251e2d42eadb0f8af152a4915fdc60a68bceb95a2d17a52f90cfb34b7e63e",
+        "rewritten": false,
+        "source_sha256": "2d3251e2d42eadb0f8af152a4915fdc60a68bceb95a2d17a52f90cfb34b7e63e"
+      },
+      {
+        "name": "sg13g2_moslv_mod_mismatch.lib",
+        "field": "models.lib",
+        "kind": "dependency",
+        "sha256": "28f681005831113ad5377f1b867d8869b78f329a7f52aa821ff56aa1e648b68b",
+        "rewritten": true,
+        "source_sha256": "67672ffa1f224294a90270f687d11b804a24dbf268071c5cd98923ab1b3e2f84",
+        "transform": "include-path-rewrite"
+      },
+      {
+        "name": "sg13g2_moslv_stat.lib",
+        "field": "models.lib",
+        "kind": "dependency",
+        "sha256": "7f4cf8df714e327348ba3975a2630e9d7dd7ae1a7a88817df4890e82745f0f52",
+        "rewritten": false,
+        "source_sha256": "7f4cf8df714e327348ba3975a2630e9d7dd7ae1a7a88817df4890e82745f0f52"
+      },
+      {
+        "name": "resistors_mod.lib",
+        "field": "corners.units[0].process.sections[1].lib",
+        "kind": "dependency",
+        "sha256": "c2329110bcb66894936e942d4cb73fc5eb9188c5230e1bebf18f60d9b00c5c7f",
+        "rewritten": false,
+        "source_sha256": "c2329110bcb66894936e942d4cb73fc5eb9188c5230e1bebf18f60d9b00c5c7f"
+      },
+      {
+        "name": "resistors_mod_mismatch.lib",
+        "field": "corners.units[0].process.sections[1].lib",
+        "kind": "dependency",
+        "sha256": "f0aa7d90b6489112ed256aaf4cb0a11b9ab17ebe0c3ce092f4f8c5ecb1fd1e15",
+        "rewritten": false,
+        "source_sha256": "f0aa7d90b6489112ed256aaf4cb0a11b9ab17ebe0c3ce092f4f8c5ecb1fd1e15"
+      },
+      {
+        "name": "resistors_stat.lib",
+        "field": "corners.units[0].process.sections[1].lib",
+        "kind": "dependency",
+        "sha256": "183eb9192bf711db991b8df87e031bab2ca5e559c73393edc756fa02a2720d40",
+        "rewritten": false,
+        "source_sha256": "183eb9192bf711db991b8df87e031bab2ca5e559c73393edc756fa02a2720d40"
+      },
+      {
+        "name": "sg13g2_moslv_parm.lib",
+        "field": "models.lib",
+        "kind": "dependency",
+        "sha256": "cbf10b8453a18bb70b8ad0d6e40faa0937338e699b5460947a94900db6c92a6e",
+        "rewritten": false,
+        "source_sha256": "cbf10b8453a18bb70b8ad0d6e40faa0937338e699b5460947a94900db6c92a6e"
+      }
+    ],
+    "remote": {
+      "provider": "aws-batch-fleet",
+      "job_id": "klt-sim-26a6110f6647",
+      "region": "us-east-1",
+      "instance_id": "i-0625bccdacadcc775",
+      "instance_type": "m6i.4xlarge",
+      "availability_zone": "us-east-1f",
+      "ami_id": "ami-09c14f55df4958cbd",
+      "lifecycle": "spot",
+      "spot": true,
+      "state": "done",
+      "exit_code": "0",
+      "concurrency": "1",
+      "physical_cores": "8",
+      "elapsed_seconds": 112,
+      "client_submitted_at": "2026-11-15T19:35:04.526508Z",
+      "client_launched_at": "2026-11-15T19:35:43.352984Z",
+      "client_status_terminal_at": "2026-11-15T19:37:47.577529Z",
+      "client_collected_at": "2026-11-15T19:37:48.505058Z",
+      "runner_klt_version": "0.9.0",
+      "client_klt_version": "0.9.3.dev3+gd5d57daf9a14",
+      "runner_compatibility": "match",
+      "runner_request_features": {
+        "required": [
+          "corners.units",
+          "options.osdi_preload",
+          "options.stage_model_inputs"
+        ],
+        "missing": [],
+        "status": "supported"
+      },
+      "worker_environment": {
+        "capture": "ok",
+        "simulator": {
+          "requested_binary": "ngspice",
+          "binary_source": "PATH",
+          "selected_path": "/usr/local/bin/ngspice",
+          "version_banner": "******\n** ngspice-47 : Circuit level simulation program\n** Compiled with KLU Direct Linear Solver\n** The U. C. Berkeley CAD Group\n** Copyright 1985-1994, Regents of the University of California.\n** Copyright 2001-2026, The ngspice team.\n** Please get your ngspice manual from https://ngspice.sourceforge.io/docs.html\n** Please file your bug-reports at http://ngspice.sourceforge.net/bugrep.html\n** Creation Date: Fri Nov 13 23:19:32 UTC 2026\n******\n",
+          "version_probe": "ok"
+        },
+        "pdk": {
+          "variant": "ihp-sg13g2",
+          "root": "/opt/pdk",
+          "stamp_scheme": null,
+          "stamp_sha256": null,
+          "stamp_text": null,
+          "models_staged": true,
+          "stamp_scope": "image"
+        },
+        "cpu_model": "Intel(R) Xeon(R) Platinum 8375C CPU @ 2.90GHz",
+        "omp_num_threads": null,
+        "image_manifest": null,
+        "model_inputs": [
+          {
+            "name": "cornerMOSlv.lib",
+            "sha256": "07f15f24b990ab9eff8e1000457ad180a5199b48fc17217ac3572bdcdfbf5f72"
+          },
+          {
+            "name": "cornerRES.lib",
+            "sha256": "8c27e705a59d4221a5107b8fe95d388f3e166414d0fe214acfd2f07dcbb22b61"
+          },
+          {
+            "name": "psp103.osdi",
+            "sha256": "2e4299c4683997e26469410dc1ab36b02ced924b1ac0972d6c4eae360e1fc796"
+          },
+          {
+            "name": "psp103_nqs.osdi",
+            "sha256": "839b164483205601c09032951f6c41d3580f15e506dc40a7202950d3afbdfc7d"
+          },
+          {
+            "name": "r3_cmc.osdi",
+            "sha256": "4fead17bc2e9cbfe3df6f106e9dbd6f2cdcd48c002af9c56c2ca0b0712fce350"
+          },
+          {
+            "name": "mosvar.osdi",
+            "sha256": "25e64a374ab523dbfeb7ffed75dcb8b086ee10f06120a9074bd68b92d7b0fb41"
+          },
+          {
+            "name": "sg13g2_moslv_mod.lib",
+            "sha256": "0aa1a5630a7c8fb8ae896c57c475954ff5885c4831311f8cd9c9e64d6cbb8332"
+          },
+          {
+            "name": "sg13g2_moslv_mismatch.lib",
+            "sha256": "2d3251e2d42eadb0f8af152a4915fdc60a68bceb95a2d17a52f90cfb34b7e63e"
+          },
+          {
+            "name": "sg13g2_moslv_mod_mismatch.lib",
+            "sha256": "28f681005831113ad5377f1b867d8869b78f329a7f52aa821ff56aa1e648b68b"
+          },
+          {
+            "name": "sg13g2_moslv_stat.lib",
+            "sha256": "7f4cf8df714e327348ba3975a2630e9d7dd7ae1a7a88817df4890e82745f0f52"
+          },
+          {
+            "name": "resistors_mod.lib",
+            "sha256": "c2329110bcb66894936e942d4cb73fc5eb9188c5230e1bebf18f60d9b00c5c7f"
+          },
+          {
+            "name": "resistors_mod_mismatch.lib",
+            "sha256": "f0aa7d90b6489112ed256aaf4cb0a11b9ab17ebe0c3ce092f4f8c5ecb1fd1e15"
+          },
+          {
+            "name": "resistors_stat.lib",
+            "sha256": "183eb9192bf711db991b8df87e031bab2ca5e559c73393edc756fa02a2720d40"
+          },
+          {
+            "name": "sg13g2_moslv_parm.lib",
+            "sha256": "cbf10b8453a18bb70b8ad0d6e40faa0937338e699b5460947a94900db6c92a6e"
+          }
+        ],
+        "diagnostics": [
+          "pdk stamp unreadable: FileNotFoundError"
+        ],
+        "pdk_stamp_comparison": {
+          "basis": "staged_model_inputs",
+          "status": "match"
+        },
+        "engine_build_comparison": {
+          "status": "match"
+        }
+      },
+      "runner_model_inputs": [
+        {
+          "name": "cornerMOSlv.lib",
+          "sha256": "07f15f24b990ab9eff8e1000457ad180a5199b48fc17217ac3572bdcdfbf5f72"
+        },
+        {
+          "name": "cornerRES.lib",
+          "sha256": "8c27e705a59d4221a5107b8fe95d388f3e166414d0fe214acfd2f07dcbb22b61"
+        },
+        {
+          "name": "psp103.osdi",
+          "sha256": "2e4299c4683997e26469410dc1ab36b02ced924b1ac0972d6c4eae360e1fc796"
+        },
+        {
+          "name": "psp103_nqs.osdi",
+          "sha256": "839b164483205601c09032951f6c41d3580f15e506dc40a7202950d3afbdfc7d"
+        },
+        {
+          "name": "r3_cmc.osdi",
+          "sha256": "4fead17bc2e9cbfe3df6f106e9dbd6f2cdcd48c002af9c56c2ca0b0712fce350"
+        },
+        {
+          "name": "mosvar.osdi",
+          "sha256": "25e64a374ab523dbfeb7ffed75dcb8b086ee10f06120a9074bd68b92d7b0fb41"
+        },
+        {
+          "name": "sg13g2_moslv_mod.lib",
+          "sha256": "0aa1a5630a7c8fb8ae896c57c475954ff5885c4831311f8cd9c9e64d6cbb8332"
+        },
+        {
+          "name": "sg13g2_moslv_mismatch.lib",
+          "sha256": "2d3251e2d42eadb0f8af152a4915fdc60a68bceb95a2d17a52f90cfb34b7e63e"
+        },
+        {
+          "name": "sg13g2_moslv_mod_mismatch.lib",
+          "sha256": "28f681005831113ad5377f1b867d8869b78f329a7f52aa821ff56aa1e648b68b"
+        },
+        {
+          "name": "sg13g2_moslv_stat.lib",
+          "sha256": "7f4cf8df714e327348ba3975a2630e9d7dd7ae1a7a88817df4890e82745f0f52"
+        },
+        {
+          "name": "resistors_mod.lib",
+          "sha256": "c2329110bcb66894936e942d4cb73fc5eb9188c5230e1bebf18f60d9b00c5c7f"
+        },
+        {
+          "name": "resistors_mod_mismatch.lib",
+          "sha256": "f0aa7d90b6489112ed256aaf4cb0a11b9ab17ebe0c3ce092f4f8c5ecb1fd1e15"
+        },
+        {
+          "name": "resistors_stat.lib",
+          "sha256": "183eb9192bf711db991b8df87e031bab2ca5e559c73393edc756fa02a2720d40"
+        },
+        {
+          "name": "sg13g2_moslv_parm.lib",
+          "sha256": "cbf10b8453a18bb70b8ad0d6e40faa0937338e699b5460947a94900db6c92a6e"
+        }
+      ],
+      "runner_models_lib_sha256": "07f15f24b990ab9eff8e1000457ad180a5199b48fc17217ac3572bdcdfbf5f72",
+      "job_ceiling": {
+        "basis": "conservative_serial_bound",
+        "unit_count": 2,
+        "per_unit_timeout_s": 1200,
+        "overhead_s": 120.0,
+        "job_bound_s": 2520.0,
+        "max_job_seconds": 3600.0,
+        "max_job_seconds_source": "fleet_config",
+        "exceeds_ceiling": false,
+        "check": "warn",
+        "max_units_per_job": 2,
+        "recommended_hosts": 1
+      },
+      "models_lib_comparison": {
+        "status": "not_comparable",
+        "reason": "models_staged"
+      }
+    },
+    "engine_host": "worker",
+    "client_ngspice_binary": "/home/ubuntu/.local/bin/ngspice",
+    "backend": {
+      "resolved": "batch",
+      "source": "flag",
+      "requested": "batch"
+    }
+  },
+  "coverage": {
+    "corners_simulated": 2,
+    "measurements_declared": 12,
+    "measurements_with_limits": 0,
+    "unrecognized_limit_keys": [],
+    "schema_version": 1,
+    "known": true,
+    "checked": [
+      "measurement:[0,\"ss/1.080V/125C\",\"t_a_dn_n\"]/observation",
+      "measurement:[0,\"ss/1.080V/125C\",\"t_a_up\"]/observation",
+      "measurement:[0,\"ss/1.080V/125C\",\"t_b_up\"]/observation",
+      "measurement:[0,\"ss/1.080V/125C\",\"t_cnt_en\"]/observation",
+      "measurement:[0,\"ss/1.080V/125C\",\"t_near\"]/observation",
+      "measurement:[0,\"ss/1.080V/125C\",\"t_nhi\"]/observation",
+      "measurement:[0,\"ss/1.080V/125C\",\"t_over_n\"]/observation",
+      "measurement:[0,\"ss/1.080V/125C\",\"t_pt\"]/observation",
+      "measurement:[0,\"ss/1.080V/125C\",\"t_ref\"]/observation",
+      "measurement:[0,\"ss/1.080V/125C\",\"t_rst\"]/observation",
+      "measurement:[0,\"ss/1.080V/125C\",\"t_set\"]/observation",
+      "measurement:[0,\"ss/1.080V/125C\",\"t_to\"]/observation",
+      "measurement:[1,\"tt/1.200V/27C\",\"t_a_dn_n\"]/observation",
+      "measurement:[1,\"tt/1.200V/27C\",\"t_a_up\"]/observation",
+      "measurement:[1,\"tt/1.200V/27C\",\"t_b_up\"]/observation",
+      "measurement:[1,\"tt/1.200V/27C\",\"t_cnt_en\"]/observation",
+      "measurement:[1,\"tt/1.200V/27C\",\"t_near\"]/observation",
+      "measurement:[1,\"tt/1.200V/27C\",\"t_nhi\"]/observation",
+      "measurement:[1,\"tt/1.200V/27C\",\"t_over_n\"]/observation",
+      "measurement:[1,\"tt/1.200V/27C\",\"t_pt\"]/observation",
+      "measurement:[1,\"tt/1.200V/27C\",\"t_ref\"]/observation",
+      "measurement:[1,\"tt/1.200V/27C\",\"t_rst\"]/observation",
+      "measurement:[1,\"tt/1.200V/27C\",\"t_set\"]/observation",
+      "measurement:[1,\"tt/1.200V/27C\",\"t_to\"]/observation"
+    ],
+    "skipped": [],
+    "inapplicable": [
+      {
+        "id": "measurement:[0,\"ss/1.080V/125C\",\"t_a_dn_n\"]/limits",
+        "reason": "characterization_without_limits"
+      },
+      {
+        "id": "measurement:[0,\"ss/1.080V/125C\",\"t_a_up\"]/limits",
+        "reason": "characterization_without_limits"
+      },
+      {
+        "id": "measurement:[0,\"ss/1.080V/125C\",\"t_b_up\"]/limits",
+        "reason": "characterization_without_limits"
+      },
+      {
+        "id": "measurement:[0,\"ss/1.080V/125C\",\"t_cnt_en\"]/limits",
+        "reason": "characterization_without_limits"
+      },
+      {
+        "id": "measurement:[0,\"ss/1.080V/125C\",\"t_near\"]/limits",
+        "reason": "characterization_without_limits"
+      },
+      {
+        "id": "measurement:[0,\"ss/1.080V/125C\",\"t_nhi\"]/limits",
+        "reason": "characterization_without_limits"
+      },
+      {
+        "id": "measurement:[0,\"ss/1.080V/125C\",\"t_over_n\"]/limits",
+        "reason": "characterization_without_limits"
+      },
+      {
+        "id": "measurement:[0,\"ss/1.080V/125C\",\"t_pt\"]/limits",
+        "reason": "characterization_without_limits"
+      },
+      {
+        "id": "measurement:[0,\"ss/1.080V/125C\",\"t_ref\"]/limits",
+        "reason": "characterization_without_limits"
+      },
+      {
+        "id": "measurement:[0,\"ss/1.080V/125C\",\"t_rst\"]/limits",
+        "reason": "characterization_without_limits"
+      },
+      {
+        "id": "measurement:[0,\"ss/1.080V/125C\",\"t_set\"]/limits",
+        "reason": "characterization_without_limits"
+      },
+      {
+        "id": "measurement:[0,\"ss/1.080V/125C\",\"t_to\"]/limits",
+        "reason": "characterization_without_limits"
+      },
+      {
+        "id": "measurement:[1,\"tt/1.200V/27C\",\"t_a_dn_n\"]/limits",
+        "reason": "characterization_without_limits"
+      },
+      {
+        "id": "measurement:[1,\"tt/1.200V/27C\",\"t_a_up\"]/limits",
+        "reason": "characterization_without_limits"
+      },
+      {
+        "id": "measurement:[1,\"tt/1.200V/27C\",\"t_b_up\"]/limits",
+        "reason": "characterization_without_limits"
+      },
+      {
+        "id": "measurement:[1,\"tt/1.200V/27C\",\"t_cnt_en\"]/limits",
+        "reason": "characterization_without_limits"
+      },
+      {
+        "id": "measurement:[1,\"tt/1.200V/27C\",\"t_near\"]/limits",
+        "reason": "characterization_without_limits"
+      },
+      {
+        "id": "measurement:[1,\"tt/1.200V/27C\",\"t_nhi\"]/limits",
+        "reason": "characterization_without_limits"
+      },
+      {
+        "id": "measurement:[1,\"tt/1.200V/27C\",\"t_over_n\"]/limits",
+        "reason": "characterization_without_limits"
+      },
+      {
+        "id": "measurement:[1,\"tt/1.200V/27C\",\"t_pt\"]/limits",
+        "reason": "characterization_without_limits"
+      },
+      {
+        "id": "measurement:[1,\"tt/1.200V/27C\",\"t_ref\"]/limits",
+        "reason": "characterization_without_limits"
+      },
+      {
+        "id": "measurement:[1,\"tt/1.200V/27C\",\"t_rst\"]/limits",
+        "reason": "characterization_without_limits"
+      },
+      {
+        "id": "measurement:[1,\"tt/1.200V/27C\",\"t_set\"]/limits",
+        "reason": "characterization_without_limits"
+      },
+      {
+        "id": "measurement:[1,\"tt/1.200V/27C\",\"t_to\"]/limits",
+        "reason": "characterization_without_limits"
+      }
+    ],
+    "unknown": [],
+    "nothing_checked": false,
+    "nothing_checked_reasons": []
+  },
+  "provenance": {
+    "klt_version": "0.9.3.dev3+gd5d57daf9a14",
+    "klt_git_commit": "d5d57daf9a145961ea01f5f891e4d87c0d435807",
+    "klt_reinstall_spec": "klayout-tools @ git+https://github.com/2AMLogic/klayout-tools@d5d57daf9a145961ea01f5f891e4d87c0d435807",
+    "klayout_version": "0.30.13",
+    "pdk": {
+      "name": "ihp-sg13g2",
+      "source": "PDK_ROOT environment variable",
+      "version": "fetched:0.3.0"
+    },
+    "deck": {
+      "name": "cornerMOSlv.lib",
+      "content_hash": "sha256:03d505847c880d233b341be115a1e5460edf4d8e9b3e8a7df791a52fa4455d67",
+      "released": false
+    },
+    "input": {
+      "content_hash": "sha256:d2fa3e3e43d2a83b0a2575e655ad5ae847694d1ea53d3699b88b363e67424cec",
+      "role": "netlist"
+    }
+  },
+  "measurements": [
+    {
+      "name": "t_ref",
+      "unit": null,
+      "limits": null,
+      "status": "pass",
+      "worst_case": {
+        "corner_id": "ss/1.080V/125C",
+        "value": 100,
+        "margin": null
+      },
+      "min": {
+        "corner_id": "ss/1.080V/125C",
+        "value": 100
+      },
+      "max": {
+        "corner_id": "ss/1.080V/125C",
+        "value": 100
+      }
+    },
+    {
+      "name": "t_a_up",
+      "unit": null,
+      "limits": null,
+      "status": "pass",
+      "worst_case": {
+        "corner_id": "ss/1.080V/125C",
+        "value": 1,
+        "margin": null
+      },
+      "min": {
+        "corner_id": "ss/1.080V/125C",
+        "value": 1
+      },
+      "max": {
+        "corner_id": "ss/1.080V/125C",
+        "value": 1
+      }
+    },
+    {
+      "name": "t_a_dn_n",
+      "unit": null,
+      "limits": null,
+      "status": "pass",
+      "worst_case": {
+        "corner_id": "ss/1.080V/125C",
+        "value": 0,
+        "margin": null
+      },
+      "min": {
+        "corner_id": "ss/1.080V/125C",
+        "value": 0
+      },
+      "max": {
+        "corner_id": "ss/1.080V/125C",
+        "value": 0
+      }
+    },
+    {
+      "name": "t_b_up",
+      "unit": null,
+      "limits": null,
+      "status": "pass",
+      "worst_case": {
+        "corner_id": "ss/1.080V/125C",
+        "value": 1,
+        "margin": null
+      },
+      "min": {
+        "corner_id": "ss/1.080V/125C",
+        "value": 1
+      },
+      "max": {
+        "corner_id": "tt/1.200V/27C",
+        "value": 2
+      }
+    },
+    {
+      "name": "t_over_n",
+      "unit": null,
+      "limits": null,
+      "status": "pass",
+      "worst_case": {
+        "corner_id": "ss/1.080V/125C",
+        "value": 1,
+        "margin": null
+      },
+      "min": {
+        "corner_id": "ss/1.080V/125C",
+        "value": 1
+      },
+      "max": {
+        "corner_id": "tt/1.200V/27C",
+        "value": 2
+      }
+    },
+    {
+      "name": "t_nhi",
+      "unit": null,
+      "limits": null,
+      "status": "pass",
+      "worst_case": {
+        "corner_id": "ss/1.080V/125C",
+        "value": 0,
+        "margin": null
+      },
+      "min": {
+        "corner_id": "ss/1.080V/125C",
+        "value": 0
+      },
+      "max": {
+        "corner_id": "tt/1.200V/27C",
+        "value": 3
+      }
+    },
+    {
+      "name": "t_near",
+      "unit": null,
+      "limits": null,
+      "status": "pass",
+      "worst_case": {
+        "corner_id": "ss/1.080V/125C",
+        "value": 0,
+        "margin": null
+      },
+      "min": {
+        "corner_id": "ss/1.080V/125C",
+        "value": 0
+      },
+      "max": {
+        "corner_id": "tt/1.200V/27C",
+        "value": 4
+      }
+    },
+    {
+      "name": "t_cnt_en",
+      "unit": null,
+      "limits": null,
+      "status": "pass",
+      "worst_case": {
+        "corner_id": "ss/1.080V/125C",
+        "value": 0,
+        "margin": null
+      },
+      "min": {
+        "corner_id": "ss/1.080V/125C",
+        "value": 0
+      },
+      "max": {
+        "corner_id": "tt/1.200V/27C",
+        "value": 5
+      }
+    },
+    {
+      "name": "t_to",
+      "unit": null,
+      "limits": null,
+      "status": "pass",
+      "worst_case": {
+        "corner_id": "ss/1.080V/125C",
+        "value": 0,
+        "margin": null
+      },
+      "min": {
+        "corner_id": "ss/1.080V/125C",
+        "value": 0
+      },
+      "max": {
+        "corner_id": "tt/1.200V/27C",
+        "value": 1
+      }
+    },
+    {
+      "name": "t_pt",
+      "unit": null,
+      "limits": null,
+      "status": "pass",
+      "worst_case": {
+        "corner_id": "ss/1.080V/125C",
+        "value": 0,
+        "margin": null
+      },
+      "min": {
+        "corner_id": "ss/1.080V/125C",
+        "value": 0
+      },
+      "max": {
+        "corner_id": "tt/1.200V/27C",
+        "value": 2
+      }
+    },
+    {
+      "name": "t_set",
+      "unit": null,
+      "limits": null,
+      "status": "pass",
+      "worst_case": {
+        "corner_id": "ss/1.080V/125C",
+        "value": 0,
+        "margin": null
+      },
+      "min": {
+        "corner_id": "ss/1.080V/125C",
+        "value": 0
+      },
+      "max": {
+        "corner_id": "tt/1.200V/27C",
+        "value": 5
+      }
+    },
+    {
+      "name": "t_rst",
+      "unit": null,
+      "limits": null,
+      "status": "pass",
+      "worst_case": {
+        "corner_id": "ss/1.080V/125C",
+        "value": 0,
+        "margin": null
+      },
+      "min": {
+        "corner_id": "ss/1.080V/125C",
+        "value": 0
+      },
+      "max": {
+        "corner_id": "tt/1.200V/27C",
+        "value": 5
+      }
+    }
+  ],
+  "corners": [
+    {
+      "corner_id": "ss/1.080V/125C",
+      "process": "ss",
+      "supply_v": {
+        "Vdd": 1.08
+      },
+      "temperature_c": 125,
+      "status": "pass",
+      "runtime_s": 98.884,
+      "peak_rss_bytes": 262565888,
+      "engine_exit_code": 0,
+      "engine_killed_by_signal": null,
+      "measurements": [
+        {
+          "name": "t_ref",
+          "value": 100,
+          "unit": null,
+          "status": "pass",
+          "margin": null,
+          "crossings": {
+            "times": [
+              5.150000000000451e-10,
+              1.5150000000000447e-09,
+              2.515000000000045e-09,
+              3.5150000000000455e-09,
+              4.515000000000046e-09,
+              5.5150000000000456e-09,
+              6.515000000000046e-09,
+              7.515000000000046e-09,
+              8.515000000000045e-09,
+              9.515000000000046e-09,
+              1.0515000000000043e-08,
+              1.1515000000000044e-08,
+              1.2515000000000045e-08,
+              1.3515000000000044e-08,
+              1.4515000000000044e-08,
+              1.5515000000000047e-08,
+              1.6515000000000042e-08,
+              1.751500000000004e-08,
+              1.8515000000000047e-08,
+              1.9515000000000043e-08,
+              2.0515000000000042e-08,
+              2.1515000000000047e-08,
+              2.2515000000000043e-08,
+              2.3515000000000042e-08,
+              2.4515000000000048e-08,
+              2.5515000000000044e-08,
+              2.6515000000000043e-08,
+              2.751500000000004e-08,
+              2.8515000000000047e-08,
+              2.9515000000000043e-08,
+              3.051500000000005e-08,
+              3.151500000000004e-08,
+              3.251500000000004e-08,
+              3.351500000000005e-08,
+              3.451500000000004e-08,
+              3.551500000000004e-08,
+              3.651500000000005e-08,
+              3.751500000000004e-08,
+              3.851500000000004e-08,
+              3.9515000000000046e-08,
+              4.051500000000004e-08,
+              4.151500000000004e-08,
+              4.251500000000005e-08,
+              4.351500000000004e-08,
+              4.451500000000005e-08,
+              4.551500000000005e-08,
+              4.651500000000004e-08,
+              4.751500000000005e-08,
+              4.851500000000005e-08,
+              4.9515000000000043e-08,
+              5.051500000000005e-08,
+              5.151500000000004e-08,
+              5.251500000000004e-08,
+              5.351500000000005e-08,
+              5.451500000000004e-08,
+              5.551500000000004e-08,
+              5.6515000000000046e-08,
+              5.751500000000004e-08,
+              5.851500000000004e-08,
+              5.951500000000005e-08,
+              6.051500000000005e-08,
+              6.151500000000004e-08,
+              6.251500000000004e-08,
+              6.351500000000005e-08,
+              6.451500000000005e-08,
+              6.551500000000004e-08,
+              6.651500000000005e-08,
+              6.751500000000005e-08,
+              6.851500000000004e-08,
+              6.951500000000005e-08,
+              7.051500000000005e-08,
+              7.151500000000004e-08,
+              7.251500000000005e-08,
+              7.351500000000005e-08,
+              7.451500000000004e-08,
+              7.551500000000005e-08,
+              7.651500000000005e-08,
+              7.751500000000004e-08,
+              7.851500000000005e-08,
+              7.951500000000005e-08,
+              8.051500000000004e-08,
+              8.151500000000005e-08,
+              8.251500000000005e-08,
+              8.351500000000004e-08,
+              8.451500000000005e-08,
+              8.551500000000005e-08,
+              8.651500000000004e-08,
+              8.751500000000005e-08,
+              8.851500000000005e-08,
+              8.951500000000004e-08,
+              9.051500000000005e-08,
+              9.151500000000005e-08,
+              9.251500000000004e-08,
+              9.351500000000005e-08,
+              9.451500000000005e-08,
+              9.551500000000004e-08,
+              9.651500000000005e-08,
+              9.751500000000005e-08,
+              9.851500000000005e-08,
+              9.951500000000004e-08
+            ],
+            "edges": [
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise"
+            ],
+            "truncated": false,
+            "level": 0.54
+          }
+        },
+        {
+          "name": "t_a_up",
+          "value": 1,
+          "unit": null,
+          "status": "pass",
+          "margin": null,
+          "crossings": {
+            "times": [
+              1.6593918338090328e-09
+            ],
+            "edges": [
+              "rise"
+            ],
+            "truncated": false,
+            "level": 0.54
+          }
+        },
+        {
+          "name": "t_a_dn_n",
+          "value": 0,
+          "unit": null,
+          "status": "pass",
+          "margin": null,
+          "crossings": {
+            "times": [],
+            "edges": [],
+            "truncated": false,
+            "level": 0.54
+          }
+        },
+        {
+          "name": "t_b_up",
+          "value": 1,
+          "unit": null,
+          "status": "pass",
+          "margin": null,
+          "crossings": {
+            "times": [
+              1.6563922015077217e-09
+            ],
+            "edges": [
+              "rise"
+            ],
+            "truncated": false,
+            "level": 0.54
+          }
+        },
+        {
+          "name": "t_over_n",
+          "value": 1,
+          "unit": null,
+          "status": "pass",
+          "margin": null,
+          "crossings": {
+            "times": [
+              1.8570860669614599e-09
+            ],
+            "edges": [
+              "fall"
+            ],
+            "truncated": false,
+            "level": 0.54
+          }
+        },
+        {
+          "name": "t_nhi",
+          "value": 0,
+          "unit": null,
+          "status": "pass",
+          "margin": null,
+          "crossings": {
+            "times": [],
+            "edges": [],
+            "truncated": false,
+            "level": 0.54
+          }
+        },
+        {
+          "name": "t_near",
+          "value": 0,
+          "unit": null,
+          "status": "pass",
+          "margin": null,
+          "crossings": {
+            "times": [],
+            "edges": [],
+            "truncated": false,
+            "level": 0.54
+          }
+        },
+        {
+          "name": "t_cnt_en",
+          "value": 0,
+          "unit": null,
+          "status": "pass",
+          "margin": null,
+          "crossings": {
+            "times": [],
+            "edges": [],
+            "truncated": false,
+            "level": 0.54
+          }
+        },
+        {
+          "name": "t_to",
+          "value": 0,
+          "unit": null,
+          "status": "pass",
+          "margin": null,
+          "crossings": {
+            "times": [],
+            "edges": [],
+            "truncated": false,
+            "level": 0.54
+          }
+        },
+        {
+          "name": "t_pt",
+          "value": 0,
+          "unit": null,
+          "status": "pass",
+          "margin": null,
+          "crossings": {
+            "times": [],
+            "edges": [],
+            "truncated": false,
+            "level": 0.54
+          }
+        },
+        {
+          "name": "t_set",
+          "value": 0,
+          "unit": null,
+          "status": "pass",
+          "margin": null,
+          "crossings": {
+            "times": [],
+            "edges": [],
+            "truncated": false,
+            "level": 0.54
+          }
+        },
+        {
+          "name": "t_rst",
+          "value": 0,
+          "unit": null,
+          "status": "pass",
+          "margin": null,
+          "crossings": {
+            "times": [],
+            "edges": [],
+            "truncated": false,
+            "level": 0.54
+          }
+        }
+      ],
+      "diagnostics": [
+        {
+          "severity": "warning",
+          "code": "nonconvergence",
+          "message": "Warning: Dynamic gmin stepping failed"
+        }
+      ],
+      "artifacts": {
+        "log": "/home/ubuntu/GitHub/sg13g2-dll/.loom/worktrees/issue-145/sim/supervisor-smoke/results/20261115T185844Z-probe/artifacts/probe/ss_1p080V_125C/ngspice.log",
+        "raw": null,
+        "waveform": null,
+        "deck": "/home/ubuntu/GitHub/sg13g2-dll/.loom/worktrees/issue-145/sim/supervisor-smoke/results/20261115T185844Z-probe/artifacts/probe/ss_1p080V_125C/corner.cir"
+      },
+      "monte_carlo": null
+    },
+    {
+      "corner_id": "tt/1.200V/27C",
+      "process": "tt",
+      "supply_v": {
+        "Vdd": 1.2
+      },
+      "temperature_c": 27,
+      "status": "pass",
+      "runtime_s": 102.321,
+      "peak_rss_bytes": 262565888,
+      "engine_exit_code": 0,
+      "engine_killed_by_signal": null,
+      "measurements": [
+        {
+          "name": "t_ref",
+          "value": 100,
+          "unit": null,
+          "status": "pass",
+          "margin": null,
+          "crossings": {
+            "times": [
+              5.150000000000451e-10,
+              1.5150000000000447e-09,
+              2.515000000000045e-09,
+              3.5150000000000455e-09,
+              4.515000000000046e-09,
+              5.5150000000000456e-09,
+              6.515000000000046e-09,
+              7.515000000000046e-09,
+              8.515000000000045e-09,
+              9.515000000000046e-09,
+              1.0515000000000043e-08,
+              1.1515000000000044e-08,
+              1.2515000000000045e-08,
+              1.3515000000000044e-08,
+              1.4515000000000044e-08,
+              1.5515000000000047e-08,
+              1.6515000000000042e-08,
+              1.751500000000004e-08,
+              1.8515000000000047e-08,
+              1.9515000000000043e-08,
+              2.0515000000000042e-08,
+              2.1515000000000047e-08,
+              2.2515000000000043e-08,
+              2.3515000000000042e-08,
+              2.4515000000000048e-08,
+              2.5515000000000044e-08,
+              2.6515000000000043e-08,
+              2.751500000000004e-08,
+              2.8515000000000047e-08,
+              2.9515000000000043e-08,
+              3.051500000000005e-08,
+              3.151500000000004e-08,
+              3.251500000000004e-08,
+              3.351500000000005e-08,
+              3.451500000000004e-08,
+              3.551500000000004e-08,
+              3.651500000000005e-08,
+              3.751500000000004e-08,
+              3.851500000000004e-08,
+              3.9515000000000046e-08,
+              4.051500000000004e-08,
+              4.151500000000004e-08,
+              4.251500000000005e-08,
+              4.351500000000004e-08,
+              4.451500000000005e-08,
+              4.551500000000005e-08,
+              4.651500000000004e-08,
+              4.751500000000005e-08,
+              4.851500000000005e-08,
+              4.9515000000000043e-08,
+              5.051500000000005e-08,
+              5.151500000000004e-08,
+              5.251500000000004e-08,
+              5.351500000000005e-08,
+              5.451500000000004e-08,
+              5.551500000000004e-08,
+              5.6515000000000046e-08,
+              5.751500000000004e-08,
+              5.851500000000004e-08,
+              5.951500000000005e-08,
+              6.051500000000005e-08,
+              6.151500000000004e-08,
+              6.251500000000004e-08,
+              6.351500000000005e-08,
+              6.451500000000005e-08,
+              6.551500000000004e-08,
+              6.651500000000005e-08,
+              6.751500000000005e-08,
+              6.851500000000004e-08,
+              6.951500000000005e-08,
+              7.051500000000005e-08,
+              7.151500000000004e-08,
+              7.251500000000005e-08,
+              7.351500000000005e-08,
+              7.451500000000004e-08,
+              7.551500000000005e-08,
+              7.651500000000005e-08,
+              7.751500000000004e-08,
+              7.851500000000005e-08,
+              7.951500000000005e-08,
+              8.051500000000004e-08,
+              8.151500000000005e-08,
+              8.251500000000005e-08,
+              8.351500000000004e-08,
+              8.451500000000005e-08,
+              8.551500000000005e-08,
+              8.651500000000004e-08,
+              8.751500000000005e-08,
+              8.851500000000005e-08,
+              8.951500000000004e-08,
+              9.051500000000005e-08,
+              9.151500000000005e-08,
+              9.251500000000004e-08,
+              9.351500000000005e-08,
+              9.451500000000005e-08,
+              9.551500000000004e-08,
+              9.651500000000005e-08,
+              9.751500000000005e-08,
+              9.851500000000005e-08,
+              9.951500000000004e-08
+            ],
+            "edges": [
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise"
+            ],
+            "truncated": false,
+            "level": 0.6
+          }
+        },
+        {
+          "name": "t_a_up",
+          "value": 1,
+          "unit": null,
+          "status": "pass",
+          "margin": null,
+          "crossings": {
+            "times": [
+              1.6075496869537374e-09
+            ],
+            "edges": [
+              "rise"
+            ],
+            "truncated": false,
+            "level": 0.6
+          }
+        },
+        {
+          "name": "t_a_dn_n",
+          "value": 0,
+          "unit": null,
+          "status": "pass",
+          "margin": null,
+          "crossings": {
+            "times": [],
+            "edges": [],
+            "truncated": false,
+            "level": 0.6
+          }
+        },
+        {
+          "name": "t_b_up",
+          "value": 2,
+          "unit": null,
+          "status": "pass",
+          "margin": null,
+          "crossings": {
+            "times": [
+              2.5614554416020442e-08,
+              5.070479609703819e-08
+            ],
+            "edges": [
+              "rise",
+              "fall"
+            ],
+            "truncated": false,
+            "level": 0.6
+          }
+        },
+        {
+          "name": "t_over_n",
+          "value": 2,
+          "unit": null,
+          "status": "pass",
+          "margin": null,
+          "crossings": {
+            "times": [
+              2.57265530704633e-08,
+              5.0819866250435506e-08
+            ],
+            "edges": [
+              "fall",
+              "rise"
+            ],
+            "truncated": false,
+            "level": 0.6
+          }
+        },
+        {
+          "name": "t_nhi",
+          "value": 3,
+          "unit": null,
+          "status": "pass",
+          "margin": null,
+          "crossings": {
+            "times": [
+              5.171224919789173e-09,
+              2.8756784564996256e-08,
+              5.253022205846585e-08
+            ],
+            "edges": [
+              "fall",
+              "rise",
+              "fall"
+            ],
+            "truncated": false,
+            "level": 0.6
+          }
+        },
+        {
+          "name": "t_near",
+          "value": 4,
+          "unit": null,
+          "status": "pass",
+          "margin": null,
+          "crossings": {
+            "times": [
+              5.25258696089718e-09,
+              2.8852641841069248e-08,
+              5.2611324642159266e-08,
+              6.147774768708417e-08
+            ],
+            "edges": [
+              "fall",
+              "rise",
+              "fall",
+              "rise"
+            ],
+            "truncated": false,
+            "level": 0.6
+          }
+        },
+        {
+          "name": "t_cnt_en",
+          "value": 5,
+          "unit": null,
+          "status": "pass",
+          "margin": null,
+          "crossings": {
+            "times": [
+              3.816586892118491e-09,
+              5.593715831282272e-09,
+              5.154638523287052e-08,
+              5.294726210924247e-08,
+              6.176441270864434e-08
+            ],
+            "edges": [
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise"
+            ],
+            "truncated": false,
+            "level": 0.6
+          }
+        },
+        {
+          "name": "t_to",
+          "value": 1,
+          "unit": null,
+          "status": "pass",
+          "margin": null,
+          "crossings": {
+            "times": [
+              7.829387714364659e-08
+            ],
+            "edges": [
+              "rise"
+            ],
+            "truncated": false,
+            "level": 0.6
+          }
+        },
+        {
+          "name": "t_pt",
+          "value": 2,
+          "unit": null,
+          "status": "pass",
+          "margin": null,
+          "crossings": {
+            "times": [
+              7.837165533943085e-08,
+              7.849018516951445e-08
+            ],
+            "edges": [
+              "rise",
+              "fall"
+            ],
+            "truncated": false,
+            "level": 0.6
+          }
+        },
+        {
+          "name": "t_set",
+          "value": 5,
+          "unit": null,
+          "status": "pass",
+          "margin": null,
+          "crossings": {
+            "times": [
+              3.119315007032259e-09,
+              2.5776264685089218e-08,
+              5.086096683638844e-08,
+              7.846721896213942e-08,
+              7.855963808824468e-08
+            ],
+            "edges": [
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall"
+            ],
+            "truncated": false,
+            "level": 0.6
+          }
+        },
+        {
+          "name": "t_rst",
+          "value": 5,
+          "unit": null,
+          "status": "pass",
+          "margin": null,
+          "crossings": {
+            "times": [
+              3.5491675283156787e-09,
+              2.5857891938051677e-08,
+              5.129157235058126e-08,
+              7.855151024904842e-08,
+              7.86242355486642e-08
+            ],
+            "edges": [
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall"
+            ],
+            "truncated": false,
+            "level": 0.6
+          }
+        }
+      ],
+      "diagnostics": [
+        {
+          "severity": "warning",
+          "code": "nonconvergence",
+          "message": "Warning: Dynamic gmin stepping failed"
+        }
+      ],
+      "artifacts": {
+        "log": "/home/ubuntu/GitHub/sg13g2-dll/.loom/worktrees/issue-145/sim/supervisor-smoke/results/20261115T185844Z-probe/artifacts/probe/tt_1p200V_27C/ngspice.log",
+        "raw": null,
+        "waveform": null,
+        "deck": "/home/ubuntu/GitHub/sg13g2-dll/.loom/worktrees/issue-145/sim/supervisor-smoke/results/20261115T185844Z-probe/artifacts/probe/tt_1p200V_27C/corner.cir"
+      },
+      "monte_carlo": null
+    }
+  ]
+}

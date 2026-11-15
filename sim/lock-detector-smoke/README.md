@@ -36,3 +36,19 @@ What it does **not** show: the width of the delay window (e = 0 accepted and
 e = +240 ps rejected only; see `design/NOTES.md` "Not met / not established"),
 rejection of a harmonic lock, the 5 mV threshold, or any other corner or frequency.
 No negative control (e.g. window forced open) was run.
+
+## Evidence currency and the ss probe (issue #145)
+
+`results/20261115T184954Z/` is the record on the **three-stage device-level
+`edgedet`** (`XMPD1..XMND3`, 0.16 µm devices, PR #141) and passes all five gates;
+its provenance section states the commit and the chain. The two earlier records
+(`20261105T091102Z`, `20261114T091558Z`) pre-date that chain and are superseded
+for it.
+
+The ss corner is covered by a **probe, not a graded result**:
+`results/20261115T185846Z-probe/` runs the same stimulus at ss / 1.080 V / 125 °C
+plus a tt control unit, graded on crossing counts (corner-portable; no `td=`
+re-derivation), and **measures a failure**: `vmov_cmp` never asserts `still` at
+ss, so `bad` holds, the counter stays cleared, and LOCK never rises. See that
+directory's `record.md` for method and attribution, and `design/NOTES.md`
+"Not met / not established" for the summary.

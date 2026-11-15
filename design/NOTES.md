@@ -172,28 +172,45 @@ optimum.
 
 ## Evidence status and what is not established
 
-- `sim/supervisor-smoke/` ran at tt / 1.2 V / 27 °C, 1 GHz, one unit, locally
-  (the 2026-11-05 dispatch worker has ngspice 46 and loads the OSDI models;
-  the earlier notes about ngspice 42 do not apply to this host). See
-  `sim/supervisor-smoke/results/*/record.md`. Stimulus is two ideal delayed
+- `sim/supervisor-smoke/` ran at tt / 1.2 V / 27 °C, 1 GHz, one unit, through
+  the bench's own single-unit runner. The newest record
+  (`sim/supervisor-smoke/results/20261115T184803Z/record.md`, issue #145) was
+  produced **after** PR #141 shortened the shared `edgedet` to the three-stage
+  device-level chain (`XMPD1..XMND3`, 0.16 µm devices) and passes all six smoke
+  gates on that chain; it states its commit and chain in a provenance section.
+  Earlier records (`20261105T052155Z`, `20261114T092421Z`) pre-date the
+  three-stage chain and are superseded for it. Stimulus is two ideal delayed
   copies of REF and a resistor-capacitor stand-in for the loop, **not** the
   delay line or charge pump.
-- **Not established**: any other corner, supply, temperature or frequency; the
-  comparator threshold spread; metastability of the window samples near lock;
-  the (2 T, 3.5 T) coverage gap; that the supervisor never fires during a normal
-  lock (needs the closed loop, the `sim/false-lock` bench); the 0008 claim that
-  the mask makes FB_0 meet REF_1. The smoke bench has no negative control (a run
-  with the mask removed was not made), so it shows the mask behaviour occurs,
-  not that the gate would catch its absence.
+- **ss / 1.080 V / 125 °C (issue #145 probe,
+  `sim/supervisor-smoke/results/20261115T185844Z-probe/`): the supervisor does
+  not respond.** RST never releases from power-up: the `win_det` TAPH sample
+  (`b_up`) mis-latches at ss (its stimulus margin to the REF edge is ~130 ps,
+  inside the ss `dffr_lv` setup window), `over_n` asserts permanently, `set` is
+  held, and the counter stays disabled — so the `to` → `pt` → `set` time-out
+  path never executes and the three-stage one-shot is unexercised there. A tt
+  control unit in the same probe run reproduces the full working sequence
+  (one-shot 118.5 ps wide at tt on this load) on identical stimulus. This is a
+  probe, not a graded ss result; the remedy needs its own decision record
+  (follow-up of #145).
+- **Not established**: any corner other than the tt smoke corner and the ss
+  probe above (no supply or temperature axis beyond those two points, no other
+  frequency); the comparator threshold spread; metastability of the window
+  samples near lock; the (2 T, 3.5 T) coverage gap; that the supervisor never
+  fires during a normal lock (needs the closed loop, the `sim/false-lock`
+  bench); the 0008 claim that the mask makes FB_0 meet REF_1. The smoke bench
+  has no negative control (a run with the mask removed was not made), so it
+  shows the mask behaviour occurs, not that the gate would catch its absence.
 - The supervisor adds a pull-up on VCTRL and ≈100 kΩ ladder current (≈12 µA at
   1.2 V, always on): neither is in the power budget yet.
 
 # Lock detector: row 12 map and design choices (issue #54)
 
-Status: **first pass, drawn against the draft (`proposed`) spec and simulated at one
-corner** (`sim/lock-detector-smoke/`, tt / 1.2 V / 27 °C, 1 GHz, ideal stimulus). It
-is re-graded at ratification (#41). **Two row-12 clauses are not met**; see "Not
-met / not established" before relying on the block.
+Status: **first pass, drawn against the draft (`proposed`) spec and simulated at
+one corner** (`sim/lock-detector-smoke/`, tt / 1.2 V / 27 °C, 1 GHz, ideal
+stimulus), **plus a single-corner ss probe that the block fails** (issue #145,
+below). It is re-graded at ratification (#41). **Two row-12 clauses are not
+met**; see "Not met / not established" before relying on the block.
 
 `lock_detector REF TAPN VCTRL LOCK VDD VSS`. `REF` is the input clock and `TAPN` the
 last tap, as for the PFD. It reuses `dffr_lv`, `nand3_lv`, `edgedet` and `srlatch`
@@ -240,10 +257,22 @@ same absolute times.
   cancellation. Valid only for VCTRL below roughly 0.85 V (the follower outputs
   must stay under the PMOS pair's input range); above that `STILL` is
   meaningless.
-- Not simulated: other corners, supplies, temperatures or frequencies; the real
-  delay line, PFD and charge pump (stimulus is ideal); noise or metastability of
-  `s1`/`s2` near the window edge; the 64-cycle p-p definition of the predicate
-  (the low-pass flags a drift of VCTRL as movement, which is stricter than 5 mV
-  p-p over 64 cycles on a slow ramp and looser on a short spike).
+- **ss / 1.080 V / 125 °C: the block never sets LOCK (issue #145 probe,
+  `sim/lock-detector-smoke/results/20261115T185846Z-probe/`).** The VCTRL
+  movement sensor `vmov_cmp` never asserts `still` at ss (raw flat at ~0 V for
+  the whole 800 ns run, where the tt control settles high at 220.9 ns on
+  identical stimulus), so `bad` is held high, the counter is held cleared, and
+  the `to` → `pt` → `set` path never executes: the three-stage one-shot is
+  unexercised at ss by this stimulus. The digital window samplers (`s1`, `s2_n`)
+  behave identically at both corners — the discriminator is the analog sensor,
+  consistent with the trim-fragility noted above. A probe, not a graded ss
+  result; the remedy needs its own decision record (follow-up of #145).
+- Not simulated: corners other than the tt smoke corner and the ss probe above
+  (no supply or temperature axis beyond those two points); other frequencies;
+  the real delay line, PFD and charge pump (stimulus is ideal); noise or
+  metastability of `s1`/`s2` near the window edge; the 64-cycle p-p definition
+  of the predicate (the low-pass flags a drift of VCTRL as movement, which is
+  stricter than 5 mV p-p over 64 cycles on a slow ramp and looser on a short
+  spike).
 - Loading: the sensor adds two follower gates on VCTRL (no DC load); power of the
   always-on OTAs is not in the budget yet.
