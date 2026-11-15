@@ -55,11 +55,12 @@ recorded spec result per decision 0001):
 
 ## Now
 
-Can start today. No issue carries the ready label; #94 is curated and items
-2 to 4 have no issue yet.
+Can start today. No issue carries the ready label; entries 2 to 4 have no
+issue yet.
 
-1. **Power bench exit code** (#94). Done when `sim/power/run.sh` exits non-zero
-   on a DUT where row 10 is not graded.
+1. **Power bench exit code** (#94) — landed since the header snapshot:
+   `096d743` (merged as #110) makes `sim/power/run.sh` exit non-zero on a
+   DUT where row 10 is not graded.
 2. **Redraw the PFD reset path to pass C2 at 1 GHz** (no issue; decision 0011
    proposal, options 1 and 2). Done when a new `sim/pfd-fit/results/<stamp>/fit-gate.md`
    shows C1, C2 and C3 passing at tt, ss and ff at both 1 GHz and 500 MHz with
@@ -74,8 +75,6 @@ Can start today. No issue carries the ready label; #94 is curated and items
    `spec/decisions/` fixes which devices, what bandwidth and where the source
    equivalents sit, and a committed bench reproduces a known jitter figure
    within a tolerance stated in advance. No DLL jitter number is produced here.
-5. **Harness clean-ups already in review**: PRs #88 (#85), #103 (#96),
-   #105 (#104) are approved; #106 (#99) has changes requested and a conflict.
 
 ## Next
 
