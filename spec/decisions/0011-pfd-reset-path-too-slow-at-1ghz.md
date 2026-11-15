@@ -165,6 +165,6 @@ of **55.1 ps** — **C1 and C2 remain jointly unsatisfiable at ss at 1 GHz withi
 latch family and the reset-path sizing space**. The impossibility claim now spans both
 measured knobs (chain length *and* reset path), not one. The chain change stands as a real
 improvement — it is what moved the window into existence, and it widened the ff and tt
-margins — but it does not close ss. Per 0006, an operator decision is filed with the ranked
+margins — but it does not close ss. Per 0006, the operator decision is filed as **issue #140** with the ranked
 options (latch-family topology change / ss-specific C2 relaxation / accept the 500 MHz
 fallback); C2 was **not** relaxed here, and `reuse.lock.json`'s `pfd` entry stays `adopting`.
