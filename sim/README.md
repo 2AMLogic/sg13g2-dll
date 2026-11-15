@@ -122,7 +122,7 @@ corner-to-corner spread), so the checks read the per-corner block.
 
 One bench per measured quantity (issue #28, T1 item 9); `sim/bench-rows.json` maps every row of `spec/target-spec.md` to its bench or non-bench artifact. They share `sim/harness/dllbench.py` (request construction through `gridspec.py`, grading), the testbench template `sim/harness/dll_tb.spice.in` and `sim/harness/bench-run.sh`. Each bench has a README with its own cold start; the grids are large (the false-lock grid, which also serves rows 1 and 2, is 2025 units) and go to the batch fleet.
 
-**The default DUT is the behavioural STAND-IN in `sim/standin/`, not the item-1 netlist (#24).** It needs XSPICE code models and no OSDI model. Repointing at the item-1 netlist is a DUT descriptor, not a bench edit. `sim/jitter/` is harness-only until a noise-method decision record exists.
+**The default DUT is the behavioural STAND-IN in `sim/standin/`, not the item-1 netlist (#24).** It needs XSPICE code models and no OSDI model. Repointing at the item-1 netlist is a DUT descriptor, not a bench edit. `sim/jitter/` still has no DLL deck: `spec/decisions/0014-row-6-noise-method.md` (proposed) now fixes the noise method, and `sim/noise-method/` validates it on a known case, but the row 6 deck that implements the method against `dll_top` is not written.
 
 ### Cold start
 

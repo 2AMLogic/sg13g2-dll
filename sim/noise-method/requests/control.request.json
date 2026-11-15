@@ -1,0 +1,46 @@
+{
+  "_comment": [
+    "sg13g2-dll noise-method: control, no noise source declared (0014).",
+    "Settles whether the OSDI models contribute noise by themselves: the recovered output rms must be exactly 0."
+  ],
+  "engine": "ngspice",
+  "netlist": "../decks/nm_control.spice",
+  "models": {
+    "pdk": "ihp-sg13g2",
+    "lib": "libs.tech/ngspice/models/cornerMOSlv.lib"
+  },
+  "corners": {
+    "process": ["mos_tt"],
+    "temperature_c": [27]
+  },
+  "analysis": {
+    "kind": "tran",
+    "args": "1p 90n"
+  },
+  "measurements": [
+    {
+      "name": "vmavg",
+      "spice": ".meas tran vmavg AVG v(m) from=5n to=90n",
+      "unit": "V"
+    },
+    {
+      "name": "vmrms",
+      "spice": ".meas tran vmrms RMS v(m) from=5n to=90n",
+      "unit": "V"
+    },
+    {
+      "name": "voutavg",
+      "spice": ".meas tran voutavg AVG v(out) from=5n to=90n",
+      "unit": "V"
+    }
+  ],
+  "options": {
+    "osdi_preload": [
+      "@OSDI_DIR@/psp103.osdi",
+      "@OSDI_DIR@/psp103_nqs.osdi",
+      "@OSDI_DIR@/r3_cmc.osdi",
+      "@OSDI_DIR@/mosvar.osdi"
+    ],
+    "stage_model_inputs": true
+  }
+}

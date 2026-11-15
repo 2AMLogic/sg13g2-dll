@@ -1,0 +1,36 @@
+{
+  "_comment": [
+    "sg13g2-dll noise-method: switching-threshold sweep of the known case (spec/decisions/0014).",
+    "Single corner (mos_tt/27C); deterministic; re-derived by every run."
+  ],
+  "engine": "ngspice",
+  "netlist": "../decks/nm_vth.spice",
+  "models": {
+    "pdk": "ihp-sg13g2",
+    "lib": "libs.tech/ngspice/models/cornerMOSlv.lib"
+  },
+  "corners": {
+    "process": ["mos_tt"],
+    "temperature_c": [27]
+  },
+  "analysis": {
+    "kind": "dc",
+    "args": "Vin 0 1.2 0.002"
+  },
+  "measurements": [
+    {
+      "name": "vth",
+      "spice": ".meas dc vth when v(out)=0.6",
+      "unit": "V"
+    }
+  ],
+  "options": {
+    "osdi_preload": [
+      "@OSDI_DIR@/psp103.osdi",
+      "@OSDI_DIR@/psp103_nqs.osdi",
+      "@OSDI_DIR@/r3_cmc.osdi",
+      "@OSDI_DIR@/mosvar.osdi"
+    ],
+    "stage_model_inputs": true
+  }
+}

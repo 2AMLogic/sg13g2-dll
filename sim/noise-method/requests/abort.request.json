@@ -1,0 +1,37 @@
+{
+  "_comment": [
+    "sg13g2-dll noise-method: abort probe, PULSE drive + trnoise (0014).",
+    "Expected outcome: klt exits 4 with a timestep_too_small diagnostic at the first input edge.",
+    "If this run ever succeeds, the edge-drive limitation in 0014 is void and the method re-opens."
+  ],
+  "engine": "ngspice",
+  "netlist": "../decks/nm_abort.spice",
+  "models": {
+    "pdk": "ihp-sg13g2",
+    "lib": "libs.tech/ngspice/models/cornerMOSlv.lib"
+  },
+  "corners": {
+    "process": ["mos_tt"],
+    "temperature_c": [27]
+  },
+  "analysis": {
+    "kind": "tran",
+    "args": "1p 10n"
+  },
+  "measurements": [
+    {
+      "name": "t65_2",
+      "spice": ".meas tran t65_2 WHEN v(out)=0.65 FALL=2",
+      "unit": "s"
+    }
+  ],
+  "options": {
+    "osdi_preload": [
+      "@OSDI_DIR@/psp103.osdi",
+      "@OSDI_DIR@/psp103_nqs.osdi",
+      "@OSDI_DIR@/r3_cmc.osdi",
+      "@OSDI_DIR@/mosvar.osdi"
+    ],
+    "stage_model_inputs": true
+  }
+}

@@ -2,6 +2,6 @@
   "block": "sg13g2-dll",
   "kind": "analog",
   "evidence": {
-    "10": {"file": "manifests/evidence/item-10-repo-hygiene.json", "content_hash": "sha256:757478f6218c4af3d2909219e56a5b2daabf629f90aefce72b92132ce628ee25"}
+    "10": {"file": "manifests/evidence/item-10-repo-hygiene.json", "content_hash": "sha256:a2730baf2437f8235da3d7ae3b60752d79cc4a6f276a67c2e7f8bacc45fc0780"}
   }
 }

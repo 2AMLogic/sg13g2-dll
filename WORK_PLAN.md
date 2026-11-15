@@ -20,34 +20,38 @@ _None._
 `loom:important`; taken before unlabelled work.
 
 - **#25**: T1 item 2 (layout): dll_top GDS with a regular delay-line array, built by a committed script
+- **#28**: T1 item 9 (testbenches shipped): one harness bench per spec row, with cold-start docs and --attest 9
 - **#41**: Install the two-key ratification path and ratify spec/target-spec.md
+- **#91**: Make the row 7 and row 12 verdicts grade something: dllbench computes lock time and LOCK consistency, then reports a pass without reading them
+- **#101**: Remove the second schematic authoring path: 3 of 24 design cells are hand-written outside design/tools/cells.py, so the generator cannot instantiate the delay line
+- **#113**: Redraw the PFD reset path so the fit gate's C2 passes at 1 GHz (decision 0011)
+- **#114**: Run delay-tap candidate B at 3x widening over the full grid and compare with the 4x result
+- **#115**: Write the row 6 noise-method decision record and validate it on a known case
 
 ## Ready
 
 Human-approved issues ready for implementation (`loom:issue`).
 
-_None._
+- **#114**: Run delay-tap candidate B at 3x widening over the full grid and compare with the 4x result
+- **#121**: Collapse the two single-unit smoke runners onto one shared smoke_main: 23 of 31 lines are byte-identical
 
 ## In Progress
 
 Issues currently being built (`loom:building`).
 
-- **#85**: Remove the noise-method grep gate in sim/jitter/run.sh: it matches decision 0001 and reports a record that does not exist
-- **#96**: Remove the hv and HBT legs of the PDK pin and device smoke: decision 0007 dropped both families, but every bench preflight still requires their model files
-- **#99**: Remove the hardcoded run-condition literals from the sim record writers: backend, simulator version, corner and unit are printed as constants while the envelope records them
+- **#109**: Consolidate the second reduced-set corner reader: sim/pfd-fit/make_bench.py rebuilds corners.units inline instead of gridspec.load_reduced_set
 
 ## PRs Awaiting Review
 
 PRs waiting on Judge (`loom:review-requested`).
 
-_None._
+- **#122**: refactor(sim): read pfd-fit corners through gridspec, not a second json reader
 
 ## Approved (Awaiting Merge)
 
 PRs that passed review and are queued for Champion auto-merge (`loom:pr`).
 
-- **#88**: fix(jitter): refuse unconditionally instead of reporting a record that does not exist
-- **#103**: refactor(sim): drop the hv and HBT legs from the PDK pin and device smoke
+_None._
 
 ## Proposed
 
@@ -55,8 +59,9 @@ Issues carrying `loom:curated`.
 
 - **#6**: Track the gap to T1 (klayout-tools design-evidence-tiers.md) *(curated)*
 - **#28**: T1 item 9 (testbenches shipped): one harness bench per spec row, with cold-start docs and --attest 9 *(curated)*
-- **#94**: Power bench run.sh would exit 0 (documented as pass) on a DUT where row 10 is NOT GRADED *(curated)*
-- **#96**: Remove the hv and HBT legs of the PDK pin and device smoke: decision 0007 dropped both families, but every bench preflight still requires their model files *(curated)*
+- **#111**: Row benches document exit 6 for "a corner fails its row", but a real failing corner reaches exit 1 first *(curated)*
+- **#114**: Run delay-tap candidate B at 3x widening over the full grid and compare with the 4x result *(curated)*
+- **#118**: CI never runs sim/harness/tests: the 83 harness unit tests are executed only by hand *(curated)*
 
 ## Proposed (Architect / Hermit)
 
@@ -64,6 +69,9 @@ Issues carrying `loom:curated`.
 - **#91**: Make the row 7 and row 12 verdicts grade something: dllbench computes lock time and LOCK consistency, then reports a pass without reading them *(hermit)*
 - **#101**: Remove the second schematic authoring path: 3 of 24 design cells are hand-written outside design/tools/cells.py, so the generator cannot instantiate the delay line *(hermit)*
 - **#107**: Stop committing klt's .spiceinit scratch file: 429 byte-identical copies are 19% of the repo's tracked files *(hermit)*
+- **#116**: Stop vendoring design-evidence-tiers.md: the pinned klayout-tools 0.8.0 wheel already ships the identical 1053 lines *(hermit)*
+- **#117**: Remove dead parameters in the sim harness: k_sigma, lib_section, and mksch CAP have no readers *(hermit)*
+- **#120**: Give each bench its own env-knob namespace: DS_VC and DS_RESULTS_DIR are read by two benches, SS_RESULTS_DIR by two more *(hermit)*
 
 ## Epics
 
@@ -75,12 +83,12 @@ _None._
 |------|-------|
 | Operator merge-risk holds | 0 |
 | Very important | 1 |
-| Important | 2 |
-| Ready (`loom:issue`) | 0 |
-| In Progress (`loom:building`) | 3 |
-| PRs awaiting review | 0 |
-| Approved PRs awaiting merge | 2 |
-| Curated | 4 |
-| Architect / Hermit proposals | 4 |
+| Important | 8 |
+| Ready (`loom:issue`) | 2 |
+| In Progress (`loom:building`) | 1 |
+| PRs awaiting review | 1 |
+| Approved PRs awaiting merge | 0 |
+| Curated | 5 |
+| Architect / Hermit proposals | 7 |
 | Active epics | 0 |
 <!-- guide:plan-body:end -->
