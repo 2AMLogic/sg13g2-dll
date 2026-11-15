@@ -1,15 +1,42 @@
 """Guard: one env-knob namespace per bench (issue #120).
 
-    python3 -I -m pytest sim/harness/tests/test_bench_env_namespaces.py -q
+    python3 -m unittest discover -s sim/harness/tests \
+        -p 'test_bench_env_namespaces.py' -v
 
-Parses every sim/<bench>/run.sh plus the shared helpers
-sim/harness/{bench,smoke}-run.sh for environment-knob reads
-(${NAME:-default}, ${NAME}, $NAME) and asserts that no knob in the collision
-families -- *_RESULTS_DIR, *_CAPACITY_WAIT_S, and the swept-axis knobs *_VC,
-*_B_SCALE, *_MC_* -- is read from more than one bench directory. A shared
-helper counts as one reader: bench-run.sh's BENCH_RESULTS_DIR and
-smoke-run.sh's UNITSMOKE_RESULTS_DIR are invocation-scoped, the ratified
-pattern of sim/harness/bench-run.sh.
+CI runs this suite (.github/workflows/tests.yml: `python3 -I -m unittest
+discover -s sim/harness/tests`); `pytest` is not importable under `-I`, so
+the unittest invocation above is the one to run by hand.
+
+Scans every sim/<bench>/run.sh plus every shell helper under sim/harness/
+(discovered by glob, recursively, tests/ excluded) for environment-knob
+reads -- ${NAME:-default} including a guarded knob nested inside a default,
+${NAME}, and $NAME -- and asserts that no knob in the collision families
+(*_RESULTS_DIR, *_CAPACITY_WAIT_S, and the swept-axis knobs *_VC, *_B_SCALE,
+*_MC_*) is read from more than one bench directory. A shared helper counts
+as one reader: bench-run.sh's BENCH_RESULTS_DIR and smoke-run.sh's
+UNITSMOKE_RESULTS_DIR are invocation-scoped, the ratified pattern of
+sim/harness/bench-run.sh.
+
+Issue #137 hardened the guard itself, in this file only:
+
+- Helpers are globbed instead of named, so a helper added under
+  sim/harness/ that reads a guarded knob is scanned. Removing any helper
+  fails the floor test; renaming bench-run.sh or smoke-run.sh fails the
+  anchor test. Renaming a helper that reads no guarded knob keeps coverage
+  under the glob and is deliberately not a failure.
+- A knob read only inside another knob's ``:-`` default is counted: the
+  braced match stops after the name, so finditer walks into the default's
+  body. Fixture tests pin the single-nesting case the previous regex
+  swallowed (a two-knob fixture passes unfixed -- use one).
+- The positive coverage claim is structural, not a hand-edited knob dict:
+  every guarded knob found must have exactly one reader, and every scanned
+  file whose text $-mentions a guarded knob must have those mentions
+  parsed. The mentions scan is a deliberately cruder superset of KNOB_READ,
+  so a parser that stops matching fails loudly instead of vacuously. A
+  shape KNOB_READ misses but the mentions scan still sees (e.g.
+  ``${KNOB%pattern}``) fails the suite as that mismatch, rather than
+  passing silently; a shape neither sees (e.g. ``$((KNOB))``, ``${!KNOB}``
+  -- no runner or helper uses either today) would need both taught.
 
 Before #120 the DS_ prefix was read by two delay benches: exporting DS_VC to
 drive one silently replaced the other's swept axis (including delay-sizing's
@@ -18,17 +45,25 @@ similarly pointed both single-unit smoke benches at one results directory.
 This test is the guard that keeps those namespaces apart. (The SS_ collision
 stayed invisible for so long because neither smoke runner documented the knob
 in an `# Env:` header line; the shared helper added by #121 now carries one.)
-
-Runs by hand: CI executes only scripts/check-signoff.sh until #118 lands.
 """
 
 import os
 import re
+import tempfile
 import unittest
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 HARNESS = os.path.dirname(HERE)
 SIM = os.path.dirname(HARNESS)
+
+# Removing any scanned helper must fail the suite (issue #137): six exist
+# today. Raise when a helper lands; lower only when one is removed on
+# purpose -- a floor that must be edited to lose coverage is safe.
+HELPER_FLOOR = 6
+# Parser-death backstop, well under the guarded knobs read today (24): a
+# bench removal can legitimately lower the count, so this stays coarse.
+KNOB_FLOOR = 10
+
 
 # Knob families whose sharing breaks recorded evidence: the output directory
 # and the fleet capacity wait redirect or block runs, the swept axes (Vc
@@ -38,64 +73,201 @@ def is_guarded_knob(name):
             or "_MC_" in name)
 
 
-# ${NAME:-default} (default may nest ${...}), ${NAME} and $NAME; uppercase
-# names only, so the runners' shell-local lowercase variables are not parsed.
-KNOB_READ = re.compile(r"\$\{([A-Z][A-Z0-9_]*)(?::-[^}]*)?\}|\$([A-Z][A-Z0-9_]*)")
+# ${NAME... -- the braced match stops after the name, so a `:-` default that
+# nests ${...} or $NAME is still walked -- and $NAME. Uppercase names only,
+# so the runners' shell-local lowercase variables are not parsed.
+KNOB_READ = re.compile(r"\$\{([A-Z][A-Z0-9_]*)(?=[:}])|\$([A-Z][A-Z0-9_]*)")
+
+# Deliberately cruder superset of KNOB_READ for the completeness test: any
+# $-introduced uppercase token, family-filtered afterwards. It sees a knob
+# wherever KNOB_READ sees one (and more), so a file whose mentions the
+# parser misses is a swallowed read, not a scan gap.
+ANY_VAR = re.compile(r"\$\{?([A-Z][A-Z0-9_]*)")
 
 
-def bench_runners():
+def guarded_mentions(text):
+    return {n for n in ANY_VAR.findall(text) if is_guarded_knob(n)}
+
+
+def harness_helpers(harness=HARNESS):
+    """Paths of every shell helper under sim/harness/, tests/ excluded."""
+    found = []
+    for root, dirs, files in os.walk(harness):
+        dirs[:] = [d for d in dirs if d != "tests"]
+        for name in sorted(files):
+            if name.endswith(".sh"):
+                found.append(os.path.join(root, name))
+    return sorted(found)
+
+
+def bench_runners(sim=SIM, harness=HARNESS):
     """(reader id, path) for every bench run.sh and each shared helper."""
-    for entry in sorted(os.listdir(SIM)):
-        path = os.path.join(SIM, entry, "run.sh")
+    for entry in sorted(os.listdir(sim)):
+        path = os.path.join(sim, entry, "run.sh")
         if os.path.isfile(path):
             yield entry, path
-    for helper in ("bench-run.sh", "smoke-run.sh"):
-        yield "harness:" + helper[:-3], os.path.join(HARNESS, helper)
+    for path in harness_helpers(harness):
+        yield "harness:" + os.path.splitext(os.path.basename(path))[0], path
+
+
+def knob_readers(sim=SIM, harness=HARNESS):
+    """Guarded knob -> set of reader ids, across the given roots."""
+    readers = {}
+    for reader, path in bench_runners(sim, harness):
+        with open(path) as fh:
+            text = fh.read()
+        for m in KNOB_READ.finditer(text):
+            name = m.group(1) or m.group(2)
+            if is_guarded_knob(name):
+                readers.setdefault(name, set()).add(reader)
+    return readers
+
+
+def collisions(readers):
+    return {k: sorted(v) for k, v in readers.items() if len(v) > 1}
+
+
+# bench-run.sh and smoke-run.sh own the invocation-scoped namespaces of the
+# ratified bench-run pattern (#121/#135); anchoring them pins the harness
+# mechanism, so renaming either fails loudly. Benches themselves are covered
+# structurally, never listed.
+ANCHORED_NAMESPACES = {
+    "BENCH_RESULTS_DIR": "harness:bench-run",
+    "BENCH_CAPACITY_WAIT_S": "harness:bench-run",
+    "UNITSMOKE_RESULTS_DIR": "harness:smoke-run",
+}
+
+
+def anchored_namespace_violations(readers):
+    violations = {}
+    for knob, want in ANCHORED_NAMESPACES.items():
+        got = readers.get(knob, set())
+        if got != {want}:
+            violations[knob] = sorted(got)
+    return violations
 
 
 class OneNamespacePerBench(unittest.TestCase):
-    def knob_readers(self):
-        readers = {}
-        nfiles = 0
-        for reader, path in bench_runners():
-            with open(path) as fh:
-                text = fh.read()
-            nfiles += 1
-            for m in KNOB_READ.finditer(text):
-                name = m.group(1) or m.group(2)
-                if is_guarded_knob(name):
-                    readers.setdefault(name, set()).add(reader)
-        self.assertGreater(nfiles, 0, "no bench runner found under sim/")
-        return readers
+    """The live sim/ tree: no collision, coverage that cannot shrink silently."""
 
     def test_no_knob_is_read_from_two_benches(self):
-        shared = {k: sorted(v) for k, v in self.knob_readers().items() if len(v) > 1}
+        shared = collisions(knob_readers())
         self.assertEqual(
             shared, {},
             "env knobs read from more than one bench directory: one namespace "
             "per bench (issue #120); a shared helper counts as one reader")
 
     def test_known_namespaces_are_seen_exactly_once(self):
-        found = self.knob_readers()
-        expected = {
-            "DSAN_RESULTS_DIR": "delay-sanity",
-            "DSAN_VC": "delay-sanity",
-            "DSAN_CAPACITY_WAIT_S": "delay-sanity",
-            "DSIZ_RESULTS_DIR": "delay-sizing",
-            "DSIZ_VC": "delay-sizing",
-            "DSIZ_CAPACITY_WAIT_S": "delay-sizing",
-            "DSIZ_B_SCALE": "delay-sizing",
-            "DSIZ_MC_VC": "delay-sizing",
-            "DSIZ_MC_N": "delay-sizing",
-            "DSIZ_MC_SEED": "delay-sizing",
-            "UNITSMOKE_RESULTS_DIR": "harness:smoke-run",
-            "BENCH_RESULTS_DIR": "harness:bench-run",
-            "BENCH_CAPACITY_WAIT_S": "harness:bench-run",
-        }
-        for knob, reader in sorted(expected.items()):
-            self.assertEqual(found.get(knob), {reader},
-                             f"{knob} must be read only by {reader}, got "
-                             f"{sorted(found.get(knob, []))}")
+        found = knob_readers()
+        self.assertTrue(found, "parser matched no guarded knob at all")
+        self.assertGreaterEqual(
+            len(found), KNOB_FLOOR,
+            f"only {len(found)} guarded knobs matched: the parser has likely "
+            f"stopped matching (issue #137)")
+        for knob, readers in sorted(found.items()):
+            self.assertEqual(len(readers), 1, f"{knob} read by {sorted(readers)}")
+
+    def test_invocation_scoped_helper_namespaces_are_anchored(self):
+        violations = anchored_namespace_violations(knob_readers())
+        self.assertEqual(
+            violations, {},
+            "anchored helper namespaces moved: a scanned helper was renamed "
+            "(issue #137)")
+
+    def test_helper_discovery_meets_the_floor(self):
+        helpers = harness_helpers()
+        self.assertGreaterEqual(
+            len(helpers), HELPER_FLOOR,
+            f"only {len(helpers)} shell helpers under {HARNESS}: a scanned "
+            f"helper was removed and coverage shrank silently (issue #137)")
+
+    def test_every_file_mentioning_a_guarded_knob_is_parsed(self):
+        found = knob_readers()
+        for reader, path in bench_runners():
+            with open(path) as fh:
+                text = fh.read()
+            mentioned = guarded_mentions(text)
+            if not mentioned:
+                continue
+            parsed = {k for k, rs in found.items() if reader in rs} & mentioned
+            self.assertEqual(
+                mentioned, parsed,
+                f"{reader}: guarded knobs mentioned {sorted(mentioned)} but "
+                f"parsed as {sorted(parsed)}: a read inside a default or a "
+                f"token the regex no longer fits is being swallowed "
+                f"(issue #137)")
+
+
+class FixtureGuardTests(unittest.TestCase):
+    """Negative cases on throwaway trees, so they keep biting as benches land."""
+
+    def setUp(self):
+        tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(tmp.cleanup)
+        self.sim = os.path.join(tmp.name, "sim")
+        self.harness = os.path.join(self.sim, "harness")
+        self.bench = os.path.join(self.sim, "bench-a")
+        os.makedirs(self.bench)
+        os.makedirs(self.harness)
+
+    def write(self, rel, text):
+        path = os.path.join(self.sim, rel)
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        with open(path, "w") as fh:
+            fh.write(text)
+        return path
+
+    def found(self):
+        return knob_readers(self.sim, self.harness)
+
+    def test_guarded_knob_nested_singly_in_a_default_is_seen(self):
+        self.write("bench-a/run.sh", 'out="${OUT:-${DSIZ_VC}}"\n')
+        self.assertEqual(self.found(), {"DSIZ_VC": {"bench-a"}})
+
+    def test_bare_name_nested_in_a_default_is_seen(self):
+        self.write("bench-a/run.sh", 'out="${OUT:-$DSIZ_VC}"\n')
+        self.assertEqual(self.found(), {"DSIZ_VC": {"bench-a"}})
+
+    def test_double_nesting_is_seen(self):
+        self.write("bench-a/run.sh", 'out="${OUT:-${A:-${DSIZ_VC}}}"\n')
+        self.assertEqual(self.found(), {"DSIZ_VC": {"bench-a"}})
+
+    def test_nested_and_plain_reads_of_one_knob_are_one_reader(self):
+        self.write("bench-a/run.sh",
+                   'out="${OUT:-${DSIZ_VC}}"\ncd "$DSIZ_VC"\n')
+        self.assertEqual(self.found(), {"DSIZ_VC": {"bench-a"}})
+
+    def test_two_knobs_in_one_default_are_both_seen(self):
+        self.write("bench-a/run.sh", 'out="${OUT:-${DSIZ_VC}/${DSAN_VC}}"\n')
+        self.assertEqual(self.found(),
+                         {"DSIZ_VC": {"bench-a"}, "DSAN_VC": {"bench-a"}})
+
+    def test_lowercase_names_in_a_default_stay_unmatched(self):
+        self.write("bench-a/run.sh", 'out="${out:-$dsiz_vc}"\n')
+        self.assertEqual(self.found(), {})
+
+    def test_helper_reading_a_benchs_knob_is_a_collision(self):
+        self.write("bench-a/run.sh", 'mkdir -p "${FOO_RESULTS_DIR:-/tmp/fx}"\n')
+        self.write("harness/new-helper.sh", 'cd "$FOO_RESULTS_DIR"\n')
+        self.assertEqual(
+            collisions(self.found()),
+            {"FOO_RESULTS_DIR": ["bench-a", "harness:new-helper"]})
+
+    def test_helper_with_no_guarded_knob_is_not_a_reader(self):
+        self.write("bench-a/run.sh", 'mkdir -p "${FOO_RESULTS_DIR:-/tmp/fx}"\n')
+        self.write("harness/quiet.sh", 'cd "$SIM_DIR"\n')
+        self.assertEqual(self.found(), {"FOO_RESULTS_DIR": {"bench-a"}})
+
+    def test_renaming_an_anchored_helper_away_fails_the_anchor(self):
+        self.write("bench-a/run.sh", 'echo hi\n')
+        helper = self.write("harness/bench-run.sh",
+                            'mkdir -p "$BENCH_RESULTS_DIR"\n')
+        self.assertIsNone(
+            anchored_namespace_violations(self.found()).get("BENCH_RESULTS_DIR"))
+        os.rename(helper, os.path.join(self.harness, "moved.sh"))
+        self.assertEqual(
+            anchored_namespace_violations(self.found()).get("BENCH_RESULTS_DIR"),
+            ["harness:moved"])
 
 
 if __name__ == "__main__":
