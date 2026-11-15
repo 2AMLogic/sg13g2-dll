@@ -31,7 +31,7 @@
         "role": "hygiene",
         "path": "README.md",
         "passed": true,
-        "content_hash": "sha256:d9a4ace9b09d02cb925b84241854dfb8ee0da2871c772cb47c2e9e480197379d"
+        "content_hash": "sha256:9ea9716e7d880fd1eb5877e175f1d8b6538e1400f14561bb6af6c8ead3638c8e"
       },
       {
         "check": "present",
@@ -89,7 +89,7 @@
         "argv": [
           "grep",
           "-q",
-          "issue #2",
+          "issue #41",
           "README.md"
         ],
         "cwd": ".",
@@ -234,7 +234,7 @@
         "path": "manifests/item-10-inventory.json",
         "scope": "repo"
       },
-      "content_hash": "sha256:757478f6218c4af3d2909219e56a5b2daabf629f90aefce72b92132ce628ee25"
+      "content_hash": "sha256:a2730baf2437f8235da3d7ae3b60752d79cc4a6f276a67c2e7f8bacc45fc0780"
     }
   }
 }
