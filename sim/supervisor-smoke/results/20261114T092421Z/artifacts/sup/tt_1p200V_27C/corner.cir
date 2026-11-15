@@ -1,0 +1,22 @@
+* klt sim -- generated corner deck, do not edit
+.lib /home/ubuntu/share/pdk/ihp-sg13g2/libs.tech/ngspice/models/cornerMOSlv.lib mos_tt
+.lib /home/ubuntu/share/pdk/ihp-sg13g2/libs.tech/ngspice/models/cornerRES.lib res_typ
+.include /home/ubuntu/GitHub/sg13g2-dll/.loom/worktrees/issue-121/sim/supervisor-smoke/results/20261114T092421Z/requests/../decks/sup_1GHz.spice
+.temp 27
+.meas tran t_release0 when v(rst)=0.6 fall=1
+.meas tran t_over when v(rst)=0.6 rise=1 td=20n
+.meas tran t_release_over when v(rst)=0.6 fall=1 td=40n
+.meas tran t_timeout when v(rst)=0.6 rise=1 td=55n
+.meas tran d_mask0 trig v(rst) val=0.6 fall=1 targ v(refm) val=0.6 rise=1
+.meas tran d_mask_timeout trig v(rst) val=0.6 fall=3 targ v(refm) val=0.6 rise=1 td=78.6n
+.control
+pre_osdi /home/ubuntu/share/pdk/ihp-sg13g2/libs.tech/ngspice/osdi/psp103.osdi
+pre_osdi /home/ubuntu/share/pdk/ihp-sg13g2/libs.tech/ngspice/osdi/psp103_nqs.osdi
+pre_osdi /home/ubuntu/share/pdk/ihp-sg13g2/libs.tech/ngspice/osdi/r3_cmc.osdi
+pre_osdi /home/ubuntu/share/pdk/ihp-sg13g2/libs.tech/ngspice/osdi/mosvar.osdi
+save all
+alter Vdd=1.2
+tran 10p 100n
+quit
+.endc
+.end
