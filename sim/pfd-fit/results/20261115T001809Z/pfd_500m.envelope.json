@@ -1,0 +1,1448 @@
+{
+  "schema_version": 3,
+  "netlist": {
+    "path": "sim/pfd-fit/results/20261115T001809Z/decks/pfd_500m.spice",
+    "scope": "repo"
+  },
+  "status": "pass",
+  "corner_count": 3,
+  "passed": 3,
+  "failed": 0,
+  "errored": 0,
+  "inconclusive": 0,
+  "diagnostic_counts": {
+    "by_code": {},
+    "by_severity": {},
+    "corners_with_diagnostics": 0
+  },
+  "metrics": {
+    "sim__corner__count": 3,
+    "sim__corner__passed_count": 3,
+    "sim__corner__failed_count": 0,
+    "sim__corner__errored_count": 0,
+    "sim__corner__inconclusive_count": 0
+  },
+  "environment": {
+    "engine": "ngspice",
+    "engine_version": "47",
+    "ngspice_binary": "/usr/local/bin/ngspice",
+    "engine_build": {
+      "version_banner": "******\n** ngspice-47 : Circuit level simulation program\n** Compiled with KLU Direct Linear Solver\n** The U. C. Berkeley CAD Group\n** Copyright 1985-1994, Regents of the University of California.\n** Copyright 2001-2026, The ngspice team.\n** Please get your ngspice manual from https://ngspice.sourceforge.io/docs.html\n** Please file your bug-reports at http://ngspice.sourceforge.net/bugrep.html\n** Creation Date: Fri Nov 13 23:19:32 UTC 2026\n******",
+      "binary_sha256": "39ca1adb826660324c3626f72bd946ec40704f0f3fc8e243c623f76e24b3eee2",
+      "probe": "ok",
+      "reason": null
+    },
+    "models_lib": {
+      "path": null,
+      "scope": "external"
+    },
+    "models_lib_sha256": "03d505847c880d233b341be115a1e5460edf4d8e9b3e8a7df791a52fa4455d67",
+    "models_lib_sha256_scope": "client",
+    "netlist_sha256": "749f3d98f3ac913b8e479be724df284e06f7296aa4bb8742b26babebc9d09743",
+    "netlist_closure": [
+      {
+        "path": "sim/pfd-fit/results/20261115T001809Z/decks/pfd_500m.spice",
+        "scope": "repo",
+        "sha256": "749f3d98f3ac913b8e479be724df284e06f7296aa4bb8742b26babebc9d09743"
+      },
+      {
+        "path": "sim/pfd-fit/results/20261115T001809Z/decks/pfd.spice",
+        "scope": "repo",
+        "sha256": "1acbf19e2f4e2632a263b8f26d56b07bb402c0d4737c4319cfa6145e0135a746"
+      }
+    ],
+    "netlist_identity": "sha256:33e2b33fd8b0a38b92e4ef28331693b2a43a86e17296054b16a0d304ecf6efa5",
+    "netlist_source": "schematic",
+    "osdi_preload": [
+      {
+        "name": "psp103.osdi",
+        "path": null,
+        "scope": "external",
+        "sha256": "2e4299c4683997e26469410dc1ab36b02ced924b1ac0972d6c4eae360e1fc796"
+      },
+      {
+        "name": "psp103_nqs.osdi",
+        "path": null,
+        "scope": "external",
+        "sha256": "839b164483205601c09032951f6c41d3580f15e506dc40a7202950d3afbdfc7d"
+      },
+      {
+        "name": "r3_cmc.osdi",
+        "path": null,
+        "scope": "external",
+        "sha256": "4fead17bc2e9cbfe3df6f106e9dbd6f2cdcd48c002af9c56c2ca0b0712fce350"
+      },
+      {
+        "name": "mosvar.osdi",
+        "path": null,
+        "scope": "external",
+        "sha256": "25e64a374ab523dbfeb7ffed75dcb8b086ee10f06120a9074bd68b92d7b0fb41"
+      }
+    ],
+    "staged_model_inputs": [
+      {
+        "name": "cornerMOSlv.lib",
+        "field": "models.lib",
+        "kind": "library",
+        "sha256": "07f15f24b990ab9eff8e1000457ad180a5199b48fc17217ac3572bdcdfbf5f72",
+        "rewritten": true,
+        "source_sha256": "03d505847c880d233b341be115a1e5460edf4d8e9b3e8a7df791a52fa4455d67",
+        "transform": "include-path-rewrite"
+      },
+      {
+        "name": "psp103.osdi",
+        "field": "options.osdi_preload[0]",
+        "kind": "osdi",
+        "sha256": "2e4299c4683997e26469410dc1ab36b02ced924b1ac0972d6c4eae360e1fc796",
+        "rewritten": false,
+        "source_sha256": "2e4299c4683997e26469410dc1ab36b02ced924b1ac0972d6c4eae360e1fc796"
+      },
+      {
+        "name": "psp103_nqs.osdi",
+        "field": "options.osdi_preload[1]",
+        "kind": "osdi",
+        "sha256": "839b164483205601c09032951f6c41d3580f15e506dc40a7202950d3afbdfc7d",
+        "rewritten": false,
+        "source_sha256": "839b164483205601c09032951f6c41d3580f15e506dc40a7202950d3afbdfc7d"
+      },
+      {
+        "name": "r3_cmc.osdi",
+        "field": "options.osdi_preload[2]",
+        "kind": "osdi",
+        "sha256": "4fead17bc2e9cbfe3df6f106e9dbd6f2cdcd48c002af9c56c2ca0b0712fce350",
+        "rewritten": false,
+        "source_sha256": "4fead17bc2e9cbfe3df6f106e9dbd6f2cdcd48c002af9c56c2ca0b0712fce350"
+      },
+      {
+        "name": "mosvar.osdi",
+        "field": "options.osdi_preload[3]",
+        "kind": "osdi",
+        "sha256": "25e64a374ab523dbfeb7ffed75dcb8b086ee10f06120a9074bd68b92d7b0fb41",
+        "rewritten": false,
+        "source_sha256": "25e64a374ab523dbfeb7ffed75dcb8b086ee10f06120a9074bd68b92d7b0fb41"
+      },
+      {
+        "name": "sg13g2_moslv_mod.lib",
+        "field": "models.lib",
+        "kind": "dependency",
+        "sha256": "0aa1a5630a7c8fb8ae896c57c475954ff5885c4831311f8cd9c9e64d6cbb8332",
+        "rewritten": true,
+        "source_sha256": "124c48af28aee8f4788170b50dbb4d798e7d830c6bb37516f749e16f676fa9db",
+        "transform": "include-path-rewrite"
+      },
+      {
+        "name": "sg13g2_moslv_mismatch.lib",
+        "field": "models.lib",
+        "kind": "dependency",
+        "sha256": "2d3251e2d42eadb0f8af152a4915fdc60a68bceb95a2d17a52f90cfb34b7e63e",
+        "rewritten": false,
+        "source_sha256": "2d3251e2d42eadb0f8af152a4915fdc60a68bceb95a2d17a52f90cfb34b7e63e"
+      },
+      {
+        "name": "sg13g2_moslv_mod_mismatch.lib",
+        "field": "models.lib",
+        "kind": "dependency",
+        "sha256": "28f681005831113ad5377f1b867d8869b78f329a7f52aa821ff56aa1e648b68b",
+        "rewritten": true,
+        "source_sha256": "67672ffa1f224294a90270f687d11b804a24dbf268071c5cd98923ab1b3e2f84",
+        "transform": "include-path-rewrite"
+      },
+      {
+        "name": "sg13g2_moslv_stat.lib",
+        "field": "models.lib",
+        "kind": "dependency",
+        "sha256": "7f4cf8df714e327348ba3975a2630e9d7dd7ae1a7a88817df4890e82745f0f52",
+        "rewritten": false,
+        "source_sha256": "7f4cf8df714e327348ba3975a2630e9d7dd7ae1a7a88817df4890e82745f0f52"
+      },
+      {
+        "name": "sg13g2_moslv_parm.lib",
+        "field": "models.lib",
+        "kind": "dependency",
+        "sha256": "cbf10b8453a18bb70b8ad0d6e40faa0937338e699b5460947a94900db6c92a6e",
+        "rewritten": false,
+        "source_sha256": "cbf10b8453a18bb70b8ad0d6e40faa0937338e699b5460947a94900db6c92a6e"
+      }
+    ],
+    "remote": {
+      "provider": "aws-batch-fleet",
+      "job_id": "klt-sim-1934c6f376e3",
+      "region": "us-east-1",
+      "instance_id": "i-01c9b994549f3b894",
+      "instance_type": "m7i.4xlarge",
+      "availability_zone": "us-east-1b",
+      "ami_id": "ami-09c14f55df4958cbd",
+      "lifecycle": "spot",
+      "spot": true,
+      "state": "done",
+      "exit_code": "0",
+      "concurrency": "1",
+      "physical_cores": "8",
+      "elapsed_seconds": 15,
+      "client_submitted_at": "2026-11-15T00:19:23.096052Z",
+      "client_launched_at": "2026-11-15T00:19:58.067692Z",
+      "client_status_terminal_at": "2026-11-15T00:20:30.070091Z",
+      "client_collected_at": "2026-11-15T00:20:31.527958Z",
+      "runner_klt_version": "0.9.0",
+      "client_klt_version": "0.9.2.dev1029+g76f47afa48f1",
+      "runner_compatibility": "match",
+      "runner_request_features": {
+        "required": [
+          "corners.units",
+          "options.osdi_preload",
+          "options.stage_model_inputs"
+        ],
+        "missing": [],
+        "status": "supported"
+      },
+      "worker_environment": {
+        "capture": "ok",
+        "simulator": {
+          "requested_binary": "ngspice",
+          "binary_source": "PATH",
+          "selected_path": "/usr/local/bin/ngspice",
+          "version_banner": "******\n** ngspice-47 : Circuit level simulation program\n** Compiled with KLU Direct Linear Solver\n** The U. C. Berkeley CAD Group\n** Copyright 1985-1994, Regents of the University of California.\n** Copyright 2001-2026, The ngspice team.\n** Please get your ngspice manual from https://ngspice.sourceforge.io/docs.html\n** Please file your bug-reports at http://ngspice.sourceforge.net/bugrep.html\n** Creation Date: Fri Nov 13 23:19:32 UTC 2026\n******\n",
+          "version_probe": "ok"
+        },
+        "pdk": {
+          "variant": "ihp-sg13g2",
+          "root": "/opt/pdk",
+          "stamp_scheme": null,
+          "stamp_sha256": null,
+          "stamp_text": null,
+          "models_staged": true,
+          "stamp_scope": "image"
+        },
+        "cpu_model": "Intel(R) Xeon(R) Platinum 8488C",
+        "omp_num_threads": null,
+        "image_manifest": null,
+        "model_inputs": [
+          {
+            "name": "cornerMOSlv.lib",
+            "sha256": "07f15f24b990ab9eff8e1000457ad180a5199b48fc17217ac3572bdcdfbf5f72"
+          },
+          {
+            "name": "psp103.osdi",
+            "sha256": "2e4299c4683997e26469410dc1ab36b02ced924b1ac0972d6c4eae360e1fc796"
+          },
+          {
+            "name": "psp103_nqs.osdi",
+            "sha256": "839b164483205601c09032951f6c41d3580f15e506dc40a7202950d3afbdfc7d"
+          },
+          {
+            "name": "r3_cmc.osdi",
+            "sha256": "4fead17bc2e9cbfe3df6f106e9dbd6f2cdcd48c002af9c56c2ca0b0712fce350"
+          },
+          {
+            "name": "mosvar.osdi",
+            "sha256": "25e64a374ab523dbfeb7ffed75dcb8b086ee10f06120a9074bd68b92d7b0fb41"
+          },
+          {
+            "name": "sg13g2_moslv_mod.lib",
+            "sha256": "0aa1a5630a7c8fb8ae896c57c475954ff5885c4831311f8cd9c9e64d6cbb8332"
+          },
+          {
+            "name": "sg13g2_moslv_mismatch.lib",
+            "sha256": "2d3251e2d42eadb0f8af152a4915fdc60a68bceb95a2d17a52f90cfb34b7e63e"
+          },
+          {
+            "name": "sg13g2_moslv_mod_mismatch.lib",
+            "sha256": "28f681005831113ad5377f1b867d8869b78f329a7f52aa821ff56aa1e648b68b"
+          },
+          {
+            "name": "sg13g2_moslv_stat.lib",
+            "sha256": "7f4cf8df714e327348ba3975a2630e9d7dd7ae1a7a88817df4890e82745f0f52"
+          },
+          {
+            "name": "sg13g2_moslv_parm.lib",
+            "sha256": "cbf10b8453a18bb70b8ad0d6e40faa0937338e699b5460947a94900db6c92a6e"
+          }
+        ],
+        "diagnostics": [
+          "pdk stamp unreadable: FileNotFoundError"
+        ],
+        "pdk_stamp_comparison": {
+          "basis": "staged_model_inputs",
+          "status": "match"
+        },
+        "engine_build_comparison": {
+          "status": "match"
+        }
+      },
+      "runner_model_inputs": [
+        {
+          "name": "cornerMOSlv.lib",
+          "sha256": "07f15f24b990ab9eff8e1000457ad180a5199b48fc17217ac3572bdcdfbf5f72"
+        },
+        {
+          "name": "psp103.osdi",
+          "sha256": "2e4299c4683997e26469410dc1ab36b02ced924b1ac0972d6c4eae360e1fc796"
+        },
+        {
+          "name": "psp103_nqs.osdi",
+          "sha256": "839b164483205601c09032951f6c41d3580f15e506dc40a7202950d3afbdfc7d"
+        },
+        {
+          "name": "r3_cmc.osdi",
+          "sha256": "4fead17bc2e9cbfe3df6f106e9dbd6f2cdcd48c002af9c56c2ca0b0712fce350"
+        },
+        {
+          "name": "mosvar.osdi",
+          "sha256": "25e64a374ab523dbfeb7ffed75dcb8b086ee10f06120a9074bd68b92d7b0fb41"
+        },
+        {
+          "name": "sg13g2_moslv_mod.lib",
+          "sha256": "0aa1a5630a7c8fb8ae896c57c475954ff5885c4831311f8cd9c9e64d6cbb8332"
+        },
+        {
+          "name": "sg13g2_moslv_mismatch.lib",
+          "sha256": "2d3251e2d42eadb0f8af152a4915fdc60a68bceb95a2d17a52f90cfb34b7e63e"
+        },
+        {
+          "name": "sg13g2_moslv_mod_mismatch.lib",
+          "sha256": "28f681005831113ad5377f1b867d8869b78f329a7f52aa821ff56aa1e648b68b"
+        },
+        {
+          "name": "sg13g2_moslv_stat.lib",
+          "sha256": "7f4cf8df714e327348ba3975a2630e9d7dd7ae1a7a88817df4890e82745f0f52"
+        },
+        {
+          "name": "sg13g2_moslv_parm.lib",
+          "sha256": "cbf10b8453a18bb70b8ad0d6e40faa0937338e699b5460947a94900db6c92a6e"
+        }
+      ],
+      "runner_models_lib_sha256": "07f15f24b990ab9eff8e1000457ad180a5199b48fc17217ac3572bdcdfbf5f72",
+      "job_ceiling": {
+        "basis": "conservative_serial_bound",
+        "unit_count": 3,
+        "per_unit_timeout_s": 120,
+        "overhead_s": 120.0,
+        "job_bound_s": 480.0,
+        "max_job_seconds": 3600.0,
+        "max_job_seconds_source": "fleet_config",
+        "exceeds_ceiling": false,
+        "check": "warn",
+        "max_units_per_job": 29,
+        "recommended_hosts": 1
+      },
+      "models_lib_comparison": {
+        "status": "not_comparable",
+        "reason": "models_staged"
+      }
+    },
+    "engine_host": "worker",
+    "client_ngspice_binary": "/home/ubuntu/.local/bin/ngspice",
+    "backend": {
+      "resolved": "batch",
+      "source": "env",
+      "requested": "batch"
+    },
+    "timeout_preflight_warning": "options.timeout_s (120s) looks implausible for a tran analysis with ~9e+03 timepoints (5p step, 45.000n window) -- even 50 timepoints/s (a generous floor, not a real engine-rate estimate) would need 180s per corner. This is only a coarse, advisory pre-grid heuristic -- it does not block the sweep, and a plausible-looking budget can still turn out to be too short in practice."
+  },
+  "coverage": {
+    "corners_simulated": 3,
+    "measurements_declared": 4,
+    "measurements_with_limits": 0,
+    "unrecognized_limit_keys": [],
+    "schema_version": 1,
+    "known": true,
+    "checked": [
+      "measurement:[0,\"mos_tt/1.200V/27C\",\"t_dn\"]/observation",
+      "measurement:[0,\"mos_tt/1.200V/27C\",\"t_fb\"]/observation",
+      "measurement:[0,\"mos_tt/1.200V/27C\",\"t_ref\"]/observation",
+      "measurement:[0,\"mos_tt/1.200V/27C\",\"t_up\"]/observation",
+      "measurement:[1,\"mos_ss/1.080V/125C\",\"t_dn\"]/observation",
+      "measurement:[1,\"mos_ss/1.080V/125C\",\"t_fb\"]/observation",
+      "measurement:[1,\"mos_ss/1.080V/125C\",\"t_ref\"]/observation",
+      "measurement:[1,\"mos_ss/1.080V/125C\",\"t_up\"]/observation",
+      "measurement:[2,\"mos_ff/1.320V/-40C\",\"t_dn\"]/observation",
+      "measurement:[2,\"mos_ff/1.320V/-40C\",\"t_fb\"]/observation",
+      "measurement:[2,\"mos_ff/1.320V/-40C\",\"t_ref\"]/observation",
+      "measurement:[2,\"mos_ff/1.320V/-40C\",\"t_up\"]/observation"
+    ],
+    "skipped": [],
+    "inapplicable": [
+      {
+        "id": "measurement:[0,\"mos_tt/1.200V/27C\",\"t_dn\"]/limits",
+        "reason": "characterization_without_limits"
+      },
+      {
+        "id": "measurement:[0,\"mos_tt/1.200V/27C\",\"t_fb\"]/limits",
+        "reason": "characterization_without_limits"
+      },
+      {
+        "id": "measurement:[0,\"mos_tt/1.200V/27C\",\"t_ref\"]/limits",
+        "reason": "characterization_without_limits"
+      },
+      {
+        "id": "measurement:[0,\"mos_tt/1.200V/27C\",\"t_up\"]/limits",
+        "reason": "characterization_without_limits"
+      },
+      {
+        "id": "measurement:[1,\"mos_ss/1.080V/125C\",\"t_dn\"]/limits",
+        "reason": "characterization_without_limits"
+      },
+      {
+        "id": "measurement:[1,\"mos_ss/1.080V/125C\",\"t_fb\"]/limits",
+        "reason": "characterization_without_limits"
+      },
+      {
+        "id": "measurement:[1,\"mos_ss/1.080V/125C\",\"t_ref\"]/limits",
+        "reason": "characterization_without_limits"
+      },
+      {
+        "id": "measurement:[1,\"mos_ss/1.080V/125C\",\"t_up\"]/limits",
+        "reason": "characterization_without_limits"
+      },
+      {
+        "id": "measurement:[2,\"mos_ff/1.320V/-40C\",\"t_dn\"]/limits",
+        "reason": "characterization_without_limits"
+      },
+      {
+        "id": "measurement:[2,\"mos_ff/1.320V/-40C\",\"t_fb\"]/limits",
+        "reason": "characterization_without_limits"
+      },
+      {
+        "id": "measurement:[2,\"mos_ff/1.320V/-40C\",\"t_ref\"]/limits",
+        "reason": "characterization_without_limits"
+      },
+      {
+        "id": "measurement:[2,\"mos_ff/1.320V/-40C\",\"t_up\"]/limits",
+        "reason": "characterization_without_limits"
+      }
+    ],
+    "unknown": [],
+    "nothing_checked": false,
+    "nothing_checked_reasons": []
+  },
+  "provenance": {
+    "klt_version": "0.9.2.dev1029+g76f47afa48f1",
+    "klt_git_commit": "76f47afa48f144640d67a7337e5c01b95bc88c7b",
+    "klt_reinstall_spec": "klayout-tools @ git+https://github.com/2AMLogic/klayout-tools@76f47afa48f144640d67a7337e5c01b95bc88c7b",
+    "klayout_version": "0.30.13",
+    "pdk": {
+      "name": "ihp-sg13g2",
+      "source": "PDK_ROOT environment variable",
+      "version": "fetched:0.3.0"
+    },
+    "deck": {
+      "name": "cornerMOSlv.lib",
+      "content_hash": "sha256:03d505847c880d233b341be115a1e5460edf4d8e9b3e8a7df791a52fa4455d67",
+      "released": false
+    },
+    "input": {
+      "content_hash": "sha256:749f3d98f3ac913b8e479be724df284e06f7296aa4bb8742b26babebc9d09743",
+      "role": "netlist"
+    }
+  },
+  "measurements": [
+    {
+      "name": "t_ref",
+      "unit": null,
+      "limits": null,
+      "status": "pass",
+      "worst_case": {
+        "corner_id": "mos_tt/1.200V/27C",
+        "value": 19,
+        "margin": null
+      },
+      "min": {
+        "corner_id": "mos_tt/1.200V/27C",
+        "value": 19
+      },
+      "max": {
+        "corner_id": "mos_tt/1.200V/27C",
+        "value": 19
+      }
+    },
+    {
+      "name": "t_fb",
+      "unit": null,
+      "limits": null,
+      "status": "pass",
+      "worst_case": {
+        "corner_id": "mos_tt/1.200V/27C",
+        "value": 19,
+        "margin": null
+      },
+      "min": {
+        "corner_id": "mos_tt/1.200V/27C",
+        "value": 19
+      },
+      "max": {
+        "corner_id": "mos_tt/1.200V/27C",
+        "value": 19
+      }
+    },
+    {
+      "name": "t_up",
+      "unit": null,
+      "limits": null,
+      "status": "pass",
+      "worst_case": {
+        "corner_id": "mos_tt/1.200V/27C",
+        "value": 38,
+        "margin": null
+      },
+      "min": {
+        "corner_id": "mos_tt/1.200V/27C",
+        "value": 38
+      },
+      "max": {
+        "corner_id": "mos_tt/1.200V/27C",
+        "value": 38
+      }
+    },
+    {
+      "name": "t_dn",
+      "unit": null,
+      "limits": null,
+      "status": "pass",
+      "worst_case": {
+        "corner_id": "mos_tt/1.200V/27C",
+        "value": 38,
+        "margin": null
+      },
+      "min": {
+        "corner_id": "mos_tt/1.200V/27C",
+        "value": 38
+      },
+      "max": {
+        "corner_id": "mos_tt/1.200V/27C",
+        "value": 38
+      }
+    }
+  ],
+  "corners": [
+    {
+      "corner_id": "mos_tt/1.200V/27C",
+      "process": "mos_tt",
+      "supply_v": {
+        "Vdd": 1.2
+      },
+      "temperature_c": 27,
+      "status": "pass",
+      "runtime_s": 4.562,
+      "engine_exit_code": 0,
+      "engine_killed_by_signal": null,
+      "measurements": [
+        {
+          "name": "t_ref",
+          "value": 19,
+          "unit": null,
+          "status": "pass",
+          "margin": null,
+          "crossings": {
+            "times": [
+              5e-09,
+              7e-09,
+              9.000000000000001e-09,
+              1.1000000000000003e-08,
+              1.2999999999999997e-08,
+              1.5e-08,
+              1.6999999999999997e-08,
+              1.9e-08,
+              2.0999999999999996e-08,
+              2.2999999999999998e-08,
+              2.5000000000000002e-08,
+              2.7000000000000004e-08,
+              2.9e-08,
+              3.1e-08,
+              3.299999999999999e-08,
+              3.5e-08,
+              3.7e-08,
+              3.9e-08,
+              4.1e-08
+            ],
+            "edges": [
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise"
+            ],
+            "truncated": false,
+            "level": 0.6
+          }
+        },
+        {
+          "name": "t_fb",
+          "value": 19,
+          "unit": null,
+          "status": "pass",
+          "margin": null,
+          "crossings": {
+            "times": [
+              5e-09,
+              7e-09,
+              9.000000000000001e-09,
+              1.0840000000000005e-08,
+              1.2920000000000003e-08,
+              1.4959999999999996e-08,
+              1.6980000000000004e-08,
+              1.8989999999999997e-08,
+              2.0994999999999997e-08,
+              2.2999999999999998e-08,
+              2.5005e-08,
+              2.701e-08,
+              2.9020000000000004e-08,
+              3.104e-08,
+              3.308000000000001e-08,
+              3.516e-08,
+              3.7e-08,
+              3.9e-08,
+              4.1e-08
+            ],
+            "edges": [
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise"
+            ],
+            "truncated": false,
+            "level": 0.6
+          }
+        },
+        {
+          "name": "t_up",
+          "value": 38,
+          "unit": null,
+          "status": "pass",
+          "margin": null,
+          "crossings": {
+            "times": [
+              5.171031936701569e-09,
+              5.39759701339132e-09,
+              7.171011602809138e-09,
+              7.394813922841849e-09,
+              9.17101163771581e-09,
+              9.394814454311587e-09,
+              1.1172492407464268e-08,
+              1.1382121722757348e-08,
+              1.3172415040764194e-08,
+              1.338254707261516e-08,
+              1.5171897702828743e-08,
+              1.5384232723118954e-08,
+              1.717152202679649e-08,
+              1.7387430549388405e-08,
+              1.917122811677071e-08,
+              1.9390395165820593e-08,
+              2.117105767306895e-08,
+              2.1392391916673355e-08,
+              2.317101165278722e-08,
+              2.3394814702893786e-08,
+              2.517098872139693e-08,
+              2.5397622698857687e-08,
+              2.7171050326595045e-08,
+              2.7400820956462395e-08,
+              2.917124971985672e-08,
+              2.940812038952124e-08,
+              3.11715478018491e-08,
+              3.1425552900294103e-08,
+              3.317171658834316e-08,
+              3.346695478382134e-08,
+              3.5171691873824027e-08,
+              3.554943673347576e-08,
+              3.7171009788101446e-08,
+              3.739478682748952e-08,
+              3.917101163805752e-08,
+              3.939481445953484e-08,
+              4.1171011637709e-08,
+              4.139481445420804e-08
+            ],
+            "edges": [
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall"
+            ],
+            "truncated": false,
+            "level": 0.6
+          }
+        },
+        {
+          "name": "t_dn",
+          "value": 38,
+          "unit": null,
+          "status": "pass",
+          "margin": null,
+          "crossings": {
+            "times": [
+              5.171726329550209e-09,
+              5.398195616664711e-09,
+              7.171680604456473e-09,
+              7.395400792129975e-09,
+              9.171680661286197e-09,
+              9.395401323044441e-09,
+              1.1012471939818128e-08,
+              1.138742168296043e-08,
+              1.3092494122281426e-08,
+              1.3387387263897716e-08,
+              1.5132335370353507e-08,
+              1.5388077091060598e-08,
+              1.7152067474120662e-08,
+              1.739008457487245e-08,
+              1.916186179271705e-08,
+              1.939210368571521e-08,
+              2.116679644924822e-08,
+              2.1393558016107924e-08,
+              2.3171680684538072e-08,
+              2.3395401571947683e-08,
+              2.517656060955205e-08,
+              2.5397626591576033e-08,
+              2.7181437288630087e-08,
+              2.7400270338498993e-08,
+              2.919121630175018e-08,
+              2.9406614256951242e-08,
+              3.121103831407013e-08,
+              3.1422791000970355e-08,
+              3.3251318023431664e-08,
+              3.346363261243954e-08,
+              3.5332199342254616e-08,
+              3.554593404782999e-08,
+              3.717167771384621e-08,
+              3.739537371433113e-08,
+              3.9171680661841554e-08,
+              3.939540132826267e-08,
+              4.117168066127515e-08,
+              4.139540132294099e-08
+            ],
+            "edges": [
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall"
+            ],
+            "truncated": false,
+            "level": 0.6
+          }
+        }
+      ],
+      "diagnostics": [],
+      "artifacts": {
+        "log": "/home/ubuntu/GitHub/sg13g2-dll/.loom/worktrees/issue-113/sim/pfd-fit/results/20261115T001809Z/artifacts/pfd_500m/mos_tt_1p200V_27C/ngspice.log",
+        "raw": null,
+        "waveform": null,
+        "deck": "/home/ubuntu/GitHub/sg13g2-dll/.loom/worktrees/issue-113/sim/pfd-fit/results/20261115T001809Z/artifacts/pfd_500m/mos_tt_1p200V_27C/corner.cir"
+      },
+      "monte_carlo": null
+    },
+    {
+      "corner_id": "mos_ss/1.080V/125C",
+      "process": "mos_ss",
+      "supply_v": {
+        "Vdd": 1.08
+      },
+      "temperature_c": 125,
+      "status": "pass",
+      "runtime_s": 4.716,
+      "engine_exit_code": 0,
+      "engine_killed_by_signal": null,
+      "measurements": [
+        {
+          "name": "t_ref",
+          "value": 19,
+          "unit": null,
+          "status": "pass",
+          "margin": null,
+          "crossings": {
+            "times": [
+              5e-09,
+              7e-09,
+              9.000000000000001e-09,
+              1.1000000000000003e-08,
+              1.2999999999999997e-08,
+              1.5e-08,
+              1.6999999999999997e-08,
+              1.8999999999999998e-08,
+              2.0999999999999996e-08,
+              2.2999999999999998e-08,
+              2.5000000000000002e-08,
+              2.7000000000000004e-08,
+              2.9e-08,
+              3.1e-08,
+              3.299999999999999e-08,
+              3.500000000000001e-08,
+              3.700000000000001e-08,
+              3.9e-08,
+              4.1e-08
+            ],
+            "edges": [
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise"
+            ],
+            "truncated": false,
+            "level": 0.54
+          }
+        },
+        {
+          "name": "t_fb",
+          "value": 19,
+          "unit": null,
+          "status": "pass",
+          "margin": null,
+          "crossings": {
+            "times": [
+              5e-09,
+              7e-09,
+              9.000000000000001e-09,
+              1.0840000000000005e-08,
+              1.2920000000000003e-08,
+              1.4959999999999996e-08,
+              1.6980000000000004e-08,
+              1.8989999999999997e-08,
+              2.0994999999999997e-08,
+              2.2999999999999998e-08,
+              2.5005e-08,
+              2.701e-08,
+              2.9020000000000004e-08,
+              3.104e-08,
+              3.308000000000001e-08,
+              3.516e-08,
+              3.700000000000001e-08,
+              3.9e-08,
+              4.1e-08
+            ],
+            "edges": [
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise"
+            ],
+            "truncated": false,
+            "level": 0.54
+          }
+        },
+        {
+          "name": "t_up",
+          "value": 38,
+          "unit": null,
+          "status": "pass",
+          "margin": null,
+          "crossings": {
+            "times": [
+              5.259961756983489e-09,
+              5.6178522200632445e-09,
+              7.259922394487819e-09,
+              7.613176380009804e-09,
+              9.259922562034653e-09,
+              9.61317848533584e-09,
+              1.1261970157946001e-08,
+              1.1593270591835663e-08,
+              1.3261320427488835e-08,
+              1.3594618960923819e-08,
+              1.5260694361485543e-08,
+              1.5599252185286214e-08,
+              1.7260212030246e-08,
+              1.7604466664230343e-08,
+              1.92599801616259e-08,
+              1.960830890287068e-08,
+              2.125990262741483e-08,
+              2.1610611113440862e-08,
+              2.325992264616983e-08,
+              2.3613179544881136e-08,
+              2.5259942292450073e-08,
+              2.5616017773042536e-08,
+              2.726001207152728e-08,
+              2.7619101720116478e-08,
+              2.926013350492608e-08,
+              2.962592124162583e-08,
+              3.1260453909455926e-08,
+              3.164167672538963e-08,
+              3.3260938845210446e-08,
+              3.3679736722269034e-08,
+              3.5260924440661125e-08,
+              3.5763879903512786e-08,
+              3.725991715889489e-08,
+              3.7613113547849787e-08,
+              3.925992256426746e-08,
+              3.961317851342562e-08,
+              4.125992256195877e-08,
+              4.1613178484381635e-08
+            ],
+            "edges": [
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall"
+            ],
+            "truncated": false,
+            "level": 0.54
+          }
+        },
+        {
+          "name": "t_dn",
+          "value": 38,
+          "unit": null,
+          "status": "pass",
+          "margin": null,
+          "crossings": {
+            "times": [
+              5.260813561840231e-09,
+              5.6187262034182454e-09,
+              7.260736837792611e-09,
+              7.614050247429981e-09,
+              9.26073706541682e-09,
+              9.61405234484629e-09,
+              1.1101886718953501e-08,
+              1.1601024205077347e-08,
+              1.318190205291145e-08,
+              1.360123103612654e-08,
+              1.5221441652197915e-08,
+              1.5603991093683107e-08,
+              1.724111663136838e-08,
+              1.760753654140736e-08,
+              1.9250959090877822e-08,
+              1.961032953767874e-08,
+              2.1255849003705266e-08,
+              2.161206544431348e-08,
+              2.3260737179842424e-08,
+              2.361405340055856e-08,
+              2.52655894679214e-08,
+              2.561631339363721e-08,
+              2.727048130711567e-08,
+              2.7618828757467983e-08,
+              2.9280232037075856e-08,
+              2.9624599308999505e-08,
+              3.129983891288379e-08,
+              3.1638703656552374e-08,
+              3.3339630597018925e-08,
+              3.367516979566375e-08,
+              3.5420561669789396e-08,
+              3.5758912817858507e-08,
+              3.726072984466211e-08,
+              3.7613987633581565e-08,
+              3.926073706844977e-08,
+              3.961405237283093e-08,
+              4.1260737065313725e-08,
+              4.161405234389569e-08
+            ],
+            "edges": [
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall"
+            ],
+            "truncated": false,
+            "level": 0.54
+          }
+        }
+      ],
+      "diagnostics": [],
+      "artifacts": {
+        "log": "/home/ubuntu/GitHub/sg13g2-dll/.loom/worktrees/issue-113/sim/pfd-fit/results/20261115T001809Z/artifacts/pfd_500m/mos_ss_1p080V_125C/ngspice.log",
+        "raw": null,
+        "waveform": null,
+        "deck": "/home/ubuntu/GitHub/sg13g2-dll/.loom/worktrees/issue-113/sim/pfd-fit/results/20261115T001809Z/artifacts/pfd_500m/mos_ss_1p080V_125C/corner.cir"
+      },
+      "monte_carlo": null
+    },
+    {
+      "corner_id": "mos_ff/1.320V/-40C",
+      "process": "mos_ff",
+      "supply_v": {
+        "Vdd": 1.32
+      },
+      "temperature_c": -40,
+      "status": "pass",
+      "runtime_s": 4.451,
+      "engine_exit_code": 0,
+      "engine_killed_by_signal": null,
+      "measurements": [
+        {
+          "name": "t_ref",
+          "value": 19,
+          "unit": null,
+          "status": "pass",
+          "margin": null,
+          "crossings": {
+            "times": [
+              5e-09,
+              7e-09,
+              9.000000000000001e-09,
+              1.1000000000000003e-08,
+              1.2999999999999997e-08,
+              1.5e-08,
+              1.6999999999999997e-08,
+              1.8999999999999998e-08,
+              2.0999999999999996e-08,
+              2.2999999999999998e-08,
+              2.5000000000000002e-08,
+              2.7000000000000004e-08,
+              2.9e-08,
+              3.1e-08,
+              3.299999999999999e-08,
+              3.5e-08,
+              3.7e-08,
+              3.9e-08,
+              4.1e-08
+            ],
+            "edges": [
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise"
+            ],
+            "truncated": false,
+            "level": 0.66
+          }
+        },
+        {
+          "name": "t_fb",
+          "value": 19,
+          "unit": null,
+          "status": "pass",
+          "margin": null,
+          "crossings": {
+            "times": [
+              5e-09,
+              7e-09,
+              9.000000000000001e-09,
+              1.0840000000000005e-08,
+              1.2920000000000003e-08,
+              1.4959999999999996e-08,
+              1.6980000000000004e-08,
+              1.8989999999999997e-08,
+              2.0994999999999997e-08,
+              2.2999999999999998e-08,
+              2.5005e-08,
+              2.701e-08,
+              2.9020000000000004e-08,
+              3.104e-08,
+              3.308000000000001e-08,
+              3.516e-08,
+              3.7e-08,
+              3.9e-08,
+              4.1e-08
+            ],
+            "edges": [
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise"
+            ],
+            "truncated": false,
+            "level": 0.66
+          }
+        },
+        {
+          "name": "t_up",
+          "value": 38,
+          "unit": null,
+          "status": "pass",
+          "margin": null,
+          "crossings": {
+            "times": [
+              5.1199567748977005e-09,
+              5.272127549543918e-09,
+              7.119943747606257e-09,
+              7.270554816065834e-09,
+              9.119943757801115e-09,
+              9.270554979207432e-09,
+              1.1121002127446802e-08,
+              1.1262093879427526e-08,
+              1.3120998396099815e-08,
+              1.3262208923756063e-08,
+              1.5120865906634996e-08,
+              1.5262866705265204e-08,
+              1.7120533045311222e-08,
+              1.726456904061538e-08,
+              1.912024567938778e-08,
+              1.9266588688677856e-08,
+              2.1120025144660824e-08,
+              2.1268309648028818e-08,
+              2.3119943753543452e-08,
+              2.3270554946061694e-08,
+              2.5119839031157357e-08,
+              2.5273408363132724e-08,
+              2.711990646622069e-08,
+              2.7276743796213737e-08,
+              2.912011609602032e-08,
+              2.928482568778103e-08,
+              3.11203566304449e-08,
+              3.130428015440643e-08,
+              3.312035256611375e-08,
+              3.334602034385493e-08,
+              3.512032159520554e-08,
+              3.542700456043956e-08,
+              3.7119942997097194e-08,
+              3.7270542772306175e-08,
+              3.911994375787494e-08,
+              3.927055498037448e-08,
+              4.1119943757800076e-08,
+              4.1270554979191444e-08
+            ],
+            "edges": [
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall"
+            ],
+            "truncated": false,
+            "level": 0.66
+          }
+        },
+        {
+          "name": "t_dn",
+          "value": 38,
+          "unit": null,
+          "status": "pass",
+          "margin": null,
+          "crossings": {
+            "times": [
+              5.120574213715149e-09,
+              5.27253952087359e-09,
+              7.120520953738927e-09,
+              7.270960587797947e-09,
+              9.120520974631582e-09,
+              9.270960751044856e-09,
+              1.0961032623526527e-08,
+              1.1265950048644323e-08,
+              1.3041064049216998e-08,
+              1.3265848732990712e-08,
+              1.5081059689200398e-08,
+              1.5266037325129254e-08,
+              1.7100856075339623e-08,
+              1.726688084654631e-08,
+              1.911066947995097e-08,
+              1.9268126668891573e-08,
+              2.1115567213886526e-08,
+              2.126930842819473e-08,
+              2.312052096496223e-08,
+              2.3270960718404507e-08,
+              2.5125317249387173e-08,
+              2.5273207733965944e-08,
+              2.7130240716678877e-08,
+              2.7275995225911695e-08,
+              2.9140150372126144e-08,
+              2.9283181971643676e-08,
+              3.1160196730098684e-08,
+              3.1301875634789646e-08,
+              3.320068514127051e-08,
+              3.334344607358474e-08,
+              3.5281051455245385e-08,
+              3.5424330271193334e-08,
+              3.7120519449487656e-08,
+              3.727094853195404e-08,
+              3.912052097478336e-08,
+              3.927096075221244e-08,
+              4.112052097462949e-08,
+              4.1270960751028857e-08
+            ],
+            "edges": [
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall"
+            ],
+            "truncated": false,
+            "level": 0.66
+          }
+        }
+      ],
+      "diagnostics": [],
+      "artifacts": {
+        "log": "/home/ubuntu/GitHub/sg13g2-dll/.loom/worktrees/issue-113/sim/pfd-fit/results/20261115T001809Z/artifacts/pfd_500m/mos_ff_1p320V_n40C/ngspice.log",
+        "raw": null,
+        "waveform": null,
+        "deck": "/home/ubuntu/GitHub/sg13g2-dll/.loom/worktrees/issue-113/sim/pfd-fit/results/20261115T001809Z/artifacts/pfd_500m/mos_ff_1p320V_n40C/corner.cir"
+      },
+      "monte_carlo": null
+    }
+  ]
+}

@@ -28,8 +28,8 @@
         "netlist": "design/netlist/pfd.spice",
         "device_family": "sg13_lv",
         "topology_source": "2AMLogic/sg13g2-pll@83e59fe81db0b09dbefcff35a55965bea0c2a76f",
-        "differs": "reset path NAND + three inverters (sibling: NAND + two); see spec/decisions/0008-false-lock-argument.md",
-        "fit_gate": "run 2026-11-05 (sim/pfd-fit/results/20261105T125120Z): C1/C3 pass, C2 fails at 1 GHz tt and ss; sibling-polarity control fails C1 as 0008 claimed; status stays adopting, see spec/decisions/0011-pfd-reset-path-too-slow-at-1ghz.md"
+        "differs": "reset path NAND + one inverter on PFD-local 2x/4x cells (srlatch_fast = the srlatch topology with 2x NANDs and a 2x R-input inverter, nand2x_lv, inv4x_lv); sibling: NAND + two; see spec/decisions/0008-false-lock-argument.md",
+        "fit_gate": "runs 2026-11-05 (sim/pfd-fit/results/20261105T125120Z) and 2026-11-15 (20261115T001809Z, issue #113): C1/C3 pass at all corners at both frequencies in both; C2 passes at tt, ff and all 500 MHz corners in the 2026-11-15 run, still fails at ss/1 GHz (352..358 ps against 250). A 2026-11-15 three-gate RN-latch variant (20261115T003632Z) reached C2's width target but fails C1 and is recorded as evidence only. C1 and C2 are jointly unsatisfiable at ss within the reset-path redraw space; status stays adopting, see the 2026-11-15 section of spec/decisions/0011-pfd-reset-path-too-slow-at-1ghz.md"
       }
     },
     {

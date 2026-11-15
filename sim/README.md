@@ -146,6 +146,8 @@ fallback) and writes `results/<UTC stamp>/fit-gate.md`; the criteria are in
 Unit tests of the grader and of `make_bench.py`'s corner source (no simulator):
 `python3 -I -m unittest discover -s sim/pfd-fit/tests`.
 Result 2026-11-05 (`results/20261105T125120Z/fit-gate.md`): C1/C3 pass, C2 fails at 1 GHz (tt, ss); the sibling-polarity control fails C1; see `spec/decisions/0011-pfd-reset-path-too-slow-at-1ghz.md`.
+Results 2026-11-15, issue #113 redraw (NAND + 1 inverter, PFD-local 2x/4x cells; `results/20261115T001809Z/fit-gate.md`): C1/C3 pass at all corners at both frequencies; C2 passes at tt, ff and all 500 MHz corners, still fails at ss/1 GHz (352..358 ps against 250). The same record set holds `results/20261115T003632Z/fit-gate.md`, a three-gate RN-latch variant that reached 229 ps at ss but fails C1 — the two criteria are jointly unsatisfiable at ss for this PFD family; see the 2026-11-15 section of decision 0011.
+Probe 2026-11-15 (`results/20261115T081500Z/probe_ss.envelope.json`, not a gate run): single ss/1.08 V/125 C corner of the redraw deck through `klt sim` (single-unit local run, not `run.sh`), with the PFD-internal nodes `set_up`/`set_dn`/`reset` probed alongside the boundary signals. Anchors the set-release/reset-arrival numbers quoted in the 2026-11-15 section of decision 0011.
 
 ## Charge pump (`sim/cp-currents/`)
 

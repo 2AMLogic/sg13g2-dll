@@ -1,0 +1,131 @@
+{
+  "_comment": [
+    "sg13g2-dll sim/pfd-fit probe (probe_ss): single-corner diagnostic for decision 0011.",
+    "Probes the PFD-internal nodes of Xdut (set_up/set_dn/reset, hierarchical names of the",
+    "flattened deck) alongside the boundary signals ref/fb/up/dn, at ss/1.08 V/125 C only,",
+    "so the set-release-chain and reset-loop anchors in 0011's 2026-11-15 section are",
+    "reconstructible from a committed record. The deck is byte-identical to the committed",
+    "gate deck results/20261115T001809Z/decks/pfd_1g.spice (same 1 GHz stimulus); only the",
+    "corner set and measurement list differ. Not part of the 0006 gate; run locally through",
+    "`klt sim` (single unit), not sim/pfd-fit/run.sh. Results are simulated, never measured.",
+    "/home/ubuntu/share/pdk/ihp-sg13g2/libs.tech/ngspice/osdi is substituted before the run."
+  ],
+  "engine": "ngspice",
+  "netlist": "../decks/probe_ss.spice",
+  "netlist_source": "schematic",
+  "models": {
+    "pdk": "ihp-sg13g2",
+    "lib": "libs.tech/ngspice/models/cornerMOSlv.lib"
+  },
+  "corners": {
+    "units": [
+      {
+        "process": "mos_ss",
+        "temperature_c": 125,
+        "supply_v": {
+          "Vdd": 1.08
+        }
+      }
+    ]
+  },
+  "analysis": {
+    "kind": "tran",
+    "args": "5p 25.000n"
+  },
+  "measurements": [
+    {
+      "name": "t_ref",
+      "crossings": {
+        "signal": "v(ref)",
+        "level": {
+          "frac_of": "Vdd",
+          "fraction": 0.5
+        },
+        "edge": "rise",
+        "max": 1000
+      }
+    },
+    {
+      "name": "t_fb",
+      "crossings": {
+        "signal": "v(fb)",
+        "level": {
+          "frac_of": "Vdd",
+          "fraction": 0.5
+        },
+        "edge": "rise",
+        "max": 1000
+      }
+    },
+    {
+      "name": "t_up",
+      "crossings": {
+        "signal": "v(up)",
+        "level": {
+          "frac_of": "Vdd",
+          "fraction": 0.5
+        },
+        "edge": "either",
+        "max": 1000
+      }
+    },
+    {
+      "name": "t_dn",
+      "crossings": {
+        "signal": "v(dn)",
+        "level": {
+          "frac_of": "Vdd",
+          "fraction": 0.5
+        },
+        "edge": "either",
+        "max": 1000
+      }
+    },
+    {
+      "name": "t_set_up",
+      "crossings": {
+        "signal": "v(xdut.set_up)",
+        "level": {
+          "frac_of": "Vdd",
+          "fraction": 0.5
+        },
+        "edge": "either",
+        "max": 1000
+      }
+    },
+    {
+      "name": "t_set_dn",
+      "crossings": {
+        "signal": "v(xdut.set_dn)",
+        "level": {
+          "frac_of": "Vdd",
+          "fraction": 0.5
+        },
+        "edge": "either",
+        "max": 1000
+      }
+    },
+    {
+      "name": "t_reset",
+      "crossings": {
+        "signal": "v(xdut.reset)",
+        "level": {
+          "frac_of": "Vdd",
+          "fraction": 0.5
+        },
+        "edge": "either",
+        "max": 1000
+      }
+    }
+  ],
+  "options": {
+    "osdi_preload": [
+      "/home/ubuntu/share/pdk/ihp-sg13g2/libs.tech/ngspice/osdi/psp103.osdi",
+      "/home/ubuntu/share/pdk/ihp-sg13g2/libs.tech/ngspice/osdi/psp103_nqs.osdi",
+      "/home/ubuntu/share/pdk/ihp-sg13g2/libs.tech/ngspice/osdi/r3_cmc.osdi",
+      "/home/ubuntu/share/pdk/ihp-sg13g2/libs.tech/ngspice/osdi/mosvar.osdi"
+    ],
+    "stage_model_inputs": true,
+    "keep_artifacts": true
+  }
+}
