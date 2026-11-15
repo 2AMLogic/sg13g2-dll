@@ -15,7 +15,10 @@ import os
 import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-CORNERS = os.path.join(os.path.dirname(HERE), "corners.json")
+SIM = os.path.dirname(HERE)
+sys.path.insert(0, os.path.join(SIM, "harness"))
+
+import gridspec  # noqa: E402
 
 EDGE = 100e-12          # rise/fall time of REF and FB
 T0 = 5e-9               # REF's first rising VDD/2 crossing
@@ -82,7 +85,6 @@ def deck(tag, freq, sibling=False):
 
 
 def request(tag, ncyc, period):
-    corners = json.load(open(CORNERS))["reduced_set"]["corners"]
     tstop = T0 + (ncyc + 1) * period
     half = {"frac_of": "Vdd", "fraction": 0.5}
     def xing(name, sig, edge):
@@ -97,9 +99,7 @@ def request(tag, ncyc, period):
         "netlist": f"../decks/{tag}.spice",
         "netlist_source": "schematic",
         "models": {"pdk": "ihp-sg13g2", "lib": "libs.tech/ngspice/models/cornerMOSlv.lib"},
-        "corners": {"units": [
-            {"process": c["process"], "temperature_c": c["temperature_c"], "supply_v": {"Vdd": c["Vdd"]}}
-            for c in corners]},
+        "corners": gridspec.load_reduced_set(os.path.join(SIM, "corners.json")),
         "analysis": {"kind": "tran", "args": f"5p {tstop * 1e9:.3f}n"},
         "measurements": [
             xing("t_ref", "v(ref)", "rise"), xing("t_fb", "v(fb)", "rise"),

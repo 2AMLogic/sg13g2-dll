@@ -1,0 +1,214 @@
+{
+  "_comment": [
+    "delay-sizing base request (issue #67). Limits are sanity gates, NOT spec numbers. Simulated, never measured.",
+    "/home/ubuntu/share/pdk/ihp-sg13g2/libs.tech/ngspice/osdi is substituted by run.sh."
+  ],
+  "engine": "ngspice",
+  "netlist": "../decks/dl_a_1GHz.spice",
+  "netlist_source": "schematic",
+  "models": {
+    "pdk": "ihp-sg13g2",
+    "lib": "libs.tech/ngspice/models/cornerMOSlv.lib"
+  },
+  "analysis": {
+    "kind": "tran",
+    "args": "5p 10n"
+  },
+  "measurements": [
+    {
+      "name": "dr1",
+      "unit": "s",
+      "spice": ".meas tran dr1 trig v(t0) val=0.6 rise=1 targ v(t1) val=0.6 fall=1",
+      "limits": {
+        "min": 0,
+        "max": 6e-09
+      }
+    },
+    {
+      "name": "df1",
+      "unit": "s",
+      "spice": ".meas tran df1 trig v(t0) val=0.6 fall=1 targ v(t1) val=0.6 rise=1",
+      "limits": {
+        "min": 0,
+        "max": 6e-09
+      }
+    },
+    {
+      "name": "dr2",
+      "unit": "s",
+      "spice": ".meas tran dr2 trig v(t0) val=0.6 rise=1 targ v(t2) val=0.6 rise=1",
+      "limits": {
+        "min": 0,
+        "max": 6e-09
+      }
+    },
+    {
+      "name": "df2",
+      "unit": "s",
+      "spice": ".meas tran df2 trig v(t0) val=0.6 fall=1 targ v(t2) val=0.6 fall=1",
+      "limits": {
+        "min": 0,
+        "max": 6e-09
+      }
+    },
+    {
+      "name": "dr3",
+      "unit": "s",
+      "spice": ".meas tran dr3 trig v(t0) val=0.6 rise=1 targ v(t3) val=0.6 fall=1",
+      "limits": {
+        "min": 0,
+        "max": 6e-09
+      }
+    },
+    {
+      "name": "df3",
+      "unit": "s",
+      "spice": ".meas tran df3 trig v(t0) val=0.6 fall=1 targ v(t3) val=0.6 rise=1",
+      "limits": {
+        "min": 0,
+        "max": 6e-09
+      }
+    },
+    {
+      "name": "dr4",
+      "unit": "s",
+      "spice": ".meas tran dr4 trig v(t0) val=0.6 rise=1 targ v(t4) val=0.6 rise=1",
+      "limits": {
+        "min": 0,
+        "max": 6e-09
+      }
+    },
+    {
+      "name": "df4",
+      "unit": "s",
+      "spice": ".meas tran df4 trig v(t0) val=0.6 fall=1 targ v(t4) val=0.6 fall=1",
+      "limits": {
+        "min": 0,
+        "max": 6e-09
+      }
+    },
+    {
+      "name": "dr5",
+      "unit": "s",
+      "spice": ".meas tran dr5 trig v(t0) val=0.6 rise=1 targ v(t5) val=0.6 fall=1",
+      "limits": {
+        "min": 0,
+        "max": 6e-09
+      }
+    },
+    {
+      "name": "df5",
+      "unit": "s",
+      "spice": ".meas tran df5 trig v(t0) val=0.6 fall=1 targ v(t5) val=0.6 rise=1",
+      "limits": {
+        "min": 0,
+        "max": 6e-09
+      }
+    },
+    {
+      "name": "dr6",
+      "unit": "s",
+      "spice": ".meas tran dr6 trig v(t0) val=0.6 rise=1 targ v(t6) val=0.6 rise=1",
+      "limits": {
+        "min": 0,
+        "max": 6e-09
+      }
+    },
+    {
+      "name": "df6",
+      "unit": "s",
+      "spice": ".meas tran df6 trig v(t0) val=0.6 fall=1 targ v(t6) val=0.6 fall=1",
+      "limits": {
+        "min": 0,
+        "max": 6e-09
+      }
+    },
+    {
+      "name": "dr7",
+      "unit": "s",
+      "spice": ".meas tran dr7 trig v(t0) val=0.6 rise=1 targ v(t7) val=0.6 fall=1",
+      "limits": {
+        "min": 0,
+        "max": 6e-09
+      }
+    },
+    {
+      "name": "df7",
+      "unit": "s",
+      "spice": ".meas tran df7 trig v(t0) val=0.6 fall=1 targ v(t7) val=0.6 rise=1",
+      "limits": {
+        "min": 0,
+        "max": 6e-09
+      }
+    },
+    {
+      "name": "dr8",
+      "unit": "s",
+      "spice": ".meas tran dr8 trig v(t0) val=0.6 rise=1 targ v(t8) val=0.6 rise=1",
+      "limits": {
+        "min": 0,
+        "max": 6e-09
+      }
+    },
+    {
+      "name": "df8",
+      "unit": "s",
+      "spice": ".meas tran df8 trig v(t0) val=0.6 fall=1 targ v(t8) val=0.6 fall=1",
+      "limits": {
+        "min": 0,
+        "max": 6e-09
+      }
+    },
+    {
+      "name": "iavg",
+      "unit": "A",
+      "spice": ".meas tran iavg avg i(Vdd) from=6n to=10n",
+      "limits": {
+        "min": -1,
+        "max": 1
+      }
+    }
+  ],
+  "options": {
+    "osdi_preload": [
+      "/home/ubuntu/share/pdk/ihp-sg13g2/libs.tech/ngspice/osdi/psp103.osdi",
+      "/home/ubuntu/share/pdk/ihp-sg13g2/libs.tech/ngspice/osdi/psp103_nqs.osdi",
+      "/home/ubuntu/share/pdk/ihp-sg13g2/libs.tech/ngspice/osdi/r3_cmc.osdi",
+      "/home/ubuntu/share/pdk/ihp-sg13g2/libs.tech/ngspice/osdi/mosvar.osdi"
+    ],
+    "stage_model_inputs": true,
+    "keep_artifacts": true
+  },
+  "corners": {
+    "process": [
+      "mos_tt"
+    ],
+    "temperature_c": [
+      27
+    ],
+    "supply_v": {
+      "Vdd": [
+        1.2,
+        1.2,
+        1.2,
+        1.2,
+        1.2,
+        1.2,
+        1.2,
+        1.2,
+        1.2
+      ],
+      "VC": [
+        0.3,
+        0.4,
+        0.5,
+        0.6,
+        0.7,
+        0.8,
+        0.9,
+        1.0,
+        1.08
+      ]
+    }
+  }
+}

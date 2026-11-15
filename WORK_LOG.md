@@ -2,6 +2,15 @@
 
 Chronological record of merged PRs and closed issues. Maintained by the Guide role.
 
+### 2026-11-14
+
+- **Issue #104** (closed): Remove the markdown-table scrape in cp-currents: K4 re-parses delay-sanity record.md instead of reading its envelopes
+- **PR #105**: refactor: read K_dl from the delay-sanity envelopes, pin the source run
+- **Issue #92** (closed): bug: grade() always reports a harness FAIL on the single-start-state benches (phase, power), because check_ic_applied demands >= 2 start states
+- **PR #100**: fix(harness): expect per-axis start-state arity from the manifest, not a hard 2
+- **Issue #89** (closed): Give klt one true version statement: scripts/klt.sh pins 0.8.0 for one caller while every bench and netlist.sh use the klt on PATH
+- **PR #97**: docs: scope the klt 0.8.0 pin claim to the signoff records
+
 ### 2026-11-13
 
 - **Issue #87** (closed): Make the stand-in DUT flags do something: supply_current and attestable are read by nothing, so the power bench passes at 0 mW

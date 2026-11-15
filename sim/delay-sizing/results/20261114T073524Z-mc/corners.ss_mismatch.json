@@ -1,0 +1,15 @@
+{
+  "_comment": "ss/1.08 V/125 C with the mismatch-drawing model section (mos_ss_mismatch) for the Monte Carlo matching run; the negative control uses mos_ss (no mismatch)",
+  "schema": 1,
+  "process": [
+    "mos_ss_mismatch"
+  ],
+  "temperature_c": [
+    125
+  ],
+  "supply_v": {
+    "Vdd": [
+      1.08
+    ]
+  }
+}

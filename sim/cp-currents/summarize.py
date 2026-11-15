@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Grade the charge-pump / cp_bias bench (issue #30) and write record.md.
 
-    summarize.py OUT_DIR DELAY_SANITY_RECORD_MD KLT_EXIT_CODE
+    summarize.py OUT_DIR DELAY_SANITY_RUN_DIR KLT_EXIT_CODE
 
 Reads OUT_DIR/cp.envelope.json (one `klt sim` request, three reduced_set corners).
 Criteria, fixed before any result existed (change them only through a decision record):
@@ -11,7 +11,8 @@ Criteria, fixed before any result existed (change them only through a decision r
   K4 bounded    K_dl * max(|I_up|, |I_dn|) / C_loop <= 0.1 per corner (0008 "Bounded step":
                 the relative delay change for a full-period pulse, required << 1).
                 K_dl = secant |d(d8)/dVc| at the 1 GHz Vc step whose mid delay is nearest
-                T = 1 ns, from the delay-sanity record (same corner); C_loop = 1.0 pF
+                T = 1 ns, read from the 1GHz_<corner>.envelope.json files of the pinned
+                delay-sanity run (same corner); C_loop = 1.0 pF
                 (26 um x 26 um MIM, nominal density, NOT extracted).
   K5 dump       VDUMP follows VOUT: (vd_hi - vd_lo) / 0.6 V in 0.8..1.2 (offset reported)
   K6 present    every measurement has a value at every corner
@@ -20,39 +21,56 @@ Simulated, never measured. Exit 0 all pass, 6 otherwise (NOT-RUN included).
 """
 import json
 import os
-import re
 import sys
 
 C_LOOP = 1.0e-12
 T = 1.0e-9
 PULSE_S = 200e-12
 NEEDED = ["i_up", "i_dn", "i_leak", "i_both", "i_vdd_idle", "q_up", "q_dn", "vd_mid", "vd_lo", "vd_hi"]
+CORNERS = ("ss", "tt", "ff")
+REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 
-def kdl_from_record(path):
-    """{'ss'|'tt'|'ff': (K_dl in s/V, Vc_lo, Vc_hi)} from the 1GHz sections of record.md."""
-    txt = open(path, encoding="utf-8").read()
-    sec = txt.split("## 1GHz", 1)[1]
-    out = {}
-    for m in re.finditer(r"### corner (\w+) .*?\n\n\| Vc.*?\n\|[-| ]+\n((?:\|.*\n)+)", sec):
+def cite(path):
+    """`path` relative to the repo root when it is inside it, else absolute."""
+    rel = os.path.relpath(os.path.abspath(path), REPO)
+    return os.path.abspath(path) if rel.startswith(os.pardir) else rel
+
+
+def kdl_from_envelopes(run_dir):
+    """({'ss'|'tt'|'ff': (K_dl in s/V, Vc_lo, Vc_hi)}, [problem, ...]) for a delay-sanity run.
+
+    Reads run_dir/1GHz_<corner>.envelope.json: the Vc of each corner unit
+    (supply_v.VC) against its d8 measurement, the same two numbers
+    sim/delay-sanity/summarize.py renders into its record.md -- at full
+    precision, rather than re-parsing that table's rounded picoseconds.
+    """
+    out, bad = {}, []
+    for corner in CORNERS:
+        p = os.path.join(run_dir, f"1GHz_{corner}.envelope.json")
+        try:
+            env = json.load(open(p, encoding="utf-8"))
+        except (OSError, ValueError) as exc:
+            bad.append(f"delay-sanity input {cite(p)} unreadable: {exc}")
+            continue
         pts = []
-        for row in m.group(2).splitlines():
-            c = [x.strip() for x in row.strip("|").split("|")]
-            try:
-                pts.append((float(c[0]), float(c[1]) * 1e-12))
-            except ValueError:
-                pass
-        best = None
-        for (v0, d0), (v1, d1) in zip(pts, pts[1:]):
-            err = abs((d0 + d1) / 2 - T)
-            if best is None or err < best[0]:
-                best = (err, abs(d1 - d0) / (v1 - v0), v0, v1)
-        out[m.group(1)] = best[1:] if best else None
-    return out
+        for cr in env.get("corners", []):
+            vc = (cr.get("supply_v") or {}).get("VC")
+            d8 = {m["name"]: m.get("value") for m in cr.get("measurements", [])}.get("d8")
+            if vc is not None and d8 is not None:
+                pts.append((vc, d8))
+        pts.sort()
+        if len(pts) < 2:
+            bad.append(f"delay-sanity input {cite(p)}: {len(pts)} Vc point(s) with a d8 value, need 2 for a secant")
+            continue
+        secants = [(abs((d0 + d1) / 2 - T), abs(d1 - d0) / (v1 - v0), v0, v1)
+                   for (v0, d0), (v1, d1) in zip(pts, pts[1:])]
+        out[corner] = min(secants, key=lambda s: s[0])[1:]
+    return out, bad
 
 
 def main(argv):
-    out, rec, klt_rc = argv[1], argv[2], int(argv[3])
+    out, delay_run, klt_rc = argv[1], argv[2], int(argv[3])
     lines = ["# cp-currents record", "",
              "Charge pump (`design/cp.sch`) with `cp_bias`, VOUT held by an ideal source at 0.6 V, "
              "reduced corner set (tt/1.2 V/27 C, ss/1.08 V/125 C, ff/1.32 V/-40 C), one `klt sim` request.",
@@ -61,7 +79,7 @@ def main(argv):
         env = json.load(open(os.path.join(out, "cp.envelope.json"), encoding="utf-8"))
     except (OSError, ValueError):
         env = None
-    errs = []
+    kdl, errs = kdl_from_envelopes(delay_run)
     if env is None:
         errs.append(f"no envelope written (klt exit {klt_rc}); see cp.stderr")
     else:
@@ -80,8 +98,8 @@ def main(argv):
         open(os.path.join(out, "record.md"), "w", encoding="utf-8").write("\n".join(lines) + "\n")
         print("\n".join(lines))
         return 6
-    kdl = kdl_from_record(rec)
-    lines += [f"Delay-sanity record for K_dl: `{rec}`.", "",
+    lines += [f"Delay-sanity run for K_dl: `{cite(delay_run)}` "
+              f"(1GHz_{{{','.join(CORNERS)}}}.envelope.json; copies in `delay-sanity/`).", "",
               "| corner | I_up uA | I_dn uA | mismatch | leak nA | I(Vdd) idle uA | both-on net uA | "
               "Q_up fC (I*200ps) | Q_dn fC (I*200ps) | VDUMP-VOUT mV (0.3/0.6/0.9 V) | dump slope | "
               "K_dl ns/V | K_dl*I/C |", "|" + "---|" * 13]
@@ -114,7 +132,7 @@ def main(argv):
     lines += ["", "Charge-per-pulse columns are NOT a usable result: the DN window contains an unexplained late current spike "
               "(see the qw_dn_min measurement in the envelope), the UP charge is dominated by switching injection, and "
               "neither was graded. K1-K5 do not depend on them.", ""]
-    lines += ["K_dl is a secant between the two 1 GHz Vc points of the delay-sanity record whose mid "
+    lines += ["K_dl is a secant between the two 1 GHz Vc points of the delay-sanity envelopes whose mid "
               "delay is nearest T; the ss line does not reach T at 1 GHz (decision 0010), so its K_dl is at the fastest-reachable end.", ""]
     lines += ["RESULT: " + ("PASS" if not fails else "FAIL")] + [f"- {f}" for f in fails]
     open(os.path.join(out, "record.md"), "w", encoding="utf-8").write("\n".join(lines) + "\n")

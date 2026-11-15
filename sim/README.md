@@ -36,15 +36,21 @@ One command, from a fresh clone with the PDK installed and OSDI built:
 sim/pdk-smoke/run.sh
 ```
 
-It runs a minimum-size inverter transient for `sg13_lv_*` (1.2 V) and
-`sg13_hv_*` (3.3 V) at `mos_tt`/`mos_ff`/`mos_ss`, and one `npn13G2` DC
-operating point, all through `klt sim` (multi-corner requests go to the batch
-fleet; there is no local fallback). It writes
+It runs a minimum-size `sg13_lv_*` (1.2 V) inverter transient at
+`mos_tt`/`mos_ff`/`mos_ss` through `klt sim` (a multi-corner request goes to
+the batch fleet; there is no local fallback). It writes
 `sim/pdk-smoke/results/<UTC stamp>/` (requests, envelopes, `record.md`) and
 exits non-zero if the OSDI models are missing (exit 3, before any simulation),
 if the batch submit fails, or if any corner reports a diagnostic or does not
 pass. Set `SMOKE_CAPACITY_WAIT_S` to bound the wait for fleet capacity. The
 limits in the requests are sanity gates, not spec numbers.
+
+The smoke is LV-only since issue #96: decision 0007 put the block on 1.2 V
+thin-oxide CMOS with no hv rail and no SiGe HBT, so the `sg13_hv_*` inverter
+and `npn13G2` operating-point legs were removed. The earlier result
+`sim/pdk-smoke/results/20261017T220308Z/` also holds the hv and npn runs made
+before decision 0007, with their own staged decks and requests; it is
+append-only evidence and stays as recorded.
 
 `record.md` names the repo commit, PDK pin, OSDI binary hashes, ngspice
 version and batch jobs of the run.
@@ -128,7 +134,7 @@ sim/harness/cold-start.sh
 
 The full grids are run per bench (`sim/<bench>/run.sh`, see each README). `sim/inventory.json` is the `klt signoff --attest 9 --inventory` file (schema read from klt 0.8.1.dev55); it lists the stand-in benches and so does not satisfy item 9 until the benches are repointed.
 
-Tools: ngspice 46 on the batch fleet (the dispatch worker's 42 can run the stand-in but not the OSDI models), OpenVAF-Reloaded v24.0.1mob (`reuse.lock.json`), and the `klt` on `PATH`. The benches do not go through the pinned `scripts/klt.sh` — that wrapper is signoff grading only (see `manifests/README.md`) — so no single klt version stands behind them, and none is claimed here. Where a run records its own, that is the version of record: `sim/harness/evidence.py` writes a `- klt:` line into `record.md`, and `sim/delay-sizing/run.sh` writes `tool-versions.txt`. Among committed results that is `sim/pdk-smoke/results/20261017T220308Z/` (klt 0.7.1.dev1743) and the four `sim/delay-sizing/` submit runs that carry a `tool-versions.txt` (klt 0.9.2.dev247); the remaining benches record no klt version, so theirs cannot be recovered from the evidence.
+Tools: ngspice 46, OpenVAF-Reloaded v24.0.1mob (`reuse.lock.json`), and the `klt` on `PATH`. Which backend and simulator a given run actually used is recorded in its own envelope and reproduced in its `record.md`, not stated here. The benches do not go through the pinned `scripts/klt.sh` — that wrapper is signoff grading only (see `manifests/README.md`) — so no single klt version stands behind them, and none is claimed here. Where a run records its own, that is the version of record: `sim/harness/evidence.py` writes a `- klt:` line into `record.md`, and `sim/delay-sizing/run.sh` writes `tool-versions.txt`. Among committed results that is `sim/pdk-smoke/results/20261017T220308Z/` (klt 0.7.1.dev1743) and the four `sim/delay-sizing/` submit runs that carry a `tool-versions.txt` (klt 0.9.2.dev247); the remaining benches record no klt version, so theirs cannot be recovered from the evidence.
 
 ## PFD fit gate (`sim/pfd-fit/`)
 
@@ -137,7 +143,8 @@ Decision 0006's gate for `design/pfd.sch`: dead zone and reset-pulse width at
 sibling's reset polarity. `sim/pfd-fit/run.sh` runs it (batch backend, no local
 fallback) and writes `results/<UTC stamp>/fit-gate.md`; the criteria are in
 `sim/pfd-fit/grade.py`, and `make_bench.py` regenerates the decks/requests.
-Unit test of the grader (no simulator): `python3 -I -m unittest discover -s sim/pfd-fit/tests`.
+Unit tests of the grader and of `make_bench.py`'s corner source (no simulator):
+`python3 -I -m unittest discover -s sim/pfd-fit/tests`.
 Result 2026-11-05 (`results/20261105T125120Z/fit-gate.md`): C1/C3 pass, C2 fails at 1 GHz (tt, ss); the sibling-polarity control fails C1; see `spec/decisions/0011-pfd-reset-path-too-slow-at-1ghz.md`.
 
 ## Charge pump (`sim/cp-currents/`)

@@ -13,11 +13,38 @@ CORNERS = ("ss", "tt", "ff")
 RAIL_MARGIN = 0.1  # decision 0004: locked Vc at least 100 mV from either rail
 
 
+def corner_of(env):
+    """Process/supply/temperature as the envelope recorded them, not as named here.
+
+    The Vc sweep varies supply_v.VC within one PVT corner, so everything except
+    VC is shared; anything that is not shared is reported as a range so a record
+    can never quote a corner the run did not use.
+    """
+    cs = env.get("corners") or []
+    if not cs:
+        return "corner not recorded"
+
+    def spread(vals):
+        u = sorted({v for v in vals if v is not None}, key=float)
+        return None if not u else (f"{u[0]:g}" if len(u) == 1 else f"{u[0]:g}..{u[-1]:g}")
+
+    bits = sorted({str(c["process"]) for c in cs if c.get("process")})
+    vdd = spread([(c.get("supply_v") or {}).get("Vdd") for c in cs])
+    temp = spread([c.get("temperature_c") for c in cs])
+    out = ["/".join(bits)] if bits else []
+    if vdd:
+        out.append(f"{vdd} V")
+    if temp:
+        out.append(f"{temp} C")
+    return ", ".join(out) if out else "corner not recorded"
+
+
 def main(out):
     lines = ["# delay-sanity record", "", "SIMULATED results, never measured. Reduced corner set "
-             "(`sim/corners.json` reduced_set: tt/1.2 V/27 C, ss/1.08 V/125 C, ff/1.32 V/-40 C); "
-             "NOT the 45-corner grade. Delay = single-event T0->Tk, first rising edge, 50 % of Vdd, "
-             "ideal control sources (VBN=Vc, VBP=Vdd-Vc), 20 fF ideal load on every tap buffer.", ""]
+             "(`sim/corners.json` reduced_set; each section below states the corner its own "
+             "envelope recorded); NOT the 45-corner grade. Delay = single-event T0->Tk, first "
+             "rising edge, 50 % of Vdd, ideal control sources (VBN=Vc, VBP=Vdd-Vc), 20 fF ideal "
+             "load on every tap buffer.", ""]
     bad = []
     for fname, period in FREQS.items():
         target = period / 8
@@ -38,9 +65,13 @@ def main(out):
                 m = {x["name"]: x.get("value") for x in cr.get("measurements", [])}
                 vdd = cr["supply_v"].get("Vdd")
                 rows.append((cr["supply_v"].get("VC"), vdd, m))
-            lines += [f"### corner {c} (status {env.get('status')}, {env.get('passed')}/{env.get('corner_count')} pass; "
-                      f"backend {(env.get('environment') or {}).get('backend', '?')}; "
-                      f"job {((env.get('environment') or {}).get('remote') or {}).get('job_id', '-')})", "",
+            e = env.get("environment") or {}
+            backend = e.get("backend")
+            backend = backend.get("resolved", "?") if isinstance(backend, dict) else (backend or "?")
+            lines += [f"### corner {c} ({corner_of(env)}; status {env.get('status')}, "
+                      f"{env.get('passed')}/{env.get('corner_count')} pass; "
+                      f"backend {backend}; "
+                      f"job {(e.get('remote') or {}).get('job_id', '-')})", "",
                       "| Vc (V) | d8 total (ps) | mean step (ps) | min..max tap spacing (ps) |", "|---|---|---|---|"]
             steps = []
             for vc, vdd, m in sorted(rows, key=lambda r: r[0]):

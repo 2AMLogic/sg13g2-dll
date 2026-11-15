@@ -28,7 +28,7 @@
     "6": {
       "bench": "sim/jitter",
       "status": "blocked",
-      "blocked_on": "noise-method decision record (spec/decisions/ 0001-0007 has none); harness and cold start only"
+      "blocked_on": "noise-method decision record; harness and cold start only"
     },
     "7": {
       "bench": "sim/lock-time",

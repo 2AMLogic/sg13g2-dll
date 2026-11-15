@@ -477,7 +477,10 @@ def grade(bench_dir, out):
         print(f"dllbench: {p}", file=sys.stderr)
     if problems:
         return 1
-    return 0 if rows_ok else 6
+    # 0 is documented as "pass" at every bench: never return it for a row that
+    # received no verdict. Ungraded is 6, the repo's "ran, but no passing
+    # verdict" code, same as a corner that fails its row; record.md says which.
+    return 0 if graded and rows_ok else 6
 
 
 def check(out):
