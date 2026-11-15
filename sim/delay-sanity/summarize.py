@@ -8,6 +8,11 @@ either way). Per-tap spacing = d_k - d_(k-1) (d_0 = 0: T0 is the reference).
 """
 import json, os, sys
 
+HERE = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, os.path.join(os.path.dirname(HERE), "harness"))
+
+import evidence  # noqa: E402
+
 FREQS = {"500MHz": 2.0e-9, "1GHz": 1.0e-9}
 CORNERS = ("ss", "tt", "ff")
 RAIL_MARGIN = 0.1  # decision 0004: locked Vc at least 100 mV from either rail
@@ -62,12 +67,11 @@ def main(out):
             for cr in env.get("corners", []):
                 for d in cr.get("diagnostics", []):
                     bad.append(f"{fname}/{c} {cr['corner_id']}: [{d.get('code')}] {str(d.get('message'))[:100]}")
-                m = {x["name"]: x.get("value") for x in cr.get("measurements", [])}
+                m = evidence.mvals(cr)
                 vdd = cr["supply_v"].get("Vdd")
                 rows.append((cr["supply_v"].get("VC"), vdd, m))
             e = env.get("environment") or {}
-            backend = e.get("backend")
-            backend = backend.get("resolved", "?") if isinstance(backend, dict) else (backend or "?")
+            backend = evidence.backend_of(e) or "?"
             lines += [f"### corner {c} ({corner_of(env)}; status {env.get('status')}, "
                       f"{env.get('passed')}/{env.get('corner_count')} pass; "
                       f"backend {backend}; "

@@ -21,14 +21,18 @@ import json
 import os
 import sys
 
+HERE = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, HERE)
+
+import evidence  # noqa: E402
+
 
 def run_conditions(env):
     """The run conditions this envelope recorded, as record lines ([] if none)."""
     if not env:
         return []
     e = env.get("environment") or {}
-    backend = e.get("backend")
-    backend = backend.get("resolved") if isinstance(backend, dict) else backend
+    backend = evidence.backend_of(e)
     parts = []
     corners = env.get("corners") or []
     if corners:
