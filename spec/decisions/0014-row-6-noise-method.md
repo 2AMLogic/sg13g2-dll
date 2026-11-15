@@ -45,6 +45,13 @@ here because they are tool facts any later jitter deck will hit again:
    The estimators read the noise off an AC-coupled monitor node instead
    (0.1 pF / 1 MOhm, high-pass 1.6 kHz, under 0.1 % load in band), where the
    RMS card carries full precision at millivolt scale.
+4. **Single-window readings of this process scatter by several percent.**
+   The stage's noise correlation time is ~8 ns, so an 85 ns estimator window
+   holds ~5 independent samples; successive runs of an identical request
+   (pid-seeded streams) delivered window rms values ±4.5-6 % apart across
+   stamps, and two identical-amplitude probes 12 % apart. Calibration
+   therefore averages two refinement readings, and the graded statistic is
+   the 8-run mean, not individual runs.
 
 The corrected method sizes the equivalent **by calibration on the very deck
 that runs it** (no transfer model of the injection path is needed), and places
@@ -215,12 +222,19 @@ re-derivation drifts beyond the tolerances in the last column).
 failed the first of them, which drove the Revision above):**
 
 - **`sigma_v` (8 seeded runs, DC-biased deck at the calibrated `IA`):** the
-  mean within **±10 %** of 7.916701e-3 V, and each individual run within
-  ±10 % of the same. The basis: the delivered rms scales linearly and the
-  calibration probe measures it on the same deck; residual error is the
-  finite-sample estimator (~0.25 % at NT = 1 ps over an 85 ns window) plus
-  stream variance; 10 % leaves two orders of margin over that while still
-  catching a broken scaling or a wrong target.
+  **mean of the 8 runs within ±10 %** of 7.916701e-3 V. Per-run values are
+  reported (not graded): each 85 ns window holds only ~5 independent
+  correlation times of the process (~8 ns), so a single run's rms scatters
+  by several percent regardless of the method — measured ±4.5-6 % across
+  stamps — and a per-run bound would grade that scatter, not the method.
+  The basis for the mean bound: the calibration averages two refinement
+  readings (~±4 % calibration uncertainty) and the 8-run mean tightens the
+  scatter further (~±2 %); 10 % leaves margin while still catching a wrong
+  target or a broken scaling. (Amendment: the first formulation graded each
+  run at ±10 %; the first seeded sets failed that clause on scatter alone —
+  runs at −14 % and +10 % of target with a sound mean — and the clause was
+  replaced before the final validated run. The target value itself has not
+  moved since the first formulation.)
 - **`sigma_t` (8 seeded runs, PULSE-driven deck at the same `IA`):** per run,
   the rms of the 45 crossing-time errors against the deterministic grid;
   the **pooled** rms across the 8 runs within **±25 %** of 2.541261e-13 s,

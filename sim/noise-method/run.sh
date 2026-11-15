@@ -39,14 +39,16 @@ python3 -I "${HERE}/summarize.py" derive "${OUT}"
 IA="1e-9"
 sed -i "s/@IA@/${IA}/g" "${OUT}/decks/nm_sigma.spice"
 submit sigma-probe "${OUT}/requests/sigma.request.json"
-IA="$(python3 -I "${HERE}/summarize.py" calibrate "${OUT}" sigma-probe "${IA}")"
+IA_1="$(python3 -I "${HERE}/summarize.py" calibrate "${OUT}" sigma-probe "${IA}")"
+sed -i "s/1e-9/${IA_1}/g" "${OUT}/decks/nm_sigma.spice"
 
-sed -i "s/1e-9/${IA}/g" "${OUT}/decks/nm_sigma.spice"
-submit sigma-refine "${OUT}/requests/sigma.request.json"
-IA="$(python3 -I "${HERE}/summarize.py" calibrate "${OUT}" sigma-refine "${IA}")"
+submit sigma-refine1 "${OUT}/requests/sigma.request.json"
+submit sigma-refine2 "${OUT}/requests/sigma.request.json"
+IA="$(python3 -I "${HERE}/summarize.py" calibrate2 "${OUT}" "${IA_1}")"
+sed -i "s/${IA_1}/${IA}/g" "${OUT}/decks/nm_sigma.spice"
 
 echo "run.sh: calibrated IA = ${IA} A" >&2
-sed -i "s/1e-9/${IA}/g" "${OUT}/decks/nm_edge.spice"
+sed -i "s/@IA@/${IA}/g" "${OUT}/decks/nm_edge.spice"
 
 for i in 1 2 3 4 5 6 7 8; do
   submit "sigma-s${i}" "${OUT}/requests/sigma.request.json"
