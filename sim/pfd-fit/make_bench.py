@@ -29,16 +29,18 @@ LOAD_F = 4e-15          # on each of UP and DN: CP input inverter + switch gate,
 FREQS = {"1g": 1e9, "500m": 500e6}
 
 # The sibling's reset path, kept verbatim (two inverters after the NAND, so the
-# reset is the NAND output, not its complement), on the same lv leaf cells.
+# reset is the NAND output, not its complement), on the same lv cells the redrawn
+# PFD uses (issue #113: srlatch_fast/nand2x_lv/inv4x_lv, all defined in
+# pfd.spice; the shared `srlatch` left the PFD hierarchy with the redraw).
 SIBLING_POLARITY = """\
 .subckt pfd_sib REF FB UP DN VDD VSS
 XED_UP REF set_up VDD VSS edgedet
 XED_DN FB set_dn VDD VSS edgedet
-XLU set_up reset UP upb_n VDD VSS srlatch
-XLD set_dn reset DN dnb_n VDD VSS srlatch
-XNR UP DN reset_raw VDD VSS nand2_lv
-XI1 reset_raw reset_d1 VDD VSS inv_lv
-XI2 reset_d1 reset VDD VSS inv2x_lv
+XLU set_up reset UP upb_n VDD VSS srlatch_fast
+XLD set_dn reset DN dnb_n VDD VSS srlatch_fast
+XNR UP DN reset_raw VDD VSS nand2x_lv
+XI1 reset_raw reset_d1 VDD VSS inv4x_lv
+XI2 reset_d1 reset VDD VSS inv4x_lv
 .ends
 """
 

@@ -41,6 +41,19 @@ c.mos("MP2", "p", "1u", L, D="Y", G="A2", S="VDD", B="VDD")
 c.mos("MN1", "n", "1u", L, D="Y", G="A1", S="mid", B="VSS")
 c.mos("MN2", "n", "1u", L, D="mid", G="A2", S="VSS", B="VSS")
 
+# PFD-local reset-path cells (issue #113): wider than the shared leaves above so
+# the shared `inv_lv`/`nand2_lv`/`inv2x_lv` definitions (and the committed cp,
+# supervisor and lock_detector results that cite them) stay untouched.
+c = add(Cell("inv4x_lv", logic_ports(["A"], ["Y"]), "4x inverter, sg13_lv (PFD reset path, issue #113)"))
+c.mos("MP", "p", "4u", L, D="Y", G="A", S="VDD", B="VDD")
+c.mos("MN", "n", "2u", L, D="Y", G="A", S="VSS", B="VSS")
+
+c = add(Cell("nand2x_lv", logic_ports(["A1", "A2"], ["Y"]), "2x 2-input NAND, sg13_lv (PFD reset path, issue #113)"))
+c.mos("MP1", "p", "2u", L, D="Y", G="A1", S="VDD", B="VDD")
+c.mos("MP2", "p", "2u", L, D="Y", G="A2", S="VDD", B="VDD")
+c.mos("MN1", "n", "2u", L, D="Y", G="A1", S="mid", B="VSS")
+c.mos("MN2", "n", "2u", L, D="mid", G="A2", S="VSS", B="VSS")
+
 # ------------------------------------------------------------------------ PFD --
 c = add(Cell("edgedet", logic_ports(["X"], ["OUT"]),
              "rising-edge pulse generator: X AND NOT(X delayed by 5 inverters)"))
@@ -59,16 +72,21 @@ c.sub("XIR", "inv_lv", A="R", Y="RB", VDD="VDD", VSS="VSS")
 c.sub("XNQ", "nand2_lv", A1="SB", A2="QB", Y="Q", VDD="VDD", VSS="VSS")
 c.sub("XNQB", "nand2_lv", A1="RB", A2="Q", Y="QB", VDD="VDD", VSS="VSS")
 
+c = add(Cell("srlatch_fast", logic_ports(["S", "R"], ["Q", "QB"]),
+             "set/reset latch from two 2x NAND2 with inverted inputs (S, R active high); PFD-local fast variant of srlatch for the reset loop (issue #113)"))
+c.sub("XIS", "inv_lv", A="S", Y="SB", VDD="VDD", VSS="VSS")
+c.sub("XIR", "inv2x_lv", A="R", Y="RB", VDD="VDD", VSS="VSS")
+c.sub("XNQ", "nand2x_lv", A1="SB", A2="QB", Y="Q", VDD="VDD", VSS="VSS")
+c.sub("XNQB", "nand2x_lv", A1="RB", A2="Q", Y="QB", VDD="VDD", VSS="VSS")
+
 c = add(Cell("pfd", "REF:i:l FB:i:l UP:o:r DN:o:r VDD:io:t VSS:io:b",
-             "tri-state PFD: 2x edgedet + 2x srlatch, reset = AND(UP,DN) delayed by NAND + 3 inverters"))
+             "tri-state PFD: 2x edgedet + 2x srlatch_fast, reset = AND(UP,DN) delayed by NAND + 1 inverter (issue #113)"))
 c.sub("XED_UP", "edgedet", X="REF", OUT="set_up", VDD="VDD", VSS="VSS")
 c.sub("XED_DN", "edgedet", X="FB", OUT="set_dn", VDD="VDD", VSS="VSS")
-c.sub("XLU", "srlatch", S="set_up", R="reset", Q="UP", QB="upb_n", VDD="VDD", VSS="VSS")
-c.sub("XLD", "srlatch", S="set_dn", R="reset", Q="DN", QB="dnb_n", VDD="VDD", VSS="VSS")
-c.sub("XNR", "nand2_lv", A1="UP", A2="DN", Y="reset_n0", VDD="VDD", VSS="VSS")
-c.sub("XR1", "inv_lv", A="reset_n0", Y="reset_p1", VDD="VDD", VSS="VSS")
-c.sub("XR2", "inv_lv", A="reset_p1", Y="reset_n2", VDD="VDD", VSS="VSS")
-c.sub("XR3", "inv2x_lv", A="reset_n2", Y="reset", VDD="VDD", VSS="VSS")
+c.sub("XLU", "srlatch_fast", S="set_up", R="reset", Q="UP", QB="upb_n", VDD="VDD", VSS="VSS")
+c.sub("XLD", "srlatch_fast", S="set_dn", R="reset", Q="DN", QB="dnb_n", VDD="VDD", VSS="VSS")
+c.sub("XNR", "nand2x_lv", A1="UP", A2="DN", Y="reset_n0", VDD="VDD", VSS="VSS")
+c.sub("XR1", "inv4x_lv", A="reset_n0", Y="reset", VDD="VDD", VSS="VSS")
 
 # ------------------------------------------------------------- charge pump --
 c = add(Cell("cp_leg_p", "IBP:i:l ICP:i:l UP:i:l UPB:i:l VOUT:o:r VDUMP:o:r VDD:io:t",
