@@ -1,4 +1,6 @@
-* noise-method abort probe: PULSE drive + trnoise equivalent (0014)
+* noise-method abort probe: PULSE drive + trnoise equivalent (0014).
+* The trnoise amplitude below is arbitrary: the probe exists to abort, not to
+* calibrate -- do not treat 6.729066e-08 as a sized equivalent.
 Vdd vdd 0 1.2
 Vin gin 0 PULSE(0 1.2 0.2n 50p 50p 1.8n 4n)
 Vn gin in 0 dc=0 trnoise(6.729066e-08 1p)

@@ -4,3 +4,7 @@ Vin in 0 0.570258 ac 1
 XMP out in vdd vdd sg13_lv_pmos w=0.15u l=0.13u ng=1 m=1
 XMN out in 0 0 sg13_lv_nmos w=0.15u l=0.13u ng=1 m=1
 Cl out 0 2f
+Cm out m 0.1p
+Rm m 0 1Meg
+* AC-coupled monitor: identical to the estimator decks (0014 Amendment) so the
+* .noise target is measured on the same circuit the sigma/edge/control decks run.

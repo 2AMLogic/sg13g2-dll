@@ -27,6 +27,11 @@
       "name": "vmrms",
       "spice": ".meas tran vmrms RMS v(m) from=5n to=90n",
       "unit": "V"
+    },
+    {
+      "name": "voutavg",
+      "spice": ".meas tran voutavg AVG v(out) from=5n to=90n",
+      "unit": "V"
     }
   ],
   "options": {

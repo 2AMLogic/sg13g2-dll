@@ -36,19 +36,25 @@ fi
 
 python3 -I "${HERE}/summarize.py" derive "${OUT}"
 
-IA="1e-9"
-sed -i "s/@IA@/${IA}/g" "${OUT}/decks/nm_sigma.spice"
+restage_deck() { # fresh copy of the pristine deck, then size @IA@ -- never a bare
+  # literal substitution, which silently breaks if the deck gains another 1e-9.
+  local deck="$1" amp="$2"
+  cp "${HERE}/decks/${deck}" "${OUT}/decks/${deck}"
+  sed -i "s/@IA@/${amp}/g" "${OUT}/decks/${deck}"
+}
+
+restage_deck nm_sigma.spice "1e-9"
 submit sigma-probe "${OUT}/requests/sigma.request.json"
-IA_1="$(python3 -I "${HERE}/summarize.py" calibrate "${OUT}" sigma-probe "${IA}")"
-sed -i "s/1e-9/${IA_1}/g" "${OUT}/decks/nm_sigma.spice"
+IA_1="$(python3 -I "${HERE}/summarize.py" calibrate "${OUT}" sigma-probe "1e-9")"
+restage_deck nm_sigma.spice "${IA_1}"
 
 submit sigma-refine1 "${OUT}/requests/sigma.request.json"
 submit sigma-refine2 "${OUT}/requests/sigma.request.json"
 IA="$(python3 -I "${HERE}/summarize.py" calibrate2 "${OUT}" "${IA_1}")"
-sed -i "s/${IA_1}/${IA}/g" "${OUT}/decks/nm_sigma.spice"
+restage_deck nm_sigma.spice "${IA}"
 
 echo "run.sh: calibrated IA = ${IA} A" >&2
-sed -i "s/@IA@/${IA}/g" "${OUT}/decks/nm_edge.spice"
+restage_deck nm_edge.spice "${IA}"
 
 for i in 1 2 3 4 5 6 7 8; do
   submit "sigma-s${i}" "${OUT}/requests/sigma.request.json"

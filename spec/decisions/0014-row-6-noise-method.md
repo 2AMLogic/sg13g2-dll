@@ -43,7 +43,7 @@ here because they are tool facts any later jitter deck will hit again:
    results with 6 significant digits, so `sqrt(RMS² − AVG²)` on a 0.6 V node
    is blind below ~1 mV of noise (the difference term needs 1e-6 resolution).
    The estimators read the noise off an AC-coupled monitor node instead
-   (0.1 pF / 1 MOhm, high-pass 1.6 kHz, under 0.1 % load in band), where the
+   (0.1 pF / 1 MOhm, high-pass 1.6 kHz), where the
    RMS card carries full precision at millivolt scale.
 4. **Single-window readings of this process scatter by several percent.**
    The stage's noise correlation time is ~8 ns, so an 85 ns estimator window
@@ -58,9 +58,12 @@ that runs it** (no transfer model of the injection path is needed), and places
 the source as a **shunt current at the output node**, which additionally turns
 out to coexist with a PULSE drive (see the edge-drive section): the known case
 can validate `sigma_t` **directly** on edge transients, which the first
-formulation held impossible. The expected values and the `sigma_v` tolerance
+formulation held impossible. The criteria and the `sigma_v` tolerance
 are unchanged from the first formulation; they were fixed before the first run
 and the first run failed against them — that failure is part of this record.
+The `sigma_v` target value itself was amended after the first validated stamp
+(the derivation deck was made identical to the monitored decks — see the
+Amendment below); every other value stands as first fixed.
 
 ## The OSDI intrinsic-noise answer (spec's open question)
 
@@ -76,9 +79,11 @@ transient; an ngspice transient contains only the noise of explicitly declared
   transient contains; it is not a measurement.
 - **Committed measurement.** `sim/noise-method/` runs the known case as a
   90 ns transient **without** any declared noise source: the rms on the
-  AC-coupled monitor node (0.1 pF / 1 MOhm to ground, high-pass 1.6 kHz,
-  loading the output by well under 0.1 % across the band) reads **exactly
-  0** at mos_tt/27 °C. The same stage **with** a declared
+  AC-coupled monitor node (0.1 pF / 1 MOhm to ground, high-pass 1.6 kHz; the
+  monitor is part of every deck of this bench, the derivation included — see
+  the Amendment below) reads zero to the solver's numerical floor (measured
+  6.8e-14 V, equal to the monitor's DC residual, so the AC content is
+  identically zero) at mos_tt/27 °C. The same stage **with** a declared
   `trnoise` source shows a non-zero monitor rms and carries the
   `transient_noise` block above. Both runs are committed in the bench's
   results stamps.
@@ -105,7 +110,10 @@ engine does not.
    `analysis.kind: "noise"`, `args: "v(out) <input-source> dec <pts> <f_lo> <f_hi>"`
    and take, through klt's native `measurements[].noise` form, the `onoise`
    band integral over **[1 MHz, 300 GHz]** as `sigma_v` — the total output rms
-   noise the equivalent must reproduce. Deck requirements the first probes
+   noise the equivalent must reproduce. The derivation deck carries the same
+   AC-coupled monitor as the estimator decks (see the Amendment below): the
+   target is measured on the same circuit the seeded runs use, not on an
+   unmonitored twin. Deck requirements the first probes
    hit: the `.noise` input reference source must carry an AC value
    (`ac 1`), or ngspice aborts the noise analysis ("ac input not found").
 3. **Bandwidth: 1 MHz to 300 GHz, fixed before any run.** Justification: the
@@ -201,28 +209,35 @@ toolchain.
 ## Known case: expected values and criteria, fixed before the runs
 
 The case: one minimum-size `sg13_lv_*` inverter (w = 0.15 u, l = 0.13 u,
-`Cl` = 2 fF, Vdd = 1.2 V) at **mos_tt / 1.20 V / 27 °C**, DC-biased at its
+`Cl` = 2 fF, Vdd = 1.2 V) at **mos_tt / 1.20 V / 27 °C** (the 1.2 V comes
+from the deck's `Vdd` card; the corner descriptor pins process and
+temperature only), DC-biased at its
 switching threshold. Derivation values below were measured before this record
 was committed and are re-derived by every `sim/noise-method/run.sh`
 invocation (the analyses involved are deterministic; the bench fails if a
-re-derivation drifts beyond the tolerances in the last column).
+re-derivation drifts beyond the tolerances in the last column). The
+`sigma_v`-derived rows carry the values amended by the derivation-deck fix
+(Amendment below); `vth`, the OP output level and `SR` are
+monitor-independent and stand as first measured.
 
 | quantity | value | source | reproduction tolerance |
 |---|---|---|---|
 | switching threshold `vth` | 0.570258 V | `.dc` sweep, `v(out)=0.6` | ±0.1 % |
-| OP output level | 0.600319 V | control transient `vavg` | ±0.1 % |
-| `sigma_v` (onoise, 1 MHz–300 GHz) | 7.916701e-3 V | `.noise` band integral | ±1 % |
-| inoise band integral | 4.500722e-3 V | `.noise` band integral | ±1 % |
-| density, 10 MHz / 1 GHz / 100 GHz | 725.6 n / 79.2 n / 82.5 pV/sqrt(Hz) | `.noise` spot | ±1 % |
+| OP output level | 0.600319 V | control transient, `AVG v(out)` | ±0.1 % |
+| `sigma_v` (onoise, 1 MHz–300 GHz) | 6.889353e-3 V | `.noise` band integral, monitored deck | ±1 % |
+| inoise band integral | 4.527237e-3 V | `.noise` band integral, monitored deck | ±1 % |
+| density, 10 MHz / 1 GHz / 100 GHz | 578.3 n / 78.1 n / 830.2 pV/sqrt(Hz) | `.noise` spot, monitored deck | ±1 % |
 | slew rate `SR` | 3.115265e10 V/s | noiseless edge transient, 0.65→0.55 V crossings, falling edges 2 and 3 (identical) | ±1 % |
-| **expected timing spread `sigma_t`** | **2.541261e-13 s (254.13 fs)** | `sigma_v / SR` | derived |
-| control monitor rms (no source) | 0.0 V exactly | `RMS(v(m))`, 90 ns | must be 0 |
+| **expected timing spread `sigma_t`** | **2.211482e-13 s (221.15 fs)** | `sigma_v / SR` | derived |
+| control monitor rms (no source) | ≈ 0 (floor 6.8e-14 V) | `RMS(v(m))`, 90 ns | ≤ 1e-12 V |
 
 **Validation criteria (fixed before the runs; the first formulation's run
 failed the first of them, which drove the Revision above):**
 
 - **`sigma_v` (8 seeded runs, DC-biased deck at the calibrated `IA`):** the
-  **mean of the 8 runs within ±10 %** of 7.916701e-3 V. Per-run values are
+  **mean of the 8 runs within ±10 %** of 6.889353e-3 V (target value amended
+  2026-11-15 with the derivation-deck fix, see the Amendment below; the ±10 %
+  clause and its basis are unchanged). Per-run values are
   reported (not graded): each 85 ns window holds only ~5 independent
   correlation times of the process (~8 ns), so a single run's rms scatters
   by several percent regardless of the method — measured ±4.5-6 % across
@@ -233,11 +248,12 @@ failed the first of them, which drove the Revision above):**
   target or a broken scaling. (Amendment: the first formulation graded each
   run at ±10 %; the first seeded sets failed that clause on scatter alone —
   runs at −14 % and +10 % of target with a sound mean — and the clause was
-  replaced before the final validated run. The target value itself has not
-  moved since the first formulation.)
+  replaced before the final validated run. The tolerance has not moved since;
+  only the target value has, with the derivation-deck fix.)
 - **`sigma_t` (8 seeded runs, PULSE-driven deck at the same `IA`):** per run,
   the rms of the 45 crossing-time errors against the deterministic grid;
-  the **pooled** rms across the 8 runs within **±25 %** of 2.541261e-13 s,
+  the **pooled** rms across the 8 runs within **±25 %** of 2.211482e-13 s
+  (amended with the `sigma_v` target, see the Amendment below),
   per-run values reported individually. The basis: the stage's ~8 ns noise
   correlation time makes edges within a run correlated (~12 independent
   windows per run, ~95 pooled), so the pooled estimator's relative standard
@@ -249,8 +265,9 @@ failed the first of them, which drove the Revision above):**
   (trnoise step `NT = 1 ps`; sigma estimator window 5–90 ns; 45 falling edges
   per edge run at a 2 ns period).
 - **Estimators:** per run, `sigma = RMS(v(m))` on the AC-coupled monitor node
-  (0.1 pF / 1 MOhm; high-pass 1.6 kHz; output load under 0.1 % across the
-  band) from one plain `.meas tran` RMS card — no subtractive estimator, so
+  (0.1 pF / 1 MOhm; high-pass 1.6 kHz; the monitor is part of the derivation
+  deck too, so target and estimator are the same circuit — see the Amendment
+  below) from one plain `.meas tran` RMS card — no subtractive estimator, so
   ngspice's 6-digit measurement print carries full precision at the
   millivolt scale (a subtractive `sqrt(RMS² − AVG²)` on the output node is
   print-limited and blind below ~1 mV); `sigma_t = sqrt(mean((t_i -
@@ -260,25 +277,68 @@ failed the first of them, which drove the Revision above):**
 - The 8 run outputs of each set must additionally be pairwise distinct (two
   identical results would mean a shared noise stream — the pid caveat).
 
-## Outcome (2026-11-15, `sim/noise-method/results/20261115T004032Z/`)
+## Amendment (2026-11-15, after the first validated stamp — derivation deck made identical to the estimator decks)
 
-Stamp `20261115T004032Z` (17 local `klt sim` runs: 4 deterministic derivation,
+The first validated stamp (`20261115T004032Z`) derived `sigma_v` on an
+**unmonitored** deck (`nm_noise.spice` carried `Cl` only) while the seeded
+runs were graded on **monitored** decks (`Cm out m 0.1p` / `Rm m 0 1Meg`
+appended), on the stated ground that the monitor loads the output "well under
+0.1 % across the band". That ground was false, measured false with one
+single-corner `.noise` probe (ngspice-47, mos_tt/27 °C, deck otherwise
+byte-identical):
+
+| | unmonitored (original target) | monitored | Δ |
+|---|---|---|---|
+| `sigma_v` (1 MHz–300 GHz) | 7.916701e-3 V | 6.889353e-3 V | −13.0 % |
+| density, 10 MHz | 725.6 nV/√Hz | 578.3 nV/√Hz | −20.3 % |
+| density, 1 GHz | 79.2 nV/√Hz | 78.1 nV/√Hz | −1.3 % |
+
+In band the monitor branch is ≈ `Rm` = 1 MΩ resistive (`|1/ωCm|` ≈ 17 kΩ at
+90 MHz ≪ `Rm`), not 0.1 pF of added capacitance, and the stage's own output
+resistance at the operating point is of the same order — hence tens of
+percent, not 0.1 %. Since the `sigma_v` target was derived on one circuit and
+delivered on another, target and measurement were not the same circuit; the
+calibration hid this (the equivalent is sized until the estimator reads the
+target), but a future row-6 deck attaching this monitor on the strength of
+the 0.1 % claim would silently perturb the node it measures.
+
+Fix: `nm_noise.spice` now carries the same monitor as the sigma/edge/control
+decks, and every `sigma_v`-derived value in this record is re-measured on
+that monitored circuit (the tables and criteria above carry the amended
+values; the original unmonitored numbers are preserved in this section and in
+stamp `20261115T004032Z`, kept as evidence). The control run reads `v(out)`
+directly again (`AVG v(out)` as the `op_out` derivation quantity, graded at
+±0.1 %), so the OP-level row states what the bench actually checks. The
+`sigma_t` criterion's form and tolerance are unchanged; only its target moves
+with `sigma_v` (to 2.211482e-13 s), and the finding's direction is untouched
+— re-measured in the Outcome stamp below.
+
+Noted for honesty: `Rm`'s Johnson noise enters the monitored `.noise` target
+(an ngspice `.noise` analysis sums resistor noise) but has no transient
+counterpart (an ngspice transient carries only declared noise sources), so
+the calibration absorbs that share by construction when it sizes `IA` against
+the same measured target. It is part of the defined quantity — the monitored
+circuit's output rms noise — not an unmodelled error.
+
+## Outcome (2026-11-15, `sim/noise-method/results/20261115T041503Z/`)
+
+Stamp `20261115T041503Z` (17 local `klt sim` runs: 4 deterministic derivation,
 1 abort probe, 3 calibration, 8 + 8 seeded). Verdict: **the `sigma_v` criteria
 PASS; the `sigma_t` criterion FAILS, and that failure is the record's finding.**
 
 - **The noise machinery delivers the derived target.** With the iterated
-  calibration the 8 seeded DC-biased runs average 8.064768e-3 V — **+1.87 %**
-  against the `.noise` target 7.916701e-3 V, inside ±10 % (per-run values
-  −5.6 % to +8.0 %, reported in the stamp; the scatter is the window
-  statistic, see Revision 4). Control run 6.8e-14 V ≈ 0; the 8 streams are
-  pairwise distinct; the abort probe reproduced the `timestep_too_small`
-  diagnostic (quoted above, at t = 2e-10 s).
+  calibration the 8 seeded DC-biased runs average 6.916399e-3 V — **+0.39 %**
+  against the `.noise` target 6.889353e-3 V measured on the monitored deck,
+  inside ±10 % (per-run values −6.4 % to +4.1 %, reported in the stamp; the
+  scatter is the window statistic, see Revision 4). Control run 6.8e-14 V ≈ 0;
+  the 8 streams are pairwise distinct; the abort probe reproduced the
+  `timestep_too_small` diagnostic (quoted above, at t = 2e-10 s).
 - **The derived timing figure does not survive a switched stage.** The 8
-  seeded PULSE-driven edge runs measure `sigma_t` = 1.28–1.66e-13 s per run,
-  pooled 1.457586e-13 s over 360 edges — **42.6 % below** the derived
-  `sigma_v / SR` = 2.541261e-13 s, far outside the ±25 % criterion, and
-  tightly clustered (8/8 runs at −35 % to −49 %): a systematic deficit, not
-  scatter. The static slope measured exactly at the crossing (0.595–0.605 V)
+  seeded PULSE-driven edge runs measure `sigma_t` = 1.25–1.43e-13 s per run,
+  pooled 1.328167e-13 s over 360 edges — **39.9 % below** the derived
+  `sigma_v / SR` = 2.211482e-13 s, far outside the ±25 % criterion, and
+  tightly clustered (8/8 runs at −35.2 % to −43.6 %): a systematic deficit,
+  not scatter. The static slope measured exactly at the crossing (0.595–0.605 V)
   is 3.125e10 V/s — within 0.3 % of the 0.55→0.65 V figure — so the slew
   rate is not the cause. The leading explanation: the `.noise` derivation
   integrates the noise of the *statically biased* stage, whose low-frequency
@@ -286,23 +346,35 @@ PASS; the `sigma_t` criterion FAILS, and that failure is the record's finding.**
   period at the rails, where its output resistance collapses (~picosecond
   decay) and that accumulated wander is reset before each crossing — the
   crossing samples only what the last transition window rebuilt. The known
-  case measures that switched/static ratio at **≈ 0.56**.
-- **What this means for row 6.** A DLL jitter figure derived as
-  `sigma_v / SR` from `.noise` at the locked operating point carries a
-  measured ~1.8× conservatism relative to what a switching delay stage
-  actually exhibits on this toolchain; any figure produced that way must
-  state it. Conversely the shunt-current equivalent **can** ride a
-  PULSE-driven deck (the edge runs do it 8 times), so row 6's deck is not
-  forced into the derived figure: it can measure edge jitter directly on the
-  switched loop and use `sigma_v / SR` as the static reference the result is
-  reported against.
+  case measures that switched/static ratio at **≈ 0.60**.
+- **What this means for row 6.** The −40 % deficit bounds how **this
+  equivalent — its amplitude calibrated statically and then transplanted onto
+  a switched deck — behaves**: the derived `sigma_v / SR` figure over-predicts
+  the edge timing spread the calibrated source delivers on a PULSE-driven deck
+  by ~1.7× on this bench. It does **not** establish that a real switching
+  stage's jitter is 1.7× smaller than `sigma_v / SR`. An ngspice transient
+  contains only the declared `trnoise` sources (the OSDI section above), so no
+  run in this bench exhibits what a switching delay stage actually exhibits: a
+  real stage's device noise is itself modulated with the operating point — it
+  collapses at the rails along with `r_out`, the very mechanism invoked above —
+  so the deficit is at least as consistent with the static calibration
+  over-sizing the equivalent for a switched deck as with `sigma_v / SR` being
+  conservative about real jitter, and this bench cannot separate the two. No
+  row-6 jitter figure may claim the ratio as headroom. Conversely the
+  shunt-current equivalent **can** ride a PULSE-driven deck (the edge runs do
+  it 8 times), so row 6's deck is not forced into the derived figure: it can
+  measure edge jitter directly on the switched loop and use `sigma_v / SR` as
+  the static reference the result is reported against.
 - **Seeds:** 8 independent pid-seeded runs per set, streams pairwise
   distinct; seed values not recordable ([klayout-tools#5772](https://github.com/2AMLogic/klayout-tools/issues/5772)).
 - Earlier stamps kept as evidence: `20261114T233835Z` (the first
   formulation's falsified run: every seeded transient measured zero noise at
-  the density-derived amplitude) and `20261115T000238Z` (the per-run ±10 %
+  the density-derived amplitude), `20261115T000238Z` (the per-run ±10 %
   clause failing on window scatter with a sound mean, which drove the
-  criteria amendment).
+  criteria amendment), and `20261115T004032Z` (the first validated stamp,
+  graded against the unmonitored-derivation target superseded by the
+  Amendment above: +1.87 % `sigma_v` mean, pooled `sigma_t` −42.6 % — same
+  finding, different target).
 
 The record stays `proposed`. Row 6 remains `blocked` in `sim/bench-rows.json`
 until a DLL jitter deck exists.
