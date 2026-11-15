@@ -55,8 +55,8 @@ def diagnostics(env):
     return env["corners"][0].get("diagnostics", []) or []
 
 
-def noise_sigma(vavg, vrms):
-    return math.sqrt(max(vrms * vrms - vavg * vavg, 0.0))
+def noise_sigma(meas):
+    return meas["vmrms"]
 
 
 def derive_all(out):
@@ -67,10 +67,10 @@ def derive_all(out):
     sv = noise["sv_band"]
     sr2 = 0.1 / (sr["t55_2"] - sr["t65_2"])
     sr3 = 0.1 / (sr["t55_3"] - sr["t65_3"])
-    ctl_sigma = noise_sigma(control["vavg"], control["vrms"])
+    ctl_sigma = meas_noise(control)
     derived = {
         "vth": vth,
-        "op_out": control["vavg"],
+        "op_out": control["vmavg"],
         "sv_band": sv,
         "iv_band": noise["iv_band"],
         "sr": sr2,
@@ -97,7 +97,7 @@ def sigma_runs(out):
     runs = []
     for i in range(1, N_SEEDS + 1):
         m = measurements(envelope(out, f"sigma-s{i}"))
-        runs.append((f"sigma-s{i}", m["vavg"], m["vrms"], noise_sigma(m["vavg"], m["vrms"])))
+        runs.append((f"sigma-s{i}", m["vmavg"], m["vmrms"], noise_sigma(m)))
     return runs
 
 
@@ -145,10 +145,8 @@ def derive(out):
 def calibrate(out):
     probe = measurements(envelope(out, "sigma-probe"))
     sv = measurements(envelope(out, "noise"))["sv_band"]
-    sigma_probe = noise_sigma(probe["vavg"], probe["vrms"])
-    if not sigma_probe or sigma_probe <= 0:
-        print(f"summarize: calibration probe measured no noise: {sigma_probe}", file=sys.stderr)
-        sys.exit(1)
+    sigma_probe = noise_sigma(probe)
+
     ia = IA_PROBE * sv / sigma_probe
     print(f"{ia:.6e}")
 
@@ -163,7 +161,10 @@ def summarize(out):
     sr3 = 0.1 / (sr["t55_3"] - sr["t65_3"])
 
     probe = measurements(envelope(out, "sigma-probe"))
-    sigma_probe = noise_sigma(probe["vavg"], probe["vrms"])
+    sigma_probe = noise_sigma(probe)
+    if not sigma_probe or sigma_probe <= 0:
+        print(f"summarize: calibration probe measured no noise: {sigma_probe}", file=sys.stderr)
+        sys.exit(1)
     ia_cal = IA_PROBE * sv / sigma_probe
 
     sigmas = sigma_runs(out)
@@ -173,9 +174,9 @@ def summarize(out):
             problems.append(
                 f"{tag}: sigma {fmt(s)} outside {SIGMA_TOL_NOTE} of {fmt(EXPECTED['sv_band'])}"
             )
-    pairs = {(vavg, vrms) for _, vavg, vrms, _ in sigmas}
+    pairs = {(vmavg, vmrms) for _, vmavg, vmrms, _ in sigmas}
     if len(pairs) != len(sigmas):
-        problems.append("two seeded sigma runs returned identical (vavg, vrms): a shared noise stream")
+        problems.append("two seeded sigma runs returned identical (vmavg, vmrms): a shared noise stream")
 
     edges = edge_runs(out)
     pooled_n = sum(len(e[3]) for e in edges)
@@ -236,7 +237,10 @@ def summarize(out):
         "  pinning mechanisms probed and refused; 0014 and klayout-tools#5772).",
         "- Run length: 90 ns per sigma run and 95 ns per edge run, trnoise step NT = 1 ps;",
         "  sigma estimator window 5-90 ns (85 000 breakpoints); 45 edges per edge run.",
-        "- Estimators: sigma = sqrt(vrms^2 - vavg^2) from plain `.meas tran` AVG/RMS cards;",
+        "- Estimator: sigma = RMS(v(m)), the AC-coupled monitor node (Cm 0.1p / Rm 1Meg:",
+        "  high-pass 1.6 kHz, load <= 0.1% of the stage output resistance across the band),",
+        "  from a plain `.meas tran` RMS card; no subtractive estimator, so ngspice's",
+        "  6-digit measurement print carries full precision at millivolt scale;",
         "  sigma_t per run = sqrt(mean((t_i - t_det_i)^2)), t_i from plain `.meas tran WHEN`",
         "  cards, t_det_i = 0.2n + (i-1)*2n + dt65 with dt65 from the SR derivation.",
         "- Expected values and tolerances were fixed in 0014 BEFORE these runs; derivation",
@@ -249,7 +253,7 @@ def summarize(out):
     ]
     rows = [
         ("switching threshold vth", derived["vth"], EXPECTED["vth"], "V", "0.1 %"),
-        ("OP output level (control vavg)", derived["op_out"], EXPECTED["op_out"], "V", "0.1 %"),
+        ("OP output level (control vmavg, monitor DC = 0)", derived["op_out"], EXPECTED["op_out"], "V", "0.1 %"),
         ("sigma_v (onoise, 1 MHz-300 GHz)", sv, EXPECTED["sv_band"], "V", "1 %"),
         ("inoise band integral", derived["iv_band"], EXPECTED["iv_band"], "V", "1 %"),
         ("density at 10 MHz", measurements(envelope(out, "noise"))["s_10M"], SPOTS_EXPECTED["s_10M"], "V/sqrt(Hz)", "1 %"),
@@ -274,7 +278,7 @@ def summarize(out):
         "",
         "## Control run (AC: OSDI models contribute no noise by themselves)",
         "",
-        f"- No `trnoise` source declared: recovered output rms `sqrt(vrms^2-vavg^2)` = {ctl_sigma:.3e} V",
+        f"- No `trnoise` source declared: monitor RMS v(m) = {ctl_sigma:.3e} V",
         "  (must be 0; an ngspice transient carries only declared noise sources).",
         f"- Control envelope `environment.transient_noise`: {control_tn!r} (absent -- klt adds the block",
         "  only when the netlist declares trnoise/trrandom). klt's assertion in the seeded runs:",
@@ -284,17 +288,17 @@ def summarize(out):
         "",
         f"## Seeded sigma_v runs ({N_SEEDS} runs, DC-biased deck)",
         "",
-        f"| run | vavg (V) | vrms (V) | sigma (V) | vs expected {fmt(EXPECTED['sv_band'])} |",
-        "|---|---|---|---|---|",
+        f"| run | vmavg (V) | vmrms = sigma (V) | vs expected {fmt(EXPECTED['sv_band'])} |",
+        "|---|---|---|---|",
     ]
-    for tag, vavg, vrms, s in sigmas:
+    for tag, vmavg, vmrms, s in sigmas:
         rel = (s - EXPECTED["sv_band"]) / EXPECTED["sv_band"]
-        lines.append(f"| {tag} | {vavg:.9e} | {vrms:.9e} | {fmt(s)} | {rel:+.2%} |")
+        lines.append(f"| {tag} | {vmavg:.9e} | {vmrms:.9e} | {rel:+.2%} |")
     lines += [
         "",
         f"- Mean of {N_SEEDS} runs: {fmt(sigma_mean)} V, {mean_rel:+.2%} against expected",
         f"  {fmt(EXPECTED['sv_band'])} V; tolerance {SIGMA_TOL_NOTE} per run and on the mean.",
-        "- Per-number method statement: every sigma above is sqrt(vrms^2-vavg^2) over 5-90 ns,",
+        "- Per-number method statement: every sigma above is RMS(v(m)) over 5-90 ns,",
         f"  90 ns transient, NT = 1 ps, {N_SEEDS} pid-seeded (unreproducible, unrecordable) runs",
         "  at the calibrated IA.",
         "",

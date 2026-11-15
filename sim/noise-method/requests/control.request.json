@@ -19,13 +19,13 @@
   },
   "measurements": [
     {
-      "name": "vavg",
-      "spice": ".meas tran vavg AVG v(out) from=5n to=90n",
+      "name": "vmavg",
+      "spice": ".meas tran vmavg AVG v(m) from=5n to=90n",
       "unit": "V"
     },
     {
-      "name": "vrms",
-      "spice": ".meas tran vrms RMS v(out) from=5n to=90n",
+      "name": "vmrms",
+      "spice": ".meas tran vmrms RMS v(m) from=5n to=90n",
       "unit": "V"
     }
   ],

@@ -3,7 +3,7 @@
     "sg13g2-dll noise-method: seeded sigma_v check, DC-biased + shunt trnoise current equivalent (0014).",
     "Submitted 8 times sequentially by run.sh; @IA@ is substituted into the staged deck by run.sh",
     "after the sigma-probe calibration run (same deck, IA = 1e-9).",
-    "Estimator: sigma = sqrt(vrms^2 - vavg^2) over 5n..90n."
+    "Estimator: sigma = RMS(v(m)), the AC-coupled monitor node (Cm 0.1p / Rm 1Meg), over 5n..90n."
   ],
   "engine": "ngspice",
   "netlist": "../decks/nm_sigma.spice",
@@ -21,13 +21,13 @@
   },
   "measurements": [
     {
-      "name": "vavg",
-      "spice": ".meas tran vavg AVG v(out) from=5n to=90n",
+      "name": "vmavg",
+      "spice": ".meas tran vmavg AVG v(m) from=5n to=90n",
       "unit": "V"
     },
     {
-      "name": "vrms",
-      "spice": ".meas tran vrms RMS v(out) from=5n to=90n",
+      "name": "vmrms",
+      "spice": ".meas tran vmrms RMS v(m) from=5n to=90n",
       "unit": "V"
     }
   ],

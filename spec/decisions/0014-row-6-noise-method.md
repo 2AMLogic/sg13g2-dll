@@ -39,6 +39,12 @@ here because they are tool facts any later jitter deck will hit again:
    gate-capacitance divider, so the identity measured the transfer *from the
    resistor*, not *from a stiff source* — the quantity the series equivalent
    needed. It is dropped from the method.
+3. **Subtractive rms estimators are print-limited.** ngspice prints `.meas`
+   results with 6 significant digits, so `sqrt(RMS² − AVG²)` on a 0.6 V node
+   is blind below ~1 mV of noise (the difference term needs 1e-6 resolution).
+   The estimators read the noise off an AC-coupled monitor node instead
+   (0.1 pF / 1 MOhm, high-pass 1.6 kHz, under 0.1 % load in band), where the
+   RMS card carries full precision at millivolt scale.
 
 The corrected method sizes the equivalent **by calibration on the very deck
 that runs it** (no transfer model of the injection path is needed), and places
@@ -62,10 +68,11 @@ transient; an ngspice transient contains only the noise of explicitly declared
   listing the declared sources. This is klt telling the caller what the
   transient contains; it is not a measurement.
 - **Committed measurement.** `sim/noise-method/` runs the known case as a
-  90 ns transient **without** any declared noise source: the recovered output
-  rms `sqrt(vrms^2 - vavg^2)` is **exactly 0** (the `.meas` AVG and RMS values
-  print identical) at mos_tt/27 °C. The same stage **with** a declared
-  `trnoise` source shows a non-zero output rms and carries the
+  90 ns transient **without** any declared noise source: the rms on the
+  AC-coupled monitor node (0.1 pF / 1 MOhm to ground, high-pass 1.6 kHz,
+  loading the output by well under 0.1 % across the band) reads **exactly
+  0** at mos_tt/27 °C. The same stage **with** a declared
+  `trnoise` source shows a non-zero monitor rms and carries the
   `transient_noise` block above. Both runs are committed in the bench's
   results stamps.
 
@@ -199,7 +206,7 @@ re-derivation drifts beyond the tolerances in the last column).
 | density, 10 MHz / 1 GHz / 100 GHz | 725.6 n / 79.2 n / 82.5 pV/sqrt(Hz) | `.noise` spot | ±1 % |
 | slew rate `SR` | 3.115265e10 V/s | noiseless edge transient, 0.65→0.55 V crossings, falling edges 2 and 3 (identical) | ±1 % |
 | **expected timing spread `sigma_t`** | **2.541261e-13 s (254.13 fs)** | `sigma_v / SR` | derived |
-| control output rms (no source) | 0.0 V exactly | `sqrt(vrms^2 - vavg^2)`, 90 ns | must be 0 |
+| control monitor rms (no source) | 0.0 V exactly | `RMS(v(m))`, 90 ns | must be 0 |
 
 **Validation criteria (fixed before the runs; the first formulation's run
 failed the first of them, which drove the Revision above):**
@@ -224,10 +231,13 @@ failed the first of them, which drove the Revision above):**
 - **Run lengths:** each sigma transient 90 ns and each edge transient 95 ns
   (trnoise step `NT = 1 ps`; sigma estimator window 5–90 ns; 45 falling edges
   per edge run at a 2 ns period).
-- **Estimators:** per run, `sigma = sqrt(vrms^2 - vavg^2)` from two plain
-  `.meas tran` cards (`AVG` and `RMS` of `v(out)` over the window);
-  `sigma_t = sqrt(mean((t_i - t_det_i)^2))` with `t_i` from plain
-  `.meas tran WHEN v(out)=0.65` cards and
+- **Estimators:** per run, `sigma = RMS(v(m))` on the AC-coupled monitor node
+  (0.1 pF / 1 MOhm; high-pass 1.6 kHz; output load under 0.1 % across the
+  band) from one plain `.meas tran` RMS card — no subtractive estimator, so
+  ngspice's 6-digit measurement print carries full precision at the
+  millivolt scale (a subtractive `sqrt(RMS² − AVG²)` on the output node is
+  print-limited and blind below ~1 mV); `sigma_t = sqrt(mean((t_i -
+  t_det_i)^2))` with `t_i` from plain `.meas tran WHEN v(out)=0.65` cards and
   `t_det_i = 0.2n + (i-1)·2n + dt65`, `dt65` taken from the SR derivation.
   No hand-rolled waveform arithmetic.
 - The 8 run outputs of each set must additionally be pairwise distinct (two
