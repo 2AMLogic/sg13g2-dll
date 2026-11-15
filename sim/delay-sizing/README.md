@@ -4,9 +4,9 @@ Delay-tap sizing comparison (issue #67, operator ruling r7-q57 on #58): candidat
 
 ```
 sim/delay-sizing/run.sh probe                   # scale probe + bench regression (ss, 1 GHz)
-DS_B_SCALE=4 sim/delay-sizing/run.sh full       # A and B x ss/tt/ff x 1 GHz/500 MHz
-DS_B_SCALE=4 sim/delay-sizing/run.sh fine       # finer Vc at ff
-DS_B_SCALE=4 sim/delay-sizing/run.sh mc         # Monte Carlo matching, ss/1 GHz, n=32
+DSIZ_B_SCALE=4 sim/delay-sizing/run.sh full     # A and B x ss/tt/ff x 1 GHz/500 MHz
+DSIZ_B_SCALE=4 sim/delay-sizing/run.sh fine     # finer Vc at ff
+DSIZ_B_SCALE=4 sim/delay-sizing/run.sh mc       # Monte Carlo matching, ss/1 GHz, n=32
 ```
 
 Every grid is a `klt sim` request (multi-unit, so the batch fleet; no local fallback). `make_bench.py` derives the A/B decks from the committed `design/netlist/*.spice` (`area.py` gives the device-area estimate); `summarize.py` writes `record.md`.

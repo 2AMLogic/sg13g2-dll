@@ -6,13 +6,13 @@
 # append-only.
 #
 #   design/netlist.sh && sim/delay-sizing/run.sh probe   # scale probe + bench regression, ss/1 GHz
-#   DS_B_SCALE=4 sim/delay-sizing/run.sh full            # A,B x ss/tt/ff x 1 GHz/500 MHz
-#   DS_B_SCALE=4 sim/delay-sizing/run.sh fine            # finer Vc near the ff dead-zone edge
-#   DS_B_SCALE=4 sim/delay-sizing/run.sh mc              # Monte Carlo matching, ss/1 GHz
+#   DSIZ_B_SCALE=4 sim/delay-sizing/run.sh full          # A,B x ss/tt/ff x 1 GHz/500 MHz
+#   DSIZ_B_SCALE=4 sim/delay-sizing/run.sh fine          # finer Vc near the ff dead-zone edge
+#   DSIZ_B_SCALE=4 sim/delay-sizing/run.sh mc            # Monte Carlo matching, ss/1 GHz
 #
-# Env: DS_CAPACITY_WAIT_S (default 900), DS_RESULTS_DIR, DS_VC (comma list),
-#      DS_B_SCALE (B starving-device width factor, default 2), DS_MC_N (32),
-#      DS_MC_SEED (20261107), DS_MC_VC (1.0)
+# Env: DSIZ_CAPACITY_WAIT_S (default 900), DSIZ_RESULTS_DIR, DSIZ_VC (comma list),
+#      DSIZ_B_SCALE (B starving-device width factor, default 2), DSIZ_MC_N (32),
+#      DSIZ_MC_SEED (20261107), DSIZ_MC_VC (1.0)
 set -euo pipefail
 
 MODE="${1:?usage: run.sh probe|full|fine|mc}"
@@ -25,14 +25,14 @@ sim_preflight
 "${DESIGN_DIR}/netlist.sh" --check
 
 STAMP="$(date -u +%Y%m%dT%H%M%SZ)"
-OUT="${DS_RESULTS_DIR:-${HERE}/results/${STAMP}-${MODE}}"
+OUT="${DSIZ_RESULTS_DIR:-${HERE}/results/${STAMP}-${MODE}}"
 [[ ! -e "${OUT}" ]] || { echo "run.sh: FAIL -- ${OUT} exists; results are append-only." >&2; exit 3; }
 mkdir -p "${OUT}/requests" "${OUT}/base"
 # the corner source itself, plus the Monte Carlo set this bench owns, so a
 # result directory still states what it ran at
 cp "${SIM_DIR}/corners.json" "${HERE}/corners.ss_mismatch.json" "${OUT}/"
-VC="${DS_VC:-0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0,1.08}"
-SCALE="${DS_B_SCALE:-2}"
+VC="${DSIZ_VC:-0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0,1.08}"
+SCALE="${DSIZ_B_SCALE:-2}"
 echo "klt $(klt --version) ; B scale ${SCALE} ; mode ${MODE}" > "${OUT}/tool-versions.txt"
 
 rc=0
@@ -57,12 +57,12 @@ submit() {
   python3 -I "${SIM_DIR}/harness/gridspec.py" "${OUT}/base/${var}_${f}.base.request.json" \
       -o "${OUT}/requests/${tag}.request.json" "${corner_args[@]}" --ic "VC=${vc}" "$@"
   sim_submit "${OUT}" "${tag}" "${OUT}/requests/${tag}.request.json" \
-      --wait-for-capacity "${DS_CAPACITY_WAIT_S:-900}" || rc=$?
+      --wait-for-capacity "${DSIZ_CAPACITY_WAIT_S:-900}" || rc=$?
 }
 
 case "${MODE}" in
   probe)
-    PV="${DS_VC:-0.8,1.0,1.08}"
+    PV="${DSIZ_VC:-0.8,1.0,1.08}"
     submit base_ss_1GHz base 1GHz ss "${PV}"
     submit a_ss_1GHz a 1GHz ss "${PV}"
     for s in 1.5 2 3 4; do
@@ -74,20 +74,20 @@ case "${MODE}" in
     done; done; done ;;
   fine)
     # finer Vc grid at ff (where the 0.1 V grid of `full` steps over the dead-zone edge)
-    FV="${DS_VC:-0.40,0.44,0.48,0.52,0.56,0.60,0.64,0.68,0.72}"
+    FV="${DSIZ_VC:-0.40,0.44,0.48,0.52,0.56,0.60,0.64,0.68,0.72}"
     for v in a b; do for f in 1GHz 500MHz; do
       submit "${v}_${f}_ff" "${v}" "${f}" ff "${FV}"
     done; done ;;
   mc)
     for v in a b; do
-      CORNERS_FILE="${HERE}/corners.ss_mismatch.json" submit "${v}_mc_ss_1GHz" "${v}" 1GHz ss "${DS_MC_VC:-1.0}" \
-          --mc-n "${DS_MC_N:-32}" --mc-seed "${DS_MC_SEED:-20261107}" --mc-vary mismatch \
+      CORNERS_FILE="${HERE}/corners.ss_mismatch.json" submit "${v}_mc_ss_1GHz" "${v}" 1GHz ss "${DSIZ_MC_VC:-1.0}" \
+          --mc-n "${DSIZ_MC_N:-32}" --mc-seed "${DSIZ_MC_SEED:-20261107}" --mc-vary mismatch \
           --control-process mos_ss
       mv "${OUT}/requests/${v}_mc_ss_1GHz.request.control.json" "${OUT}/requests/${v}_ctl_ss_1GHz.request.json"
       for t in ctl ctl_repeat; do
         r="${v}_${t}_ss_1GHz"; req="${OUT}/requests/${v}_ctl_ss_1GHz.request.json"
         sim_submit "${OUT}" "${r}" "${req}" \
-            --wait-for-capacity "${DS_CAPACITY_WAIT_S:-900}" || rc=$?
+            --wait-for-capacity "${DSIZ_CAPACITY_WAIT_S:-900}" || rc=$?
       done
     done ;;
   *) echo "run.sh: unknown mode ${MODE}" >&2; exit 2 ;;

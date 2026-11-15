@@ -6,7 +6,7 @@
 #
 #   design/netlist.sh && sim/supervisor-smoke/run.sh
 #
-# The backend policy for a single unit, the SS_RESULTS_DIR knob and the exit
+# The backend policy for a single unit, the UNITSMOKE_RESULTS_DIR knob and the exit
 # codes are all defined once in the shared runner: sim/harness/smoke-run.sh.
 set -euo pipefail
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
