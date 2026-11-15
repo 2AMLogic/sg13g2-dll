@@ -38,6 +38,21 @@ Issue #137 hardened the guard itself, in this file only:
   passing silently; a shape neither sees (e.g. ``$((KNOB))``, ``${!KNOB}``
   -- no runner or helper uses either today) would need both taught.
 
+Issue #142 added the discoverability half of that contract: a knob that
+exists and works but is written nowhere is undiscoverable -- the pre-#143
+noise-method run.sh read NOISE_METHOD_RESULTS_DIR with no `# Env:` header
+line at all (issue #134), the same gap that hid the SS_ collision. The
+suite now asserts every guarded knob a scanned file reads -- reads coming
+from knob_readers(), so a prose mention carrying no `$` is never a
+reader -- is named somewhere in that file's `# Env:` block, continuation
+lines included, at any indent. env_block() extracts the block: the
+`# Env:` line plus the comment lines after it, ending at the first
+non-comment line or at a comment that opens a new `# Word:` label
+section, so a knob named only under a following `# Exit:` heading does
+not count. Fixture tests pin each way the check could silently stop
+working: documentation on a continuation line alone, prose-only mentions,
+no block at all, a block silent on the knob, and the label boundary.
+
 Before #120 the DS_ prefix was read by two delay benches: exporting DS_VC to
 drive one silently replaced the other's swept axis (including delay-sizing's
 fine sweep), and DS_RESULTS_DIR redirected both output directories; SS_
@@ -147,6 +162,54 @@ def anchored_namespace_violations(readers):
     return violations
 
 
+# The `# Env:` header block of a scanned file: the `# Env:` line plus the
+# comment lines after it, at any continuation indent, up to the first
+# non-comment line or the comment that opens the next `# Word:` label
+# section (bench-run.sh and smoke-run.sh follow the block with `# Exit:`).
+ENV_START = re.compile(r"^#\s*Env:")
+NEW_LABEL = re.compile(r"^#\s*[A-Z][A-Za-z]*:")
+# Documentation tokens, not reads: upper-case names occurring anywhere in
+# an `# Env:` block. KNOB_READ stays the only knob-read matcher (issue
+# #142); this only decides whether a name the parser already found is
+# written down.
+ENV_TOKEN = re.compile(r"[A-Z][A-Z0-9_]*")
+
+
+def env_block(text):
+    """The `# Env:` header block, continuation lines included."""
+    out, inside = [], False
+    for line in text.splitlines():
+        if ENV_START.match(line):
+            inside = True
+            out.append(line)
+        elif inside:
+            if line.startswith("#") and not NEW_LABEL.match(line):
+                out.append(line)
+            else:
+                inside = False
+    return "\n".join(out)
+
+
+def undocumented_env_knobs(sim=SIM, harness=HARNESS):
+    """Reader id -> sorted guarded knobs it reads but its `# Env:` block omits.
+
+    Reads come from knob_readers(), so a prose mention with no `$` never
+    counts as a reader (issue #142's trap 2 is unreachable by construction).
+    """
+    readers = knob_readers(sim, harness)
+    undocumented = {}
+    for reader, path in bench_runners(sim, harness):
+        mine = {k for k, rs in readers.items() if reader in rs}
+        if not mine:
+            continue
+        with open(path) as fh:
+            text = fh.read()
+        missing = mine - set(ENV_TOKEN.findall(env_block(text)))
+        if missing:
+            undocumented[reader] = sorted(missing)
+    return undocumented
+
+
 class OneNamespacePerBench(unittest.TestCase):
     """The live sim/ tree: no collision, coverage that cannot shrink silently."""
 
@@ -196,6 +259,13 @@ class OneNamespacePerBench(unittest.TestCase):
                 f"parsed as {sorted(parsed)}: a read inside a default or a "
                 f"token the regex no longer fits is being swallowed "
                 f"(issue #137)")
+
+    def test_every_read_guarded_knob_is_named_in_its_env_block(self):
+        self.assertEqual(
+            undocumented_env_knobs(), {},
+            "a scanned runner or helper reads a guarded knob its `# Env:` "
+            "header block does not name: the knob works but cannot be "
+            "discovered (issue #134, guarded since #142)")
 
 
 class FixtureGuardTests(unittest.TestCase):
@@ -268,6 +338,52 @@ class FixtureGuardTests(unittest.TestCase):
         self.assertEqual(
             anchored_namespace_violations(self.found()).get("BENCH_RESULTS_DIR"),
             ["harness:moved"])
+
+    def test_knob_on_an_env_continuation_line_is_documented(self):
+        self.write(
+            "bench-a/run.sh",
+            "# Env: FOO_BACKEND (default unset)\n"
+            "#                       FOO_RESULTS_DIR  default results/\n"
+            "set -euo pipefail\n"
+            'mkdir -p "${FOO_RESULTS_DIR:-/tmp/fx}"\n')
+        self.assertEqual(undocumented_env_knobs(self.sim, self.harness), {})
+
+    def test_prose_mention_is_not_a_reader(self):
+        self.write(
+            "bench-a/run.sh",
+            "# Delegates to smoke-run.sh; UNITSMOKE_RESULTS_DIR is "
+            "documented there.\n"
+            "echo hi\n")
+        self.assertEqual(knob_readers(self.sim, self.harness), {})
+        self.assertEqual(undocumented_env_knobs(self.sim, self.harness), {})
+
+    def test_read_with_no_env_block_fails(self):
+        self.write(
+            "bench-a/run.sh",
+            "set -euo pipefail\n"
+            'mkdir -p "${FOO_RESULTS_DIR:-/tmp/fx}"\n')
+        self.assertEqual(undocumented_env_knobs(self.sim, self.harness),
+                         {"bench-a": ["FOO_RESULTS_DIR"]})
+
+    def test_env_block_silent_on_the_read_knob_fails(self):
+        self.write(
+            "bench-a/run.sh",
+            "# Env: FOO_BACKEND (default unset)\n"
+            "set -euo pipefail\n"
+            'mkdir -p "${FOO_RESULTS_DIR:-/tmp/fx}"\n')
+        self.assertEqual(undocumented_env_knobs(self.sim, self.harness),
+                         {"bench-a": ["FOO_RESULTS_DIR"]})
+
+    def test_knob_named_only_under_a_following_label_fails(self):
+        self.write(
+            "bench-a/run.sh",
+            "# Env: FOO_BACKEND (default unset)\n"
+            "# Exit: 0 pass, 3 missing prerequisite\n"
+            "# FOO_RESULTS_DIR  default results/\n"
+            "set -euo pipefail\n"
+            'mkdir -p "${FOO_RESULTS_DIR:-/tmp/fx}"\n')
+        self.assertEqual(undocumented_env_knobs(self.sim, self.harness),
+                         {"bench-a": ["FOO_RESULTS_DIR"]})
 
 
 if __name__ == "__main__":
