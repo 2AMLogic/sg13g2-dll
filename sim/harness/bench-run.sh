@@ -17,9 +17,10 @@
 #      BENCH_CAPACITY_WAIT_S   wait for fleet capacity (default 900)
 #      BENCH_RESULTS_DIR       default <bench>/results/<UTC stamp>
 #      BENCH_BUILD_ONLY=1      build the requests, submit nothing
-# Exit: 0 pass; 1 harness fault (diagnostic, missing envelope, axis not applied);
-#       3 missing prerequisite; 6 harness fine but no pass verdict -- some corner
-#       fails its row, or the row is NOT GRADED on this DUT; record.md says which.
+# Exit: 0 pass; 1 harness fault (diagnostic, missing envelope, axis not applied,
+#       or a corner the simulator ERRORED on); 3 missing prerequisite; 6 harness
+#       fine but no pass verdict -- a corner FAILED its limits, or the row is
+#       NOT GRADED on this DUT; record.md says which.
 # shellcheck shell=bash
 
 _BENCH_HARNESS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"

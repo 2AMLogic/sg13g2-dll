@@ -228,10 +228,12 @@ class PowerVerdict(unittest.TestCase):
     """grade()'s row-10 verdict line and the exit status that goes with it, on a
     synthetic envelope (no simulator)."""
 
-    def graded_record(self, env_over=None, envelope=True, **dut_over):
+    def graded_record(self, env_over=None, envelope=True, full=False, **dut_over):
         """(verdict text, grade() exit status) for one power run. `env_over`
         overrides envelope-level keys; `envelope=False` writes no envelope at
-        all, which is the harness-problem case."""
+        all, which is the harness-problem case. `full=True` returns the whole
+        record.md text as a third element, for assertions that must hold
+        beyond the verdict line."""
         d = tempfile.mkdtemp()
         out = os.path.join(d, "o")
         dut = powered_dut(d, **dut_over) if dut_over else DUT
@@ -259,7 +261,7 @@ class PowerVerdict(unittest.TestCase):
             text = fh.read()
         m = re.search(r"^- rows 10 on this DUT: (.*)$", text, re.M)
         self.assertIsNotNone(m, text)
-        return m.group(1), status
+        return (m.group(1), status, text) if full else (m.group(1), status)
 
     def test_zero_power_reading_is_not_reported_as_a_pass(self):
         verdict, _ = self.graded_record()  # the stand-in: supply_current false
@@ -279,10 +281,11 @@ class PowerVerdict(unittest.TestCase):
         self.assertEqual(status, 6)
 
     def test_an_ungraded_row_with_a_failed_corner_still_exits_6(self):
-        # envelope-level failed/errored counts are what rows_ok reads; the
-        # status stays "pass" so `problems` is empty and the final return of
-        # grade() -- not the harness-fault return -- decides the exit.
-        verdict, status = self.graded_record(env_over={"failed": 1})
+        # klt's real failed-corner shape: status "fail", failed >= 1, errored
+        # == 0 -- a graded result, not a harness fault. The failed count is
+        # what the row verdict reads, problems stays empty and the final
+        # return of grade() -- not the harness-fault return -- decides 6.
+        verdict, status = self.graded_record(env_over={"status": "fail", "failed": 1, "passed": 0})
         self.assertIn("NOT GRADED", verdict)
         self.assertEqual(status, 6)
 
@@ -292,7 +295,8 @@ class PowerVerdict(unittest.TestCase):
         self.assertEqual(status, 0)
 
     def test_a_graded_row_with_a_failed_corner_exits_6(self):
-        verdict, status = self.graded_record(env_over={"failed": 1}, supply_current=True)
+        verdict, status = self.graded_record(env_over={"status": "fail", "failed": 1, "passed": 0},
+                                             supply_current=True)
         self.assertIn("NOT all corners pass", verdict)
         self.assertEqual(status, 6)
 
@@ -300,6 +304,79 @@ class PowerVerdict(unittest.TestCase):
         # no envelope at all: a harness fault outranks the row verdict
         _, status = self.graded_record(envelope=False)
         self.assertEqual(status, 1)
+
+    def test_a_failed_corner_is_recorded_as_a_result_not_a_fault(self):
+        """klt emits status "fail" (failed >= 1, errored == 0) when a corner
+        misses its limit: a graded result. Exit 6, and record.md's verdict
+        line says the same thing -- the two can never disagree silently
+        (issue #111)."""
+        verdict, status, text = self.graded_record(
+            env_over={"status": "fail", "failed": 1, "passed": 0}, supply_current=True, full=True)
+        self.assertEqual(status, 6)
+        self.assertEqual(verdict, "NOT all corners pass (a result, not a harness fault)")
+        self.assertIn("- harness: PASS", text)
+        self.assertNotIn("harness: FAIL", text)
+
+    def test_a_fail_token_with_zero_failed_count_is_a_result(self):
+        """klt's Monte Carlo sigma-window failure: status "fail" with
+        failed == 0 -- every individual sample passed but the mean +/- k*sigma
+        window missed the limits. The token alone is authoritative: exit 6
+        with "NOT all corners pass", never 0 "all corners pass"."""
+        verdict, status, text = self.graded_record(
+            env_over={"status": "fail", "failed": 0, "passed": 1}, supply_current=True, full=True)
+        self.assertEqual(status, 6)
+        self.assertEqual(verdict, "NOT all corners pass (a result, not a harness fault)")
+        self.assertIn("- harness: PASS", text)
+        self.assertNotIn("harness: FAIL", text)
+
+    def test_an_errored_corner_exits_1_and_is_never_recorded_as_a_result(self):
+        """status "error" / errored >= 1: the simulator could not run a corner,
+        a harness fault. Exit 1, and record.md never describes the run as a
+        result (issue #111's second, opposite mis-categorisation)."""
+        verdict, status, text = self.graded_record(
+            env_over={"status": "error", "errored": 1, "passed": 0}, supply_current=True, full=True)
+        self.assertEqual(status, 1)
+        self.assertIn("NO VERDICT", verdict)
+        self.assertNotIn("a result, not a harness fault", text)
+        self.assertIn("1 corner(s) errored", text)
+
+    def test_an_envelope_error_key_exits_1_as_a_fault(self):
+        """A top-level `error` key (klt failed before reporting) is a fault:
+        exit 1 with the message, and no row-result wording in the record."""
+        verdict, status, text = self.graded_record(
+            env_over={"error": {"code": "batch_no_capacity", "message": "no capacity"}},
+            supply_current=True, full=True)
+        self.assertEqual(status, 1)
+        self.assertIn("batch_no_capacity", text)
+        self.assertNotIn("a result, not a harness fault", text)
+
+    def test_unreadable_coverage_tokens_are_harness_faults(self):
+        """not_checked / coverage_unknown / malformed_coverage: coverage that
+        cannot be read is not a row verdict. All exit 1 (issue #111)."""
+        for token in ("not_checked", "coverage_unknown", "malformed_coverage"):
+            verdict, status = self.graded_record(env_over={"status": token}, supply_current=True)
+            self.assertEqual(status, 1, token)
+            self.assertIn("NO VERDICT", verdict, token)
+
+    def test_inconclusive_and_pass_partial_exit_1_pending_issue_74(self):
+        """klt grades these as results too, but this screen still faults them
+        (today's behaviour, exit 1). #74 owns whether they become row
+        results; this test only pins that the exit does not move."""
+        for token in ("inconclusive", "pass_partial"):
+            verdict, status = self.graded_record(env_over={"status": token}, supply_current=True)
+            self.assertEqual(status, 1, token)
+            self.assertIn("NO VERDICT", verdict, token)
+
+    def test_an_errored_count_outranks_a_failed_count(self):
+        """klt cannot emit this shape (its rollup makes errored win, so the
+        status token would be "error"), but the counts are graded
+        defensively: an errored corner is a fault and must win over the
+        failed count -> exit 1, never the row-result exit."""
+        verdict, status, text = self.graded_record(
+            env_over={"status": "fail", "failed": 1, "errored": 1, "passed": 0},
+            supply_current=True, full=True)
+        self.assertEqual(status, 1)
+        self.assertNotIn("a result, not a harness fault", text)
 
 
 class Grading(unittest.TestCase):

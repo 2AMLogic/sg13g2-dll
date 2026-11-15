@@ -36,12 +36,18 @@ def kind(env, ic_source=None):
     return "corners"
 
 
-def basic_problems(name, env):
-    """Envelope-level problems: error, non-pass status, diagnostics."""
+def basic_problems(name, env, *, result_status=()):
+    """Envelope-level problems: error, non-pass status, diagnostics.
+
+    `result_status` names rollup statuses that are a graded result rather than
+    a problem -- `("fail",)` marks a corner that missed its limit, not a
+    harness fault -- so their status line never enters the list. Default none:
+    every caller that does not pass it screens exactly as before.
+    """
     if "error" in env:
         return [f"{name}: {env['error'].get('code')}: {env['error'].get('message')}"]
     out = []
-    if env.get("status") != "pass":
+    if env.get("status") != "pass" and env.get("status") not in result_status:
         out.append(f"{name}: status={env.get('status')} passed={env.get('passed')}/{env.get('corner_count')}")
     for c in env.get("corners", []):
         for d in c.get("diagnostics", []):
