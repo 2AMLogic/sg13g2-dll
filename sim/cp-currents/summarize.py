@@ -76,14 +76,14 @@ def kdl_from_envelopes(run_dir):
 
 def main(argv):
     out, delay_run, klt_rc = argv[1], argv[2], int(argv[3])
-    lines = ["# cp-currents record", "",
-             "Charge pump (`design/cp.sch`) with `cp_bias`, VOUT held by an ideal source at 0.6 V, "
-             "reduced corner set (tt/1.2 V/27 C, ss/1.08 V/125 C, ff/1.32 V/-40 C), one `klt sim` request.",
-             "Simulated, never measured. Criteria K1-K6 are in `sim/cp-currents/summarize.py`.", ""]
     try:
         env = json.load(open(os.path.join(out, "cp.envelope.json"), encoding="utf-8"))
     except (OSError, ValueError):
         env = None
+    lines = ["# cp-currents record", "",
+             "Charge pump (`design/cp.sch`) with `cp_bias`, VOUT held by an ideal source at 0.6 V, "
+             f"{evidence.corners_of(env)}, one `klt sim` request.",
+             "Simulated, never measured. Criteria K1-K6 are in `sim/cp-currents/summarize.py`.", ""]
     kdl, errs = kdl_from_envelopes(delay_run)
     if env is None:
         errs.append(f"no envelope written (klt exit {klt_rc}); see cp.stderr")

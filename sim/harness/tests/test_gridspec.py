@@ -476,6 +476,48 @@ class Evidence(unittest.TestCase):
             evidence.backend_of({"backend": "local"})
         self.assertEqual(evidence.environment_lines({"x": {}})[1], "- backend: unrecorded")
 
+    def test_corners_of_renders_each_distinct_corner(self):
+        # A record quotes the corners the run used, each paired with its own
+        # supply and temperature (issue #119). corner_of() would render a
+        # cross-product range here; run_conditions() would elide to (+2 more).
+        env = {"corners": [
+            {"process": "mos_tt", "supply_v": {"Vdd": 1.2}, "temperature_c": 27},
+            {"process": "mos_ss", "supply_v": {"Vdd": 1.08}, "temperature_c": 125},
+            {"process": "mos_ff", "supply_v": {"Vdd": 1.32}, "temperature_c": -40.0},
+        ]}
+        self.assertEqual(evidence.corners_of(env),
+                         "mos_tt/1.2 V/27 C, mos_ss/1.08 V/125 C, mos_ff/1.32 V/-40 C")
+        # distinct-preserving and order-preserving: a repeated corner collapses.
+        env["corners"].append(dict(env["corners"][0]))
+        self.assertEqual(evidence.corners_of(env).count("mos_tt"), 1)
+
+    def test_corners_of_collapses_to_one_group_per_pvt_point(self):
+        # A 32-sample Monte Carlo at one PVT point is ONE corner, not 32; a
+        # Vc sweep varies supply_v.VC, which is not part of a PVT corner and
+        # must never appear in the line.
+        mc = {"corners": [{"process": "mos_ss_mismatch", "supply_v": {"Vdd": 1.08, "VC": 1.0},
+                           "temperature_c": 125} for _ in range(32)]}
+        self.assertEqual(evidence.corners_of(mc), "mos_ss_mismatch/1.08 V/125 C")
+        sweep = {"corners": [{"process": "mos_tt", "supply_v": {"Vdd": 1.2, "VC": v}, "temperature_c": 27}
+                             for v in (0.4, 0.6, 0.8)]}
+        self.assertEqual(evidence.corners_of(sweep), "mos_tt/1.2 V/27 C")
+
+    def test_corners_of_degrades_on_missing_fields(self):
+        # No envelope (the NOT-RUN path) reads as "corner not recorded", the
+        # fallback corner_of() already uses -- never a raise.
+        self.assertEqual(evidence.corners_of(None), "corner not recorded")
+        self.assertEqual(evidence.corners_of({}), "corner not recorded")
+        self.assertEqual(evidence.corners_of({"corners": []}), "corner not recorded")
+        # A corner missing a component omits only that component.
+        partial = {"corners": [
+            {"supply_v": {"Vdd": 1.2}, "temperature_c": 27},
+            {"process": "mos_ss", "temperature_c": 125},
+            {"process": "mos_tt", "supply_v": {}},
+            {"process": None, "supply_v": {"Vdd": 1.32}, "temperature_c": -40},
+        ]}
+        self.assertEqual(evidence.corners_of(partial),
+                         "1.2 V/27 C, mos_ss/125 C, mos_tt, 1.32 V/-40 C")
+
     def test_kind_and_basic_problems(self):
         self.assertEqual(evidence.kind(mc_env({"a": 1})), "mc")
         self.assertEqual(evidence.kind({"corners": [corner("a", {"vic": 1})]}, "vic"), "ic")

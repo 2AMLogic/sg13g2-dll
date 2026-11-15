@@ -203,6 +203,33 @@ def backend_of(environment):
     return ((environment or {}).get("backend") or {}).get("resolved")
 
 
+def corners_of(env):
+    """The PVT corners this envelope recorded, as a record line.
+
+    One `process/Vdd V/temp C` group per distinct corner, in envelope order, so
+    a record can never quote a corner the run did not use and never implies a
+    combination it did not run. A Monte Carlo or Vc-sweep envelope collapses to
+    one group; a reduced-set envelope renders each of its corners. A missing
+    component is omitted and the rest kept; no corners at all reads as
+    "corner not recorded", the fallback corner_of() already uses.
+    """
+    groups = []
+    for c in (env or {}).get("corners") or []:
+        supply = c.get("supply_v") or {}
+        vdd, temp = supply.get("Vdd"), c.get("temperature_c")
+        parts = []
+        if c.get("process") is not None:
+            parts.append(str(c["process"]))
+        if vdd is not None:
+            parts.append(f"{vdd:g} V")
+        if temp is not None:
+            parts.append(f"{temp:g} C")
+        group = "/".join(parts)
+        if group and group not in groups:
+            groups.append(group)
+    return ", ".join(groups) if groups else "corner not recorded"
+
+
 def environment_lines(envs):
     """Engine, engine host, backend and batch jobs as the envelopes recorded them.
 
