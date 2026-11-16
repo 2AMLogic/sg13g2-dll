@@ -36,7 +36,7 @@ _None._
 
 Issues currently being built (`loom:building`).
 
-- **#140**: Operator ruling: closing the PFD fit gate at ss/1 GHz (C2, issue #136)
+_None._
 
 ## PRs Awaiting Review
 
@@ -79,7 +79,7 @@ _None._
 | Very important | 1 |
 | Important | 6 |
 | Ready (`loom:issue`) | 0 |
-| In Progress (`loom:building`) | 1 |
+| In Progress (`loom:building`) | 0 |
 | PRs awaiting review | 0 |
 | Approved PRs awaiting merge | 1 |
 | Curated | 3 |
