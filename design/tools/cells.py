@@ -86,6 +86,27 @@ c.mos("MPB2", "p", "4u", L, D="QB", G="Q", S="VDD", B="VDD")
 c.mos("MNB1", "n", "4u", L, D="QB", G="RB", S="midb", B="VSS")
 c.mos("MNB2", "n", "4u", L, D="midb", G="Q", S="VSS", B="VSS")
 
+# Issue #140 candidate (spec/decisions/0015): the srlatch_fast core with the lane
+# output moved behind a driver, so the bench load stops sitting on the storage
+# node. Q is the buffered output (inv4x of the internal complement, sized for the
+# 4 fF bench load), QB is that lightly loaded internal complement, and QN exposes
+# the internal storage node the reset NAND taps, so the driver delay does not
+# re-enter the reset path. Not instantiated by design/pfd.sch: until 0015 is
+# ratified its only consumer is the retained probe deck committed with it.
+c = add(Cell("srlatch_buf", logic_ports(["S", "R"], ["Q", "QB", "QN"]),
+             "set/reset latch, cross-coupled device-level NAND2 (4u) with inverted inputs (S, R active high), buffered lane output (issue #140 candidate, spec/decisions/0015): same core as srlatch_fast; Q = inv4x(QB) sized for the bench load, QB is the lightly loaded internal complement and QN the internal storage node tapped by the reset NAND so the driver stays out of the reset path"))
+c.sub("XIS", "inv2x_lv", A="S", Y="SB", VDD="VDD", VSS="VSS")
+c.sub("XIR", "inv4x_lv", A="R", Y="RB", VDD="VDD", VSS="VSS")
+c.mos("MPQ1", "p", "4u", L, D="QN", G="SB", S="VDD", B="VDD")
+c.mos("MPQ2", "p", "4u", L, D="QN", G="QB", S="VDD", B="VDD")
+c.mos("MNQ1", "n", "4u", L, D="QN", G="SB", S="midq", B="VSS")
+c.mos("MNQ2", "n", "4u", L, D="midq", G="QB", S="VSS", B="VSS")
+c.mos("MPB1", "p", "4u", L, D="QB", G="RB", S="VDD", B="VDD")
+c.mos("MPB2", "p", "4u", L, D="QB", G="QN", S="VDD", B="VDD")
+c.mos("MNB1", "n", "4u", L, D="QB", G="RB", S="midb", B="VSS")
+c.mos("MNB2", "n", "4u", L, D="midb", G="QN", S="VSS", B="VSS")
+c.sub("XOQ", "inv4x_lv", A="QB", Y="Q", VDD="VDD", VSS="VSS")
+
 c = add(Cell("pfd", "REF:i:l FB:i:l UP:o:r DN:o:r VDD:io:t VSS:io:b",
              "tri-state PFD: 2x edgedet + 2x srlatch_fast, reset = AND(UP,DN) delayed by NAND + 1 inverter (issue #113)"))
 c.sub("XED_UP", "edgedet", X="REF", OUT="set_up", VDD="VDD", VSS="VSS")
