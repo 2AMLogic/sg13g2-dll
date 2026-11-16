@@ -2,6 +2,10 @@
 
 Chronological record of merged PRs and closed issues. Maintained by the Guide role.
 
+### 2026-11-16
+
+- **Issue #156** (closed): WORK_PLAN's operator merge-risk-hold section under-reports: #154 held since 06:51Z was absent from a 09:50Z Guide write
+
 ### 2026-11-15
 
 - **PR #149**: sim: re-run supervisor and lock-detector smoke on the 3-stage edgedet; record ss probe failures
