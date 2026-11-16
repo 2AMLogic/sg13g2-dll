@@ -90,8 +90,8 @@ loads); the DUT is `pfd_buf`, defined inline in the deck, wiring the committed `
 settled offset-0 cycles; cycle 0 is a warm-up cycle and is excluded from the quoted figures (it
 reads 208.1 ps, ~2.9 ps wider than the settled cycles, exactly the effect the records exclude).
 
-**Result at ss/1.080 V/125 °C, offset 0, settled cycles** (all five settled offset-0 cycles of the
-run agree; both lanes match within 0.6 ps):
+**Result at ss/1.080 V/125 °C, offset 0, settled cycles** (all six settled offset-0 cycles of the
+run — 1, 2, 9, 16, 17, 18 — agree; both lanes match within 0.6 ps):
 
 | quantity | candidate | committed (0011 anchors) | budget |
 |---|---|---|---|
