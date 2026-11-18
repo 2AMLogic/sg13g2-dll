@@ -13,7 +13,7 @@ Judge-approved PRs under a hold (`loom:blocked` or `loom:operator`) — only a h
 
 `loom:very-important` (one counts per workspace); every stage takes these first.
 
-- **#58**: T1 item 1 (dll_top): draw dll_top schematic, export netlist, attest item 1
+- **#58**: T1 item 1 (dll_top): draw dll_top schematic, export netlist, attest item 1 *(held)*
 
 ## Important
 
@@ -28,9 +28,9 @@ Judge-approved PRs under a hold (`loom:blocked` or `loom:operator`) — only a h
 
 ## Ready
 
-Human-approved issues ready for implementation (`loom:issue`).
+Human-approved issues (`loom:issue`) ready for implementation — excluding held (`loom:blocked`/`loom:operator`/`loom:frozen`), `loom:building`, and issues closed by an open `loom:pr` PR (listed under Approved).
 
-- **#140**: Operator ruling: closing the PFD fit gate at ss/1 GHz (C2, issue #136)
+_None._
 
 ## In Progress
 
@@ -78,7 +78,7 @@ _None._
 | Operator merge-risk holds | 1 |
 | Very important | 1 |
 | Important | 6 |
-| Ready (`loom:issue`) | 1 |
+| Ready (`loom:issue`, net of holds/building/merge-pending) | 0 |
 | In Progress (`loom:building`) | 0 |
 | PRs awaiting review | 0 |
 | Approved PRs awaiting merge | 1 |
