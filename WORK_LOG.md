@@ -4,7 +4,11 @@ Chronological record of merged PRs and closed issues. Maintained by the Guide ro
 
 ### 2026-11-18
 
+- **PR #180**: chore: ignore klt .spiceinit scratch in sim results
+- **PR #178**: chore: drop vendored T1 checklist and --tiers-doc override
 - **PR #168**: ci: run signoff and unit workflows on merge-group checks_requested
+- **Issue #116** (closed): Stop vendoring design-evidence-tiers.md: the pinned klayout-tools 0.8.0 wheel already ships the identical 1053 lines
+- **Issue #107** (closed): Stop committing klt's .spiceinit scratch file: 429 byte-identical copies are 19% of the repo's tracked files
 - **Issue #167** (closed): Merge queue: add the merge_group trigger to the required-check workflow(s)
 
 ### 2026-11-17
