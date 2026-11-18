@@ -36,7 +36,7 @@ _None._
 
 Issues currently being built (`loom:building`).
 
-_None._
+- **#167**: Merge queue: add the merge_group trigger to the required-check workflow(s)
 
 ## PRs Awaiting Review
 
@@ -57,6 +57,7 @@ Issues carrying `loom:curated`.
 - **#6**: Track the gap to T1 (klayout-tools design-evidence-tiers.md) *(curated)*
 - **#28**: T1 item 9 (testbenches shipped): one harness bench per spec row, with cold-start docs and --attest 9 *(curated)* *(held)*
 - **#140**: Operator ruling: closing the PFD fit gate at ss/1 GHz (C2, issue #136) *(curated)*
+- **#167**: Merge queue: add the merge_group trigger to the required-check workflow(s) *(curated)*
 
 ## Proposed (Architect / Hermit)
 
@@ -79,10 +80,10 @@ _None._
 | Very important | 1 |
 | Important | 6 |
 | Ready (`loom:issue`, net of holds/building/merge-pending) | 0 |
-| In Progress (`loom:building`) | 0 |
+| In Progress (`loom:building`) | 1 |
 | PRs awaiting review | 0 |
 | Approved PRs awaiting merge | 1 |
-| Curated | 3 |
+| Curated | 4 |
 | Architect / Hermit proposals | 6 |
 | Active epics | 0 |
 <!-- guide:plan-body:end -->
