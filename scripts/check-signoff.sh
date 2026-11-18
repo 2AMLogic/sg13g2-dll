@@ -15,7 +15,7 @@ run() { # $1=out ; rest = klt args
   if [ "$rc" -ne 0 ] && [ "$rc" -ne 3 ]; then echo "klt $* exited $rc" >&2; exit 1; fi
 }
 attest() { run "$1" signoff --attest 10 --inventory $M/item-10-inventory.json --format json; }
-grade()  { run "$1" signoff --manifest $M/sg13g2-dll.json --tiers-doc $M/design-evidence-tiers.md --format json; }
+grade()  { run "$1" signoff --manifest $M/sg13g2-dll.json --format json; }
 
 if [ "${1:-}" = "--write" ]; then
   attest $M/evidence/item-10-repo-hygiene.json
