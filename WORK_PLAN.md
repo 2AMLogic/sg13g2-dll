@@ -49,6 +49,7 @@ _None._
 PRs that passed review and are queued for Champion auto-merge (`loom:pr`).
 
 - **#152**: spec(0015): ratifiable buffered-lane-output PFD latch record with retained ss headroom probe — closes #140
+- **#168**: ci: run signoff and unit workflows on merge-group checks_requested — closes #167
 
 ## Proposed
 
@@ -82,7 +83,7 @@ _None._
 | Ready (`loom:issue`, net of holds/building/merge-pending) | 0 |
 | In Progress (`loom:building`) | 1 |
 | PRs awaiting review | 0 |
-| Approved PRs awaiting merge | 1 |
+| Approved PRs awaiting merge | 2 |
 | Curated | 4 |
 | Architect / Hermit proposals | 6 |
 | Active epics | 0 |
