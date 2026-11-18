@@ -1,4 +1,4 @@
-# 0015 — Row 4 gains a Monte Carlo spacing limit later (commit now, value later)
+# 0016 — Row 4 gains a Monte Carlo spacing limit later (commit now, value later)
 
 - **Status**: proposed — an agent-written record. It is not ratified, and it does not edit `spec/target-spec.md`. Any wording it proposes enters the spec only through the two-key ratification path of [0009](0009-ratification-of-target-spec.md) (#41) and the operator's merge.
 - **Date**: 2026-11-18
