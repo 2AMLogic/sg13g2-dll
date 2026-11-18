@@ -45,6 +45,13 @@ if the batch submit fails, or if any corner reports a diagnostic or does not
 pass. Set `SMOKE_CAPACITY_WAIT_S` to bound the wait for fleet capacity. The
 limits in the requests are sanity gates, not spec numbers.
 
+`klt sim` also writes a one-line `.spiceinit` (`set num_threads=1`) beside each
+per-unit deck. It is scratch, not part of the results contract above, and
+`.gitignore` excludes it (issue #107): new runs do not commit it, while earlier
+results directories still carry the copies already committed (left in place;
+`sim/*/results/` stays append-only). The same asymmetry already exists with the
+`pdk-smoke` / `harness-example` runs that never had the file.
+
 The smoke is LV-only since issue #96: decision 0007 put the block on 1.2 V
 thin-oxide CMOS with no hv rail and no SiGe HBT, so the `sg13_hv_*` inverter
 and `npn13G2` operating-point legs were removed. The earlier result
