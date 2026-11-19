@@ -18,6 +18,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import shutil
 import subprocess
 import sys
 
@@ -265,20 +266,27 @@ def openvaf_tag(root):
 
 
 def provenance_lines(root, items):
-    """Commit, PDK pin, OSDI hashes, run environment and tool versions for a record."""
+    """Commit, PDK pin, OSDI hashes, run environment and tool versions for a record.
+
+    The klt line degrades to `not on PATH` where klt is not installed: this
+    function is also driven by the simulator-free unit job, which deliberately
+    has no klt (see .github/workflows/tests.yml).
+    """
     with open(os.path.join(root, "sim", "pdk.json"), encoding="utf-8") as fh:
         pin = json.load(fh)
     envs = {tag_of(p): e.get("environment") or {} for p, e in items if "error" not in e}
     first = next(iter(envs.values()), {})
     osdi = {o["name"]: o["sha256"] for o in first.get("osdi_preload", [])}
     dirty = bool(_git(root, "status", "--porcelain", "--", "sim", "reuse.lock.json"))
-    klt = subprocess.run(["klt", "--version"], capture_output=True, text=True).stdout.strip()
+    klt = ""
+    if shutil.which("klt"):
+        klt = subprocess.run(["klt", "--version"], capture_output=True, text=True).stdout.strip()
     return [
         f"- sg13g2-dll commit: `{_git(root, 'rev-parse', 'HEAD')}`" + (" (working tree dirty under sim/)" if dirty else ""),
         f"- PDK pin: IHP-Open-PDK `{pin['release_tag']}` (`sim/pdk.json`)",
         "- OSDI models (sha256 of the binaries the run loaded): " + "; ".join(f"`{k}` {v[:16]}…" for k, v in osdi.items()),
         f"- OSDI build: `sim/harness/common/build-osdi.sh` (OpenVAF-Reloaded {openvaf_tag(root)}), see `reuse.lock.json`",
-    ] + environment_lines(envs) + [f"- klt: {klt}"]
+    ] + environment_lines(envs) + [f"- klt: {klt or 'not on PATH'}"]
 
 
 def measurement_rows(items):
