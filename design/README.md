@@ -34,10 +34,18 @@ python3 -I design/tools/mksch.py   # redraw .sch/.sym from design/tools/cells.py
 python3 -I design/tools/mksch.py --check
 ```
 
-`design/tools/cells.py` + `mksch.py` are the drawing aid that wrote the `.sch`
-and `.sym` files (label-driven connectivity, as in the sibling); edit either the
-cell definition and redraw, or the `.sch` in xschem and then update the
-definition, and re-export. `netlist.sh` is the one exporter for the design:
+`design/tools/cells.py` + `mksch.py` generate 24 of the 27 `.sch`/`.sym` pairs
+under `design/` — exactly the cells in `CELLS` in that file (the logic leaves,
+the PFD, the charge pump and its bias, the loop filter, and the supervisor and
+lock-detector parts). For those the workflow is one-way: edit the cell
+definition in `cells.py`, redraw with `python3 -I design/tools/mksch.py`, then
+re-export. Do not edit a generated `.sch` in xschem and then try to update the
+definition to match: that desynchronizes the drawing from `cells.py`, and
+`netlist.sh --check` (which runs `mksch.py --check`) fails the tree until the
+two agree again. The three delay-line cells — `delay_cell`, `tap_buffer`,
+`delay_line` — are hand-written and kept so (issue #58 owns the
+authoring-path decision); those are the `.sch`/`.sym` you edit directly.
+`netlist.sh` is the one exporter for the design:
 issue #23's tops are in its `BLOCKS` list.
 xschem is only run through `klt netlist`.
 
