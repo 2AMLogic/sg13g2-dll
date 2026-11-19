@@ -4,6 +4,8 @@ Chronological record of merged PRs and closed issues. Maintained by the Guide ro
 
 ### 2026-11-19
 
+- **PR #185**: docs: correct the schematic-authoring docs and gate mksch staleness from netlist.sh --check
+- **Issue #101** (closed): Correct the contradictory design-authoring docs and run mksch.py --check from design/netlist.sh --check
 - **PR #181**: chore: re-vendor build-osdi.sh and read OpenVAF pins from --print-pins
 - **Issue #179** (closed): Re-vendor build-osdi.sh at the new owner hash and read pins from --print-pins
 
