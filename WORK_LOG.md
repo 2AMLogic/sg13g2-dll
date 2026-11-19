@@ -4,6 +4,8 @@ Chronological record of merged PRs and closed issues. Maintained by the Guide ro
 
 ### 2026-11-19
 
+- **PR #176**: docs: index decision records 0008-0012 and 0014 in spec README
+- **Issue #175** (closed): spec/README.md decision-record index omits 0008-0012 and 0014
 - **PR #185**: docs: correct the schematic-authoring docs and gate mksch staleness from netlist.sh --check
 - **Issue #101** (closed): Correct the contradictory design-authoring docs and run mksch.py --check from design/netlist.sh --check
 - **PR #181**: chore: re-vendor build-osdi.sh and read OpenVAF pins from --print-pins
