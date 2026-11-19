@@ -2,6 +2,11 @@
 
 Chronological record of merged PRs and closed issues. Maintained by the Guide role.
 
+### 2026-11-19
+
+- **PR #181**: chore: re-vendor build-osdi.sh and read OpenVAF pins from --print-pins
+- **Issue #179** (closed): Re-vendor build-osdi.sh at the new owner hash and read pins from --print-pins
+
 ### 2026-11-18
 
 - **PR #180**: chore: ignore klt .spiceinit scratch in sim results
