@@ -11,6 +11,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from unittest import mock
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 HARNESS = os.path.dirname(HERE)
@@ -388,6 +389,39 @@ def corner(cid, supply, **vals):
 
 
 class Evidence(unittest.TestCase):
+    def test_provenance_reads_openvaf_tag_from_script_pins(self):
+        repo = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+        with tempfile.TemporaryDirectory() as root:
+            os.makedirs(os.path.join(root, "sim"))
+            with open(os.path.join(root, "sim", "pdk.json"), "w", encoding="utf-8") as fh:
+                json.dump({"release_tag": "vX"}, fh)
+            tag = evidence.openvaf_tag(repo)
+            os.makedirs(os.path.join(root, "sim", "harness", "common"))
+            os.symlink(os.path.join(repo, "sim", "harness", "common", "build-osdi.sh"),
+                       os.path.join(root, "sim", "harness", "common", "build-osdi.sh"))
+            lines = evidence.provenance_lines(root, [])
+        self.assertTrue(any("OpenVAF-Reloaded " + tag in ln for ln in lines))
+        self.assertEqual(tag, "v24.0.1mob")
+
+    def test_provenance_klt_line_degrades_without_klt_on_path(self):
+        """No klt installed -> the record still writes, with `- klt: not on PATH`.
+
+        The simulator-free unit job (CI) has no klt on PATH by contract; the
+        OSDI-build line above it must not depend on klt either. Forcing the
+        absent-klt branch keeps this deterministic on a developer host that
+        does have klt.
+        """
+        repo = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+        with tempfile.TemporaryDirectory() as root:
+            os.makedirs(os.path.join(root, "sim", "harness", "common"))
+            with open(os.path.join(root, "sim", "pdk.json"), "w", encoding="utf-8") as fh:
+                json.dump({"release_tag": "vX"}, fh)
+            os.symlink(os.path.join(repo, "sim", "harness", "common", "build-osdi.sh"),
+                       os.path.join(root, "sim", "harness", "common", "build-osdi.sh"))
+            with mock.patch("evidence.shutil.which", return_value=None):
+                lines = evidence.provenance_lines(root, [])
+        self.assertIn("- klt: not on PATH", lines)
+
     def test_negative_control_requires_exact_zero(self):
         self.assertEqual(evidence.check_negative_control("c", mc_env({"a": 0.0, "b": 0})), [])
         bad = evidence.check_negative_control("c", mc_env({"a": 0.0, "b": 1e-15}))

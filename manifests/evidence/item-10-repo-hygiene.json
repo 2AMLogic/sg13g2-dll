@@ -73,7 +73,7 @@
         "role": "hygiene",
         "path": "sim/harness/common/build-osdi.sh",
         "passed": true,
-        "content_hash": "sha256:d022ddc32a02280081d32bb7186ba1920b0b3399b00b0a5ad5eeda717d1396bd"
+        "content_hash": "sha256:5f9e30473de9b017596da4ed89420a409838d59a9941abc9942a2e60b177bad3"
       },
       {
         "check": "present",
