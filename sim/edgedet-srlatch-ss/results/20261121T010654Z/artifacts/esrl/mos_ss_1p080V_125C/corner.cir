@@ -1,0 +1,27 @@
+* klt sim -- generated corner deck, do not edit
+.lib /var/tmp/eda-job-klt-sim-00c3d54286ad/inputs/cornerMOSlv.lib mos_ss
+.lib /var/tmp/eda-job-klt-sim-00c3d54286ad/inputs/cornerRES.lib res_typ
+.lib /var/tmp/eda-job-klt-sim-00c3d54286ad/inputs/cornerCAP.lib cap_typ
+.include /var/tmp/eda-job-klt-sim-00c3d54286ad/inputs/netlist.cir
+.temp 125
+.meas tran q_pre find v(lockq) at=3.5n
+.meas tran to_r when v(to)=v(half) rise=1
+.meas tran t_pt_r when v(pt)=v(half) rise=1
+.meas tran t_pt_f when v(pt)=v(half) fall=1
+.meas tran t_q_r when v(lockq)=v(half) rise=1
+.meas tran t_lock_r when v(lock)=v(half) rise=1
+.meas tran q_end find v(lockq) at=7.5n
+.meas tran qb_end find v(lockqb) at=7.5n
+.control
+pre_osdi /var/tmp/eda-job-klt-sim-00c3d54286ad/inputs/psp103.osdi
+pre_osdi /var/tmp/eda-job-klt-sim-00c3d54286ad/inputs/psp103_nqs.osdi
+pre_osdi /var/tmp/eda-job-klt-sim-00c3d54286ad/inputs/r3_cmc.osdi
+pre_osdi /var/tmp/eda-job-klt-sim-00c3d54286ad/inputs/mosvar.osdi
+save all
+alter Vdd=1.08
+tran 1p 8n
+let pt_max = vecmax(v(pt))
+print pt_max
+quit
+.endc
+.end

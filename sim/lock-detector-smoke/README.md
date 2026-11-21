@@ -52,3 +52,12 @@ re-derivation), and **measures a failure**: `vmov_cmp` never asserts `still` at
 ss, so `bad` holds, the counter stays cleared, and LOCK never rises. See that
 directory's `record.md` for method and attribution, and `design/NOTES.md`
 "Not met / not established" for the summary.
+
+`results/20261121T004307Z-dcprobe/` (issue #189) is the follow-up **DC probe**
+of that failure: a settled `.dc` sweep of VCTRL through the standalone
+`vmov_cmp` at the reduced-set corners. Measured: the `STILL=1` quiet window is
+[0, 0.477) V at ss (the smoke's 0.585–0.615 V band is outside it — the failure
+is static common-mode bias, not ripple or settling), [0, 0.6125) V at tt
+(12.5 mV above the nominal 0.600 V) and [0, 0.8523) V at ff. See that
+directory's `record.md`. The isolated one-shot/latch set path the ss probe
+left unexercised is covered by `sim/edgedet-srlatch-ss/` (it works at ss).
