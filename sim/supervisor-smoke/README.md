@@ -44,3 +44,12 @@ re-derivation), and **measures a failure**: RST never releases at ss (the
 `win_det` TAPH sample mis-latches, `over_n` holds, the counter stays disabled,
 the one-shot never fires). See that directory's `record.md` for method and
 attribution, and `design/NOTES.md` § "Evidence status" for the summary.
+
+`results/20261121T004400Z-setup/` (issue #189) is the follow-up **setup-margin
+probe** of that mis-latch: the committed `win_det` with its supervisor-internal
+loads, the no-fault phase's own 30 ps slew, the TAPH-fall-to-REF-rise lead
+swept through `corners.supply_v` (an alter, not `corners.params`). Measured
+bracket: ss captures low only for leads ≥ 110 ps and latches the stale high
+through 100 ps — the no-fault phase's own lead — while the tt control needs
+only (60, 80] ps: a cell-speed failure of the sampler at ss, not a
+sampling-edge construction artefact. See that directory's `record.md`.
