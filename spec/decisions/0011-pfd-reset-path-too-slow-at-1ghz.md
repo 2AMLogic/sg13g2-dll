@@ -188,3 +188,13 @@ improvement — it is what moved the window into existence, and it widened the f
 margins — but it does not close ss. Per 0006, the operator decision is filed as **issue #140** with the ranked
 options (latch-family topology change / ss-specific C2 relaxation / accept the 500 MHz
 fallback); C2 was **not** relaxed here, and `reuse.lock.json`'s `pfd` entry stays `adopting`.
+
+### Update 2026-11-16 (issue #140): the ruling chose the topology change; see 0015
+
+The 2026-11-15 operator ruling on #140 declined the C2 relaxation and the 500 MHz fallback and
+directed a latch-family / edge-detector topology change. That decision record is
+[0015](0015-pfd-buffered-lane-output.md) (ratifiable, with a retained ss headroom probe of its
+`srlatch_buf` candidate: width 205.2 ps at ss offset 0 against the 250 ps cap,
+`sim/pfd-fit/results/20261116T012100Z`); the redesign and the full-gate re-run are follow-up
+#151, after 0015 is ratified. Nothing above is rewritten by it; this record stands as the
+evidence the ruling built on.
