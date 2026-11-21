@@ -1,0 +1,5 @@
+{
+  "engine": "klayout",
+  "layout": { "file": "loop_filter.gds", "deck": "sg13g2", "top": "loop_filter" },
+  "reference": { "netlist": "../../design/netlist/loop_filter.spice", "deck": "sg13g2", "form": "subckt-call" }
+}

@@ -1,0 +1,6 @@
+{
+  "engine": "klayout",
+  "layout": { "file": "cp.gds", "deck": "sg13g2", "top": "cp" },
+  "reference": { "netlist": "../../design/netlist/cp.spice", "deck": "sg13g2", "form": "subckt-call" },
+  "options": { "flatten_reference": true }
+}

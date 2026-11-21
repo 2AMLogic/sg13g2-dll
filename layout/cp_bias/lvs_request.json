@@ -1,0 +1,5 @@
+{
+  "engine": "klayout",
+  "layout": { "file": "cp_bias.gds", "deck": "sg13g2", "top": "cp_bias" },
+  "reference": { "netlist": "../../design/netlist/cp_bias.spice", "deck": "sg13g2", "form": "subckt-call" }
+}
