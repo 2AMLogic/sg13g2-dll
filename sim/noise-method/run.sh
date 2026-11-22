@@ -5,7 +5,6 @@ set -euo pipefail
 
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SIM_DIR="$(cd "${HERE}/.." && pwd)"
-REPO_ROOT="$(cd "${SIM_DIR}/.." && pwd)"
 IA_PROBE="1e-9"
 
 # shellcheck source=/dev/null
