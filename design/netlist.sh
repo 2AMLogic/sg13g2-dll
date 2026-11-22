@@ -12,8 +12,12 @@
 # ever run through `klt netlist`, which forces the headless flags and kills a
 # hung run; never call xschem directly.
 #
-# --check is the staleness gate: a schematic edited without re-export, or a
-# committed netlist edited by hand, makes it exit 3. For that to carry
+# --check is the staleness gate: a schematic edited without re-export, a
+# committed netlist edited by hand, or a generated .sch/.sym that has drifted
+# from design/tools/cells.py makes it exit 3. The generator leg runs
+# `mksch.py --check` over the whole design first (the three hand-written
+# delay-line cells are not in cells.py and are untouched by it); --top
+# restricts only the netlist diff that follows. For that to carry
 # information, every export is normalized against the host that produced it
 # before it is written or diffed:
 #
@@ -97,6 +101,15 @@ export_block() {
 }
 
 rc=0
+if [[ ${CHECK} -eq 1 ]]; then
+  # Gate the generator too: a committed .sch/.sym that no longer matches
+  # design/tools/cells.py is stale even when its committed netlist still
+  # matches. One run covers the whole design; --top restricts only the
+  # netlist diff below.
+  if ! python3 -I "${HERE}/tools/mksch.py" --check; then
+    rc=3
+  fi
+fi
 for blk in "${BLOCKS[@]}"; do
   export_block "${blk}" || { rc=1; continue; }
   if [[ ${CHECK} -eq 1 ]]; then

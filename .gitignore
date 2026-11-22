@@ -9,6 +9,9 @@ __pycache__/
 # (append-only record trail), so they escape the *.log rule.
 !sim/*/corners/**/*.log
 sim/build/
+# klt sim scratch: one identical line (`set num_threads=1`) per simulated
+# unit. Not part of the results contract in sim/README.md.
+sim/*/results/*/artifacts/**/.spiceinit
 # synthesis / P&R scratch
 flow/build/
 # local klt install, created by the setup script

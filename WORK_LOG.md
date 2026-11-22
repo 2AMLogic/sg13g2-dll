@@ -2,9 +2,22 @@
 
 Chronological record of merged PRs and closed issues. Maintained by the Guide role.
 
+### 2026-11-19
+
+- **PR #176**: docs: index decision records 0008-0012 and 0014 in spec README
+- **Issue #175** (closed): spec/README.md decision-record index omits 0008-0012 and 0014
+- **PR #185**: docs: correct the schematic-authoring docs and gate mksch staleness from netlist.sh --check
+- **Issue #101** (closed): Correct the contradictory design-authoring docs and run mksch.py --check from design/netlist.sh --check
+- **PR #181**: chore: re-vendor build-osdi.sh and read OpenVAF pins from --print-pins
+- **Issue #179** (closed): Re-vendor build-osdi.sh at the new owner hash and read pins from --print-pins
+
 ### 2026-11-18
 
+- **PR #180**: chore: ignore klt .spiceinit scratch in sim results
+- **PR #178**: chore: drop vendored T1 checklist and --tiers-doc override
 - **PR #168**: ci: run signoff and unit workflows on merge-group checks_requested
+- **Issue #116** (closed): Stop vendoring design-evidence-tiers.md: the pinned klayout-tools 0.8.0 wheel already ships the identical 1053 lines
+- **Issue #107** (closed): Stop committing klt's .spiceinit scratch file: 429 byte-identical copies are 19% of the repo's tracked files
 - **Issue #167** (closed): Merge queue: add the merge_group trigger to the required-check workflow(s)
 
 ### 2026-11-17

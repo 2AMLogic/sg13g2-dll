@@ -17,7 +17,7 @@
         "role": "hygiene",
         "path": ".github/workflows/signoff.yml",
         "passed": true,
-        "content_hash": "sha256:670b3f93386eeb3ec11255583d8a31e49624ed3b0326abc99c098964ef83f73f"
+        "content_hash": "sha256:7227345ae48dfe5febac37b3ff4cf63651942e1af952d47d81c38ddc5a2a6f42"
       },
       {
         "check": "present",
@@ -38,14 +38,14 @@
         "role": "hygiene",
         "path": "design/netlist.sh",
         "passed": true,
-        "content_hash": "sha256:52174d1e660a278882ca930b0d3bb614d8614453b8919dc9a746eeebe8147d71"
+        "content_hash": "sha256:12424d2ab400973ac03ccadda696738e3263b5e0f16d314addaca908994c475d"
       },
       {
         "check": "present",
         "role": "hygiene",
         "path": "scripts/check-signoff.sh",
         "passed": true,
-        "content_hash": "sha256:3715f32cd4de32aeeec3ecba8aa4b9b48bd46abea0697779f511bcc4143aa2f1"
+        "content_hash": "sha256:4dd745fd1341747021c6b28676e3994ab4b4e73f867e99af799be56b01db8ec2"
       },
       {
         "check": "present",
@@ -73,7 +73,7 @@
         "role": "hygiene",
         "path": "sim/harness/common/build-osdi.sh",
         "passed": true,
-        "content_hash": "sha256:d022ddc32a02280081d32bb7186ba1920b0b3399b00b0a5ad5eeda717d1396bd"
+        "content_hash": "sha256:5f9e30473de9b017596da4ed89420a409838d59a9941abc9942a2e60b177bad3"
       },
       {
         "check": "present",
