@@ -4,6 +4,8 @@ Chronological record of merged PRs and closed issues. Maintained by the Guide ro
 
 ### 2026-11-23
 
+- **PR #208**: docs(pfd-fit): drop stale --require-pass from grade usage, restate run.sh no-local-fallback as fleet policy
+- **Issue #207** (closed): pfd-fit bench: grade.py documents a --require-pass flag that does not exist, plus three retained-record/comment inaccuracies
 - **PR #215**: docs: index decisions 0015 and 0016 in spec/README.md
 - **Issue #212** (closed): spec/README.md index is missing rows for decisions 0015 and 0016
 - **PR #209**: docs: correct the ctl_1g rest-state record to two states (0016)
