@@ -34,13 +34,21 @@ def synth(reset_ps=80.0, gain=1.0):
         m("t_up", up, ue), m("t_dn", dn, de)]}
 
 
+def set_level(corner, name, value):
+    m = next(x for x in corner["measurements"] if x["name"] == name)
+    m["value"] = value
+
+
 def synth_control(vdd=1.08, lanes="low", edgedets=True, storage=True, reset_rest=None,
                   dips=(-20, -10, -5, 0, 5, 10, 20)):
     """A ctl_1g corner the way klt reports one: dead or live lanes plus the DUT-internal probes.
 
-    The default is the measured stuck-reset signature: a set pulse and a QN pulse
-    on every input edge, reset asserted at rest and dipping only where the two QN
-    pulses overlap, lanes that never leave low.
+    `lanes="low"` is the measured held-in-reset signature (ss): a set pulse and a
+    QN pulse on every input edge, reset asserted at rest and dipping only where
+    the two QN pulses overlap, lanes that never leave low. `lanes="high"` is the
+    measured stuck-set signature (tt, ff): pass `storage=False, dips=()` for the
+    consistent form, in which neither QN, reset nor a lane ever crosses and both
+    QN nodes and both lanes sit high with reset deasserted at rest.
     """
     offs = mb.offsets()
     tr = [mb.T0 + k * T for k in range(len(offs))]
@@ -65,11 +73,14 @@ def synth_control(vdd=1.08, lanes="low", edgedets=True, storage=True, reset_rest
            train("t_up_qn", tr if storage else [], qn_pulse),
            train("t_dn_qn", tf if storage else [], qn_pulse),
            train("t_reset", [t for t, o in zip(tr, offs) if o in dips], (("fall", 445), ("rise", 520)))]
-    rest = vdd if reset_rest is None else reset_rest
+    stuck = lanes == "high"
+    rest = (0.0 if stuck else vdd) if reset_rest is None else reset_rest
     lv = lambda n, v: {"name": n, "value": v, "unit": "V", "status": "pass", "margin": None}
     lane_max = {"low": 0.002, "high": vdd, "pulsing": vdd}[lanes]
+    qn_min = vdd * 0.96 if stuck else -0.05
     ms += [lv("v_reset_rest", rest), lv("v_reset_min", 0.15 * vdd if dips else rest),
-           lv("v_reset_max", vdd), lv("v_up_max", lane_max), lv("v_dn_max", lane_max)]
+           lv("v_reset_max", vdd), lv("v_up_max", lane_max), lv("v_dn_max", lane_max),
+           lv("v_up_qn_min", qn_min), lv("v_dn_qn_min", qn_min)]
     return {"corner_id": "c", "supply_v": {"Vdd": vdd}, "measurements": ms}
 
 
@@ -107,9 +118,39 @@ class ControlReason(unittest.TestCase):
     def test_stuck_reset_is_the_stated_reason(self):
         defects, evidence = self.reason(synth_control())
         self.assertEqual(defects, [])
+        self.assertEqual(evidence["face"], "held in reset")
         self.assertEqual(evidence["counts"], {"t_ref": 19, "t_fb": 19, "t_up": 0, "t_dn": 0, "t_set_up": 38,
                                               "t_set_dn": 38, "t_up_qn": 38, "t_dn_qn": 38, "t_reset": 26})
         self.assertEqual(evidence["dip_offsets_ps"], [-20, -10, -5, 0, 5, 10, 20])
+
+    def test_low_lanes_need_an_asserted_reset_and_pulsing_storage_nodes(self):
+        rest, quiet = synth_control(), synth_control(storage=False)
+        set_level(rest, "v_reset_rest", 0.0)
+        for corner, text in ((rest, "reset not asserted at rest"),
+                             (quiet, "UP latch storage node")):
+            with self.subTest(text=text):
+                defects, _ = self.reason(corner)
+                self.assertTrue(any(text in d for d in defects), defects)
+
+    def test_stuck_set_is_the_stated_reason_too(self):
+        defects, evidence = self.reason(synth_control(vdd=1.2, lanes="high", storage=False, dips=()))
+        self.assertEqual(defects, [])
+        self.assertEqual(evidence["face"], "stuck set")
+
+    def test_high_lanes_need_a_deasserted_reset_and_set_storage_nodes(self):
+        stuck = {"lanes": "high", "storage": False, "dips": ()}
+        asserted, low_qn, split = (synth_control(**stuck) for _ in range(3))
+        set_level(asserted, "v_reset_rest", 1.08)
+        set_level(low_qn, "v_up_qn_min", -0.05)
+        set_level(split, "v_dn_max", 0.002)
+        pulsing_qn = synth_control(**{**stuck, "storage": True})
+        for corner, text in ((asserted, "stuck high with reset asserted at rest"),
+                             (low_qn, "UP storage node is low"),
+                             (split, "lanes are split"),
+                             (pulsing_qn, "t_up_qn crosses")):
+            with self.subTest(text=text):
+                defects, _ = self.reason(corner)
+                self.assertTrue(any(text in d for d in defects), defects)
 
     def test_zero_lanes_without_internal_activity_is_a_broken_arm(self):
         defects, _ = self.reason(synth_control(edgedets=False, storage=False, dips=()))
@@ -121,22 +162,14 @@ class ControlReason(unittest.TestCase):
         self.assertTrue(any("control passed" in d for d in defects))
         self.assertTrue(any("lane pulses" in d for d in defects))
 
-    def test_lanes_stuck_high_are_not_held_in_reset(self):
-        defects, _ = self.reason(synth_control(lanes="high"))
-        self.assertEqual(defects, ["lanes are stuck high, not held low (UP max 1.080 V, DN max 1.080 V)"])
-
-    def test_reset_deasserted_at_rest_is_not_the_polarity_failure(self):
-        defects, _ = self.reason(synth_control(reset_rest=0.0))
-        self.assertEqual(len(defects), 1)
-        self.assertIn("reset not asserted at rest", defects[0])
-
     def test_envelope_without_probes_cannot_state_a_reason(self):
         defects, evidence = self.reason(unprobed())
         self.assertEqual(len(defects), 1)
         self.assertIn("no DUT-internal probes", defects[0])
-        self.assertIn("t_set_up, t_set_dn, t_reset, t_up_qn, t_dn_qn, "
-                      "v_reset_rest, v_reset_min, v_reset_max, v_up_max, v_dn_max", defects[0])
+        self.assertIn("t_set_up, t_set_dn, t_reset, t_up_qn, t_dn_qn, v_reset_rest, v_reset_min, "
+                      "v_reset_max, v_up_max, v_dn_max, v_up_qn_min, v_dn_qn_min", defects[0])
         self.assertIn(None, evidence["counts"].values())
+        self.assertIsNone(evidence["face"])
 
     def test_ungradable_corner_is_a_defect(self):
         c = synth_control()
@@ -158,6 +191,7 @@ class ControlGate(unittest.TestCase):
         with open(path, "w") as fh:
             json.dump({"status": "pass", "environment": {}, "corners": [corner]}, fh)
         return path
+
     def run_main(self, paths):
         out = os.path.join(self.tmp.name, "fit-gate.md")
         err = io.StringIO()
@@ -169,12 +203,25 @@ class ControlGate(unittest.TestCase):
     def test_stated_reason_leaves_the_verdict_to_the_pfd_arms(self):
         rc, text, err = self.run_main([self.write("pfd_1g", synth()), self.write("ctl_1g", synth_control())])
         self.assertEqual((rc, err), (0, ""))
-        self.assertIn("FAILS FOR THE STATED REASON", text)
+        self.assertIn("FAILS FOR THE STATED REASON -- held in reset", text)
         self.assertIn("set_up 38, set_dn 38", text)
         self.assertIn("deasserted on 13 cycles at offsets -20..+20 ps", text)
-        ctl = text.split("## ctl_1g")[1]
         self.assertNotIn("BENCH DEFECT", text.split("## ctl_1g")[0])
-        self.assertEqual(ctl.count("FAILS FOR THE STATED REASON"), 1)
+        self.assertEqual(text.split("## ctl_1g")[1].count("FAILS FOR THE STATED REASON"), 1)
+
+    def test_the_gate_accepts_held_in_reset_at_one_corner_and_stuck_set_at_another(self):
+        ctl = os.path.join(self.tmp.name, "ctl_1g.envelope.json")
+        corners = [dict(synth_control(vdd=1.2, lanes="high", storage=False, dips=()), corner_id="tt"),
+                   dict(synth_control(), corner_id="ss")]
+        with open(ctl, "w") as fh:
+            json.dump({"status": "pass", "environment": {}, "corners": corners}, fh)
+        rc, text, err = self.run_main([self.write("pfd_1g", synth()), ctl])
+        self.assertEqual((rc, err), (0, ""))
+        self.assertIn("FAILS FOR THE STATED REASON -- stuck set", text)
+        self.assertIn("FAILS FOR THE STATED REASON -- held in reset", text)
+        stuck = text.split("`tt`")[1].split("`ss`")[0]
+        self.assertIn("with 0 crossings, never asserted", stuck)
+        self.assertNotIn("never deasserted", stuck)
 
     def test_a_reset_that_never_deasserts_is_the_stated_reason_too(self):
         rc, text, err = self.run_main([self.write("pfd_1g", synth()),
@@ -212,6 +259,40 @@ class ControlGate(unittest.TestCase):
         self.assertEqual(rc, 1)
         self.assertEqual(err.count("BENCH DEFECT"), 3)
         self.assertIn("no DUT-internal probes", err)
+
+
+class RetainedRun(unittest.TestCase):
+    """The committed evidence of issue #201: gate run 20261123T013250Z, batch fleet."""
+
+    RUN = os.path.join(RETAINED, "20261123T013250Z")
+
+    def test_control_fails_for_the_stated_reason_at_every_corner(self):
+        with open(os.path.join(self.RUN, "ctl_1g.envelope.json")) as fh:
+            env = json.load(fh)
+        faces = {}
+        for c in env["corners"]:
+            with self.subTest(corner=c["corner_id"]):
+                g = grade.grade_corner(c, T)
+                self.assertTrue(g["fails"])
+                defects, evidence = grade.control_defects(g, c, T)
+                self.assertEqual(defects, [])
+                faces[c["process"]] = evidence["face"]
+        self.assertEqual(faces, {"mos_tt": "stuck set", "mos_ss": "held in reset",
+                                 "mos_ff": "stuck set"})
+
+    def test_whole_gate_run_grades_pass_without_a_simulator(self):
+        paths = [os.path.join(self.RUN, f"{t}.envelope.json") for t in ("pfd_1g", "pfd_500m", "ctl_1g")]
+        with tempfile.TemporaryDirectory() as tmp:
+            out = os.path.join(tmp, "fit-gate.md")
+            err = io.StringIO()
+            with contextlib.redirect_stderr(err):
+                rc = grade.main(paths + ["--out", out])
+            with open(out) as fh:
+                text = fh.read()
+        self.assertEqual((rc, err.getvalue()), (0, ""))
+        self.assertEqual(text.count("FAILS FOR THE STATED REASON"), 3)
+        self.assertNotIn("BENCH DEFECT", text)
+        self.assertNotIn("**FAIL**", text.split("## ctl_1g")[0])
 
 
 if __name__ == "__main__":

@@ -170,6 +170,10 @@ class ControlProbes(unittest.TestCase):
                          ".meas tran v_reset_max max v(xdut.reset) from=4.000n to=24.000n")
         self.assertEqual(ms["v_up_max"]["spice"], ".meas tran v_up_max max v(up) from=4.000n to=24.000n")
         self.assertEqual(ms["v_dn_max"]["spice"], ".meas tran v_dn_max max v(dn) from=4.000n to=24.000n")
+        self.assertEqual(ms["v_up_qn_min"]["spice"],
+                         ".meas tran v_up_qn_min min v(xdut.up_qn) from=4.000n to=24.000n")
+        self.assertEqual(ms["v_dn_qn_min"]["spice"],
+                         ".meas tran v_dn_qn_min min v(xdut.dn_qn) from=4.000n to=24.000n")
 
     def test_every_probed_node_is_a_net_of_the_control_arm(self):
         nets = {tok for line in mb.SIBLING_POLARITY.splitlines() if line.startswith("X")

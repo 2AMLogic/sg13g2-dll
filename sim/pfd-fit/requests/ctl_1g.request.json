@@ -173,6 +173,16 @@
       "name": "v_dn_max",
       "spice": ".meas tran v_dn_max max v(dn) from=4.000n to=24.000n",
       "unit": "V"
+    },
+    {
+      "name": "v_up_qn_min",
+      "spice": ".meas tran v_up_qn_min min v(xdut.up_qn) from=4.000n to=24.000n",
+      "unit": "V"
+    },
+    {
+      "name": "v_dn_qn_min",
+      "spice": ".meas tran v_dn_qn_min min v(xdut.dn_qn) from=4.000n to=24.000n",
+      "unit": "V"
     }
   ],
   "options": {

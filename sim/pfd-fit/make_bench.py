@@ -81,7 +81,8 @@ def offsets():
 
 HALF_VDD = {"frac_of": "Vdd", "fraction": 0.5}
 CONTROL_NODES = ("set_up", "set_dn", "reset", "up_qn", "dn_qn")
-CONTROL_LEVELS = ("v_reset_rest", "v_reset_min", "v_reset_max", "v_up_max", "v_dn_max")
+CONTROL_LEVELS = ("v_reset_rest", "v_reset_min", "v_reset_max", "v_up_max", "v_dn_max",
+                  "v_up_qn_min", "v_dn_qn_min")
 
 
 def xing(name, sig, edge):
@@ -113,7 +114,9 @@ def control_probes(ncyc, period):
         level("v_reset_min", "min", "v(xdut.reset)", sweep),
         level("v_reset_max", "max", "v(xdut.reset)", sweep),
         level("v_up_max", "max", "v(up)", sweep),
-        level("v_dn_max", "max", "v(dn)", sweep)]
+        level("v_dn_max", "max", "v(dn)", sweep),
+        level("v_up_qn_min", "min", "v(xdut.up_qn)", sweep),
+        level("v_dn_qn_min", "min", "v(xdut.dn_qn)", sweep)]
 
 
 def deck(tag, freq, sibling=False):
