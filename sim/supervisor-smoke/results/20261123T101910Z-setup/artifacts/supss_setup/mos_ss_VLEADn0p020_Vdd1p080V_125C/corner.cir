@@ -1,0 +1,22 @@
+* klt sim -- generated corner deck, do not edit
+.lib /var/tmp/eda-job-klt-sim-dd632feb59ff/inputs/cornerMOSlv.lib mos_ss
+.include /var/tmp/eda-job-klt-sim-dd632feb59ff/inputs/netlist.cir
+.temp 125
+.meas tran t_ref_r2 when v(ref)=v(half) rise=2
+.meas tran t_taph_f when v(taph)=v(half) fall=1
+.meas tran bup_end find v(xwin.b_up) at=2.4n
+.meas tran t_bup_r when v(xwin.b_up)=v(half) rise=1
+.meas tran bup_max max v(xwin.b_up) from=1.3n to=2.4n
+.meas tran over_pk max v(over) from=1.3n to=2.4n
+.control
+pre_osdi /var/tmp/eda-job-klt-sim-dd632feb59ff/inputs/psp103.osdi
+pre_osdi /var/tmp/eda-job-klt-sim-dd632feb59ff/inputs/psp103_nqs.osdi
+pre_osdi /var/tmp/eda-job-klt-sim-dd632feb59ff/inputs/r3_cmc.osdi
+pre_osdi /var/tmp/eda-job-klt-sim-dd632feb59ff/inputs/mosvar.osdi
+save all
+alter VLEAD=-0.02
+alter Vdd=1.08
+tran 1p 3n
+quit
+.endc
+.end

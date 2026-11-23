@@ -1,0 +1,28 @@
+* supervisor smoke bench body (issue #53). run.sh prepends design/netlist/supervisor.spice
+* (the committed export) to make decks/sup_1GHz.spice. Not a design.
+* Typical corner, 1 GHz (T = 1 ns). Ideal stimulus: the delay line is replaced by
+* two delayed copies of REF, TAPN (delay d) and TAPH (delay d/2).
+*   0-25 ns : d = 0.8 T  (no fault; EN rises at 3 ns, reset must release)
+*   25-50 ns: d = 1.8 T  (inside (1.5 T, 2 T): over-delay must assert RST)
+*   50 ns-  : d = 0.8 T, and the loop model pulls VCTRL to the low rail (stuck at
+*             maximum delay): the 16-cycle time-out must assert RST
+* EN is low until 3 ns (power-up reset), then high.
+* Loop model: VCTRL is a 0.05 pF capacitor behind 20 kohm from an ideal source
+* (0.6 V, then 0.02 V from 50 ns); the supervisor's pull-up overrides it.
+Vdd vdd 0 1.2
+Vck ck 0 PULSE(0 1 0.5n 30p 30p 0.47n 1n)
+Vtn18 tn18 0 PULSE(0 1 2.3n 30p 30p 0.47n 1n)
+Vtn08 tn08 0 PULSE(0 1 1.3n 30p 30p 0.47n 1n)
+Vth18 th18 0 PULSE(0 1 1.4n 30p 30p 0.47n 1n)
+Vth08 th08 0 PULSE(0 1 0.9n 30p 30p 0.47n 1n)
+Ven enr 0 PWL(0 0 3n 0 3.1n 1)
+Vlp lp 0 PWL(0 0.6 50n 0.6 50.1n 0.02)
+Bref ref 0 V = v(vdd)*v(ck)
+Bsa sa 0 V = u(time-25n)*(1-u(time-50n))
+Btapn tapn 0 V = v(vdd)*(v(sa)*v(tn18) + (1-v(sa))*v(tn08))
+Btaph taph 0 V = v(vdd)*(v(sa)*v(th18) + (1-v(sa))*v(th08))
+Ben en 0 V = v(vdd)*v(enr)
+Rlp lp vctrl 20k
+Cl vctrl 0 0.05p
+XDUT ref tapn taph en vctrl refm rst vdd 0 supervisor
+Cm refm 0 4f

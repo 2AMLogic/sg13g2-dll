@@ -50,7 +50,7 @@ expected_subckts() {
     delay_cell)  echo "delay_cell" ;;
     tap_buffer)  echo "tap_buffer" ;;
     delay_line)  echo "delay_line delay_cell tap_buffer" ;;
-    supervisor)  echo "supervisor win_det rail_cmp timeout_cnt refmask dffr_lv nand3_lv nand2_lv inv_lv edgedet srlatch" ;;
+    supervisor)  echo "supervisor win_det rail_cmp timeout_cnt refmask dffr_fast dffr_lv nand3x_lv nand3_lv nand2_lv inv_lv inv2x_lv edgedet srlatch" ;;
     lock_detector) echo "lock_detector vmov_cmp dffr_lv nand3_lv nand2_lv inv_lv inv2x_lv edgedet srlatch" ;;
     *)           echo "" ;;
   esac

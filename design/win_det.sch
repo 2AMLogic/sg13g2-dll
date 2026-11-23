@@ -1,5 +1,5 @@
 v {xschem version=3.4.8RC file_version=1.3
-win_det -- half-period window detector: OVER when tap N falls in the late half and tap N/2 has wrapped
+win_det -- half-period window detector: OVER when tap N falls in the late half and tap N/2 has wrapped; b_up sampled by the issue #195 dffr_fast, a_up/a_dn keep dffr_lv
 }
 G {}
 K {}
@@ -27,7 +27,7 @@ C {lab_pin.sym} 660 -10 0 0 {name=l15 lab=a_dn}
 C {lab_pin.sym} 660 10 0 0 {name=l16 lab=a_dn_n}
 C {lab_pin.sym} 600 -50 0 0 {name=l17 lab=VDD}
 C {lab_pin.sym} 600 50 0 0 {name=l18 lab=VSS}
-C {dffr_lv.sym} 900 0 0 0 {name=XBUP}
+C {dffr_fast.sym} 900 0 0 0 {name=XBUP}
 C {lab_pin.sym} 840 -20 0 0 {name=l19 lab=TAPH}
 C {lab_pin.sym} 840 0 0 0 {name=l20 lab=REF}
 C {lab_pin.sym} 840 20 0 0 {name=l21 lab=VDD}

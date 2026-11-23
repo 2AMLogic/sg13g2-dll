@@ -193,15 +193,62 @@ c.sub("XRS", "nand2_lv", A1="qmb", A2="CK", Y="rs", VDD="VDD", VSS="VSS")
 c.sub("XQ", "nand2_lv", A1="ss", A2="QB", Y="Q", VDD="VDD", VSS="VSS")
 c.sub("XQB", "nand3_lv", A1="rs", A2="Q", A3="CLRB", Y="QB", VDD="VDD", VSS="VSS")
 
+# Issue #195 candidate (spec/decisions/0017): the 2x 3-input NAND beside the
+# issue #113 2x family, for the win_det TAPH sampler's local `dffr_fast` master
+# loop only. The shared `nand3_lv` definition (and the committed counter,
+# refmask and lock-detector results that cite it) stays untouched.
+c = add(Cell("nand3x_lv", logic_ports(["A1", "A2", "A3"], ["Y"]),
+             "2x 3-input NAND, sg13_lv (win_det TAPH sampler, issue #195)"))
+c.mos("MP1", "p", "2u", L, D="Y", G="A1", S="VDD", B="VDD")
+c.mos("MP2", "p", "2u", L, D="Y", G="A2", S="VDD", B="VDD")
+c.mos("MP3", "p", "2u", L, D="Y", G="A3", S="VDD", B="VDD")
+c.mos("MN1", "n", "3u", L, D="Y", G="A1", S="m1", B="VSS")
+c.mos("MN2", "n", "3u", L, D="m1", G="A2", S="m2", B="VSS")
+c.mos("MN3", "n", "3u", L, D="m2", G="A3", S="VSS", B="VSS")
+
+# Issue #195 (spec/decisions/0017): the win_det-local fast sampler variant of
+# dffr_lv, instantiated only as win_det.XBUP (TAPH sampled by REF). Same
+# topology, ports and cell edges as dffr_lv; the D=0 (TAPH-fall) master path
+# D -> XID -> XRM -> XQMB -> XQM (+ loop regen) is the path that lost the
+# setup race at ss (needs > 100 ps lead where the d=0.8 T no-fault phase
+# provides exactly 100 ps, sim/supervisor-smoke/results/20261121T004400Z-setup),
+# so exactly its stages are scaled: XID inv_lv -> inv2x_lv, XRM/XQM nand2_lv ->
+# nand2x_lv, XQMB nand3_lv -> nand3x_lv. The clock-facing gates (XIC, XSM's
+# ckb input) keep the shared sizes, so hold stays structural (the ckb series
+# devices cut D off) and CLRB behaviour and the port list are dffr_lv's. The
+# slave is clocked through one inv_lv pair (XD1/XD2 -> ckd): the master's
+# cut-off instant (ckb via XIC) is what defines the sampled value and the
+# (1.5 T, 2 T) window, and it is unchanged -- the pair only lets the master
+# finish resolving before the slave clocks, so b_up does not double-cross on a
+# race the master wins late (the scaled path alone settled capture-low at the
+# nominal 100 ps lead but with a 0.92 V b_up excursion that pulsed `set` every
+# REF cycle at ss without flipping the reset latch; measured, then removed
+# here). Every other dffr_lv consumer (timeout_cnt, refmask, lock_detector,
+# win_det's own a_up/a_dn) keeps the characterized shared cell.
+c = add(Cell("dffr_fast", "D:i:l CK:i:l CLRB:i:l Q:o:r QB:o:r VDD:io:t VSS:io:b",
+             "rising-edge D flip-flop, win_det-local fast variant of dffr_lv (spec/decisions/0017, issue #195): same topology and cell edges, D-path and master-loop gates scaled 2x (XID inv2x, XRM/XQM nand2x, XQMB nand3x) so the TAPH-fall setup race closes at ss, and the slave clocked through an inv_lv pair (ckd) so a race won late does not double-cross b_up; XIC, XSM and the slave gates keep dffr_lv's sizes"))
+c.sub("XIC", "inv_lv", A="CK", Y="ckb", VDD="VDD", VSS="VSS")
+c.sub("XID", "inv2x_lv", A="D", Y="dn", VDD="VDD", VSS="VSS")
+c.sub("XSM", "nand3_lv", A1="D", A2="ckb", A3="CLRB", Y="sm", VDD="VDD", VSS="VSS")
+c.sub("XRM", "nand2x_lv", A1="dn", A2="ckb", Y="rm", VDD="VDD", VSS="VSS")
+c.sub("XQM", "nand2x_lv", A1="sm", A2="qmb", Y="qm", VDD="VDD", VSS="VSS")
+c.sub("XQMB", "nand3x_lv", A1="rm", A2="qm", A3="CLRB", Y="qmb", VDD="VDD", VSS="VSS")
+c.sub("XD1", "inv_lv", A="CK", Y="ckd1", VDD="VDD", VSS="VSS")
+c.sub("XD2", "inv_lv", A="ckd1", Y="ckd", VDD="VDD", VSS="VSS")
+c.sub("XSS", "nand3_lv", A1="qm", A2="ckd", A3="CLRB", Y="ss", VDD="VDD", VSS="VSS")
+c.sub("XRS", "nand2_lv", A1="qmb", A2="ckd", Y="rs", VDD="VDD", VSS="VSS")
+c.sub("XQ", "nand2_lv", A1="ss", A2="QB", Y="Q", VDD="VDD", VSS="VSS")
+c.sub("XQB", "nand3_lv", A1="rs", A2="Q", A3="CLRB", Y="QB", VDD="VDD", VSS="VSS")
+
 # Half-period window detector (0005 part 3). Three samples of the two taps:
 #   a_up = TAPN at REF rise, a_dn = TAPN at REF fall, b_up = TAPH at REF rise.
 # OVER = b_up & a_up & ~a_dn, true for d in (1.5 T, 2 T) (mod 2 T).
 c = add(Cell("win_det", "REF:i:l TAPN:i:l TAPH:i:l OVER:o:r VDD:io:t VSS:io:b",
-             "half-period window detector: OVER when tap N falls in the late half and tap N/2 has wrapped"))
+             "half-period window detector: OVER when tap N falls in the late half and tap N/2 has wrapped; b_up sampled by the issue #195 dffr_fast, a_up/a_dn keep dffr_lv"))
 c.sub("XIREF", "inv_lv", A="REF", Y="refb", VDD="VDD", VSS="VSS")
 c.sub("XAUP", "dffr_lv", D="TAPN", CK="REF", CLRB="VDD", Q="a_up", QB="a_up_n", VDD="VDD", VSS="VSS")
 c.sub("XADN", "dffr_lv", D="TAPN", CK="refb", CLRB="VDD", Q="a_dn", QB="a_dn_n", VDD="VDD", VSS="VSS")
-c.sub("XBUP", "dffr_lv", D="TAPH", CK="REF", CLRB="VDD", Q="b_up", QB="b_up_n", VDD="VDD", VSS="VSS")
+c.sub("XBUP", "dffr_fast", D="TAPH", CK="REF", CLRB="VDD", Q="b_up", QB="b_up_n", VDD="VDD", VSS="VSS")
 c.sub("XNO", "nand3_lv", A1="b_up", A2="a_up", A3="a_dn_n", Y="over_n", VDD="VDD", VSS="VSS")
 c.sub("XIO", "inv_lv", A="over_n", Y="OVER", VDD="VDD", VSS="VSS")
 

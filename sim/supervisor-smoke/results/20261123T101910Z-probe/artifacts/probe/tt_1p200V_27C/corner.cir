@@ -1,0 +1,41 @@
+* klt sim -- generated corner deck, do not edit
+.lib /var/tmp/eda-job-klt-sim-7e0b469a052b/inputs/cornerMOSlv.lib mos_tt
+.lib /var/tmp/eda-job-klt-sim-7e0b469a052b/inputs/cornerRES.lib res_typ
+.include /var/tmp/eda-job-klt-sim-7e0b469a052b/inputs/netlist.cir
+.temp 27
+.control
+pre_osdi /var/tmp/eda-job-klt-sim-7e0b469a052b/inputs/psp103.osdi
+pre_osdi /var/tmp/eda-job-klt-sim-7e0b469a052b/inputs/psp103_nqs.osdi
+pre_osdi /var/tmp/eda-job-klt-sim-7e0b469a052b/inputs/r3_cmc.osdi
+pre_osdi /var/tmp/eda-job-klt-sim-7e0b469a052b/inputs/mosvar.osdi
+save all
+alter Vdd=1.2
+set filetype=ascii
+tran 10p 100n
+let __klt_xing_0 = v(ref)
+write /var/tmp/eda-job-klt-sim-7e0b469a052b/outputs/artifacts/tt_1p200V_27C/crossings_0.raw __klt_xing_0
+let __klt_xing_1 = v(xdut.xwin.a_up)
+write /var/tmp/eda-job-klt-sim-7e0b469a052b/outputs/artifacts/tt_1p200V_27C/crossings_1.raw __klt_xing_1
+let __klt_xing_2 = v(xdut.xwin.a_dn_n)
+write /var/tmp/eda-job-klt-sim-7e0b469a052b/outputs/artifacts/tt_1p200V_27C/crossings_2.raw __klt_xing_2
+let __klt_xing_3 = v(xdut.xwin.b_up)
+write /var/tmp/eda-job-klt-sim-7e0b469a052b/outputs/artifacts/tt_1p200V_27C/crossings_3.raw __klt_xing_3
+let __klt_xing_4 = v(xdut.over_n)
+write /var/tmp/eda-job-klt-sim-7e0b469a052b/outputs/artifacts/tt_1p200V_27C/crossings_4.raw __klt_xing_4
+let __klt_xing_5 = v(xdut.nhi)
+write /var/tmp/eda-job-klt-sim-7e0b469a052b/outputs/artifacts/tt_1p200V_27C/crossings_5.raw __klt_xing_5
+let __klt_xing_6 = v(xdut.near)
+write /var/tmp/eda-job-klt-sim-7e0b469a052b/outputs/artifacts/tt_1p200V_27C/crossings_6.raw __klt_xing_6
+let __klt_xing_7 = v(xdut.cnt_en)
+write /var/tmp/eda-job-klt-sim-7e0b469a052b/outputs/artifacts/tt_1p200V_27C/crossings_7.raw __klt_xing_7
+let __klt_xing_8 = v(xdut.to)
+write /var/tmp/eda-job-klt-sim-7e0b469a052b/outputs/artifacts/tt_1p200V_27C/crossings_8.raw __klt_xing_8
+let __klt_xing_9 = v(xdut.pt)
+write /var/tmp/eda-job-klt-sim-7e0b469a052b/outputs/artifacts/tt_1p200V_27C/crossings_9.raw __klt_xing_9
+let __klt_xing_10 = v(xdut.set)
+write /var/tmp/eda-job-klt-sim-7e0b469a052b/outputs/artifacts/tt_1p200V_27C/crossings_10.raw __klt_xing_10
+let __klt_xing_11 = v(rst)
+write /var/tmp/eda-job-klt-sim-7e0b469a052b/outputs/artifacts/tt_1p200V_27C/crossings_11.raw __klt_xing_11
+quit
+.endc
+.end

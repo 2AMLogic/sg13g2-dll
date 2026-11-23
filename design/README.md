@@ -16,7 +16,7 @@ simulated for each block, and what the run showed, is recorded once: in
 | Delay cell | `delay_cell.sch` | `netlist/delay_cell.spice` | two current-starved inverters, non-inverting (issue #23) |
 | Tap buffer | `tap_buffer.sch` | `netlist/tap_buffer.spice` | two-inverter buffer isolating each tap |
 | Delay line | `delay_line.sch` | `netlist/delay_line.spice` | 8 delay cells, `T0..T8` tap buffers, dummy last-tap load |
-| False-lock supervisor | `supervisor.sch` (+ `win_det`, `rail_cmp`, `timeout_cnt`, `refmask`, `dffr_lv`, `nand3_lv`) | `netlist/supervisor.spice` | `0005` parts 1 and 3, `0008` start-up mask (issue #53); sizing and design choices in [`NOTES.md`](NOTES.md) |
+| False-lock supervisor | `supervisor.sch` (+ `win_det`, `rail_cmp`, `timeout_cnt`, `refmask`, `dffr_lv`, `dffr_fast`, `nand3_lv`, `nand3x_lv`) | `netlist/supervisor.spice` | `0005` parts 1 and 3, `0008` start-up mask (issue #53); the TAPH sampler remedy `dffr_fast` is `0017` (issue #195); sizing and design choices in [`NOTES.md`](NOTES.md) |
 | Lock detector | `lock_detector.sch` (+ `vmov_cmp`, `dffr_lv`, `edgedet`, `srlatch`, `nand3_lv`) | `netlist/lock_detector.spice` | spec row 12 (issue #54); window sampling, VCTRL-movement sensor and 128-cycle filter; built against the draft spec; sizing and design choices in [`NOTES.md`](NOTES.md) |
 
 Sizing rationale and evidence status for the delay line: [`NOTES.md`](NOTES.md).
