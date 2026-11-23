@@ -97,5 +97,43 @@ class CornerFileChanges(unittest.TestCase):
             mb.request("pfd_1g", 19, 1e-9)
 
 
+class ControlArmGradesCommittedLatch(unittest.TestCase):
+    """`pfd_sib` must track the latch the committed PFD instantiates.
+
+    Issue #151: the SIBLING_POLARITY arm once hard-coded `srlatch_fast`'s name
+    and six-pin order; when `pfd` moved to `srlatch_buf` (spec/decisions/0015)
+    a stale arm would either fail `make_bench.py --check`-adjacent netlist
+    loading or, worse, keep grading the retired latch. The control must grade
+    the committed latch cell with the sibling's reset polarity - same cell,
+    same NAND tap, one inverter more after the NAND.
+    """
+
+    def _subckt_cell(self, body, inst):
+        line = next(l for l in body.splitlines() if l.startswith(inst))
+        return line.split()[-1], line.split()[1:-1]
+
+    def test_control_instantiates_the_pfd_latch_with_matching_pin_count(self):
+        with open(os.path.join(PFDFIT, "..", "..", "design", "netlist",
+                               "pfd.spice")) as fh:
+            pfd_netlist = fh.read()
+        # the committed pfd's latch cells and their pin count
+        cell, nets = self._subckt_cell(pfd_netlist, "XLU")
+        sub = next(l for l in pfd_netlist.splitlines()
+                   if l.lower().startswith(".subckt " + cell + " "))
+        self.assertEqual(cell, "srlatch_buf")  # 0015/issue #151 rewire
+        n_pins = len(sub.split()) - 2
+        # the control arm instantiates the same cell on the same pin count
+        sib_cell, sib_nets = self._subckt_cell(mb.SIBLING_POLARITY, "XLU")
+        self.assertEqual(sib_cell, cell)
+        self.assertEqual(len(sib_nets), n_pins)
+        # and differs from pfd only in the reset polarity: two inverters after
+        # the NAND instead of one, same NAND tap
+        self.assertIn("XNR up_qn dn_qn reset_raw VDD VSS", mb.SIBLING_POLARITY)
+        self.assertEqual(len([l for l in mb.SIBLING_POLARITY.splitlines()
+                               if l.startswith("XI")]), 2)
+        self.assertIn("XNR up_qn dn_qn reset_n0 VDD VSS", pfd_netlist)
+        self.assertNotIn("srlatch_fast", mb.SIBLING_POLARITY)
+
+
 if __name__ == "__main__":
     unittest.main()

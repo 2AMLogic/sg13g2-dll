@@ -1,5 +1,5 @@
 v {xschem version=3.4.8RC file_version=1.3
-srlatch_buf -- set/reset latch, cross-coupled device-level NAND2 (4u) with inverted inputs (S, R active high), buffered lane output (issue #140 candidate, spec/decisions/0015): same core as srlatch_fast; Q = inv4x(QB) sized for the bench load, QB is the lightly loaded internal complement and QN the internal storage node tapped by the reset NAND so the driver stays out of the reset path
+srlatch_buf -- set/reset latch, cross-coupled device-level NAND2 (4u) with inverted inputs (S, R active high), buffered lane output (spec/decisions/0015, issue #140; wired into the PFD by issue #151): same core as srlatch_fast; Q = inv4x(QB) sized for the bench load, QB is the lightly loaded internal complement and QN the internal storage node tapped by the reset NAND so the driver stays out of the reset path
 }
 G {}
 K {}
