@@ -39,22 +39,22 @@ _None._
 Issues currently being built (`loom:building`).
 
 - **#73**: Row 4 Monte Carlo phase spacing has no limit: decide whether the spec states a statistical limit or a budgetable σ (from #72 item 3)
+- **#91**: Make the row 7 and row 12 verdicts grade something: dllbench computes lock time and LOCK consistency, then reports a pass without reading them
 - **#190**: T1 item 2 (first slice): lay out cp, cp_bias and loop_filter with per-cell klt drc and klt lvs
 - **#195**: Restore supervisor reset release at ss with adequate TAPH sampler setup margin
-- **#207**: pfd-fit bench: grade.py documents a --require-pass flag that does not exist, plus three retained-record/comment inaccuracies
 
 ## PRs Awaiting Review
 
 PRs waiting on Judge (`loom:review-requested`).
 
 - **#194**: feat(layout): lay out cp, cp_bias and loop_filter with per-cell klt drc and klt lvs
+- **#217**: feat: grade row 7 lock time and row 12 LOCK in the benches
 
 ## Approved (Awaiting Merge)
 
 PRs that passed review and are queued for Champion auto-merge (`loom:pr`).
 
 - **#174**: docs: record commit-later decision for a row 4 Monte Carlo spacing limit — closes #73
-- **#208**: docs(pfd-fit): drop stale --require-pass from grade usage, restate run.sh no-local-fallback as fleet policy — closes #207
 - **#211**: supervisor: sample win_det b_up with a local dffr_fast to restore ss reset release — closes #195
 
 ## Proposed
@@ -64,11 +64,11 @@ Issues carrying `loom:curated`.
 - **#6**: Track the gap to T1 (klayout-tools design-evidence-tiers.md) *(curated)*
 - **#28**: T1 item 9 (testbenches shipped): one harness bench per spec row, with cold-start docs and --attest 9 *(curated)* *(held)*
 - **#73**: Row 4 Monte Carlo phase spacing has no limit: decide whether the spec states a statistical limit or a budgetable σ (from #72 item 3) *(curated)*
+- **#91**: Make the row 7 and row 12 verdicts grade something: dllbench computes lock time and LOCK consistency, then reports a pass without reading them *(curated)* *(held)*
 - **#177**: Two open PRs each add a different spec/decisions/0015-*.md (number collision) *(curated)* *(held)*
 - **#190**: T1 item 2 (first slice): lay out cp, cp_bias and loop_filter with per-cell klt drc and klt lvs *(curated)*
 - **#195**: Restore supervisor reset release at ss with adequate TAPH sampler setup margin *(curated)*
 - **#203**: Remove srlatch_fast: unwired since the srlatch_buf rewire (#151) *(curated)*
-- **#207**: pfd-fit bench: grade.py documents a --require-pass flag that does not exist, plus three retained-record/comment inaccuracies *(curated)*
 
 ## Proposed (Architect / Hermit)
 
@@ -90,8 +90,8 @@ _None._
 | Important | 5 |
 | Ready (`loom:issue`, net of holds/building/merge-pending) | 0 |
 | In Progress (`loom:building`) | 4 |
-| PRs awaiting review | 1 |
-| Approved PRs awaiting merge | 3 |
+| PRs awaiting review | 2 |
+| Approved PRs awaiting merge | 2 |
 | Curated | 8 |
 | Architect / Hermit proposals | 4 |
 | Active epics | 0 |
