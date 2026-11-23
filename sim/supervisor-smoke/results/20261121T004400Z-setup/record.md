@@ -49,9 +49,21 @@ phase)?**
   crossings), never assumed from the source parameter; all 29 units measured
   their intended lead exactly (e.g. 100.000 ps at the nominal point, matching
   the 100 ps calculated from the committed `Vth08`/`Vck` PULSE parameters).
-  `t_bup_r` (first `b_up` rise) errors exactly when `b_up` never crosses —
-  the capture-low outcome — so those measurement errors below are the pass
-  observations, not faults.
+  `t_bup_r` (first `b_up` rise) errors exactly when `b_up` never crosses 50 %
+  of the rail at all, which is the case from lead = 150 ps up in the ss
+  sweep; those measurement errors are pass observations, not faults. It is
+  **not** the capture-low marker: at leads 110-140 ps `b_up` does cross 50 %
+  (`t_bup_r` = 1.65620 / 1.65627 / 1.65723 / 1.66143 ns) and then settles
+  low (`bup_end` ≈ 0.31 mV). The `requests/*.request.json` `_comment` text
+  that equates the `t_bup_r` error with capture-low is superseded by this
+  sentence (the committed request files are left byte-identical as evidence).
+- **Transient excursion on `b_up` (simulated).** The bracket above is a
+  *settled-value* statement. `b_up` is not registered downstream
+  (`design/netlist/supervisor.spice:45`, `XNO b_up a_up a_dn_n over_n …`),
+  so a half-rail excursion on `b_up` propagates combinationally to
+  `over_n`. In the ss sweep the first lead with no half-rail excursion at
+  all is 150 ps; at 110-140 ps the cell captures low at the settled value
+  but `b_up` has first crossed 50 % of the rail.
 - Submitted through the grid/batch path (`--backend batch
   --wait-for-capacity 600`); batch jobs `klt-sim-ae3e48bc1700` (ss) and
   `klt-sim-80fcce40d3a0` (tt), ngspice 47 on the fleet. Committed evidence:
@@ -72,7 +84,7 @@ mis-latch is a cell-speed problem, not the near-lock on-edge case.**
 | -50 (TAPH falls after the edge) | high (latches stale 1) | high (latches stale 1) |
 | -20 | high | not swept |
 | 0 / 20 / 40 | high | high |
-| 60 | **high (largest failing)** | high |
+| 60 | high | **high (largest failing)** |
 | 70 / 80 / 90 | high | 80: **low (smallest passing)** |
 | 100 (the no-fault phase's own lead) | **high — the reproduced ss failure** | low |
 | 110 / 120 / 130 / 140 | **low (smallest passing = 110)** | not swept |

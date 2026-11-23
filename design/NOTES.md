@@ -197,7 +197,7 @@ optimum.
   (one-shot 118.5 ps wide at tt on this load) on identical stimulus. This is a
   probe, not a graded ss result; the remedy needs its own decision record
   (follow-up of #145).
-- **The `b_up` mis-latch is measured to be a setup-margin (cell-speed)
+- **The `b_up` mis-latch is shown, in simulation, to be a setup-margin (cell-speed)
   failure, not a sampling-edge construction artefact (issue #189 setup probe,
   `sim/supervisor-smoke/results/20261121T004400Z-setup/`).** Sweeping the
   TAPH-fall to REF-rise lead across the committed sampler (same 30 ps slew,
@@ -283,7 +283,7 @@ same absolute times.
   behave identically at both corners — the discriminator is the analog sensor,
   consistent with the trim-fragility noted above. A probe, not a graded ss
   result; the remedy needs its own decision record (follow-up of #145).
-- **The `vmov_cmp` ss failure is measured to be a static common-mode window
+- **The `vmov_cmp` ss failure is shown, in simulation, to be a static common-mode window
   collapse (issue #189 DC probe,
   `sim/lock-detector-smoke/results/20261121T004307Z-dcprobe/`).** A settled
   DC sweep of VCTRL (the OTA pair's common-mode input; in DC the low-pass cap
@@ -295,7 +295,7 @@ same absolute times.
   above the nominal 0.600 V; the tt transient settles high because the 10 ns
   low-pass attenuates the 50 MHz ripple) and ff's at 0.8523 V. Both OTA
   outputs sit a few mV from their load inverter's trip at the smoke input —
-  the trim fragility above, measured per corner. A probe, not a graded
+  the trim fragility above, simulated per corner. A probe, not a graded
   result; remedy with #148.
 - **The one-shot/latch set path itself works at ss (issue #189 bench,
   `sim/edgedet-srlatch-ss/results/20261121T010654Z/`).** Driven on `to` by an
