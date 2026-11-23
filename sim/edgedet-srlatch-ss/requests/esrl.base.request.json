@@ -1,0 +1,85 @@
+{
+  "_comment": [
+    "edgedet-srlatch-ss base request (issue #189): the isolated one-shot/latch pair from",
+    "design/netlist/lock_detector.spice, driven on `to` by one ideal rising edge after a bench",
+    "reset of the latch, at the reduced_set ss corner with a tt control unit (#145 probe",
+    "convention: every ss observation is read against the same deck and capture where the pair",
+    "is known to work). NOT a graded spec result (sim/corners.json: the reduced set is never a",
+    "recorded result); a diagnostic bench, the follow-up #148 acceptance criterion 3 names.",
+    "run.sh composes the corner units (mos_ss + mos_tt of the reduced set) with",
+    "sim/harness/gridspec.py, so no corner value is restated here; @OSDI_DIR@ is substituted by",
+    "run.sh staging. Crossings at 50 % of the corner's own rail via the deck's v(half) node,",
+    "never a per-corner literal, so the request is corner-portable. pt_max is an always-valued",
+    "scalar (the .meas crossing cards error when a crossing does not exist, which is itself the",
+    "answer, and q_end/qb_end/pt_max still grade the outcome). Simulated, never measured."
+  ],
+  "engine": "ngspice",
+  "netlist": "../decks/esrl.spice",
+  "netlist_source": "schematic",
+  "models": {
+    "pdk": "ihp-sg13g2",
+    "lib": "libs.tech/ngspice/models/cornerMOSlv.lib"
+  },
+  "analysis": {
+    "kind": "tran",
+    "args": "1p 8n"
+  },
+  "measurements": [
+    {
+      "name": "q_pre",
+      "spice": ".meas tran q_pre find v(lockq) at=3.5n",
+      "unit": "V"
+    },
+    {
+      "name": "to_r",
+      "spice": ".meas tran to_r when v(to)=v(half) rise=1",
+      "unit": "s"
+    },
+    {
+      "name": "pt_max",
+      "expr": "vecmax(v(pt))",
+      "unit": "V"
+    },
+    {
+      "name": "t_pt_r",
+      "spice": ".meas tran t_pt_r when v(pt)=v(half) rise=1",
+      "unit": "s"
+    },
+    {
+      "name": "t_pt_f",
+      "spice": ".meas tran t_pt_f when v(pt)=v(half) fall=1",
+      "unit": "s"
+    },
+    {
+      "name": "t_q_r",
+      "spice": ".meas tran t_q_r when v(lockq)=v(half) rise=1",
+      "unit": "s"
+    },
+    {
+      "name": "t_lock_r",
+      "spice": ".meas tran t_lock_r when v(lock)=v(half) rise=1",
+      "unit": "s"
+    },
+    {
+      "name": "q_end",
+      "spice": ".meas tran q_end find v(lockq) at=7.5n",
+      "unit": "V"
+    },
+    {
+      "name": "qb_end",
+      "spice": ".meas tran qb_end find v(lockqb) at=7.5n",
+      "unit": "V"
+    }
+  ],
+  "options": {
+    "osdi_preload": [
+      "@OSDI_DIR@/psp103.osdi",
+      "@OSDI_DIR@/psp103_nqs.osdi",
+      "@OSDI_DIR@/r3_cmc.osdi",
+      "@OSDI_DIR@/mosvar.osdi"
+    ],
+    "stage_model_inputs": true,
+    "keep_artifacts": true,
+    "timeout_s": 600
+  }
+}

@@ -1,0 +1,29 @@
+* edgedet + srlatch isolated-pair bench body (issue #189; the question the
+* sim/lock-detector-smoke and sim/supervisor-smoke ss probes of issue #145
+* could not reach, restated as #148 acceptance criterion 3). run.sh prepends
+* design/netlist/lock_detector.spice (the committed export) to make
+* decks/esrl.spice. Not a design.
+* The committed subcircuits are used verbatim and connected exactly as
+* lock_detector connects them (XET to pt / XLAT pt bad lockq lockqb), with
+* two bench substitutions the issue names: `to` is driven by one ideal
+* rising edge (30 ps slew, the smoke decks' own edge rate) at 5 ns --
+* bypassing the counter that stalls at ss -- and `bad` (the latch's R input)
+* is a bench reset pulse instead of the lock detector's predicate: R holds
+* Q=0 for 0..~3 ns (a known reset state), releases before the edge, and the
+* question is then whether the pt pulse the three-stage one-shot generates
+* sets the plain srlatch at this corner, and whether Q stays set after pt
+* falls (QB complementary). lockq drives lock_detector's own output-chain
+* load (inv_lv + inv2x_lv) and the row-12 20 fF on LOCK.
+* Crossings are graded at 50 % of the corner's own rail (v(half)), so the
+* same request grades every corner. Results are simulated, never measured.
+Vdd vdd 0 1.2
+Vri ri 0 PULSE(0 1 0 30p 30p 3n 8)
+Brst rb 0 V = v(vdd)*v(ri)
+Vtoi toi 0 PULSE(0 1 4.985n 30p 30p 1 8)
+Bto to 0 V = v(vdd)*v(toi)
+Bhalf half 0 V = 0.5*v(vdd)
+XET to pt vdd 0 edgedet
+XLAT pt rb lockq lockqb vdd 0 srlatch
+XO1 lockq lockn vdd 0 inv_lv
+XO2 lockn lock vdd 0 inv2x_lv
+Cl lock 0 20f
