@@ -89,6 +89,55 @@ loads, single-event delay, no jitter figure.
 - Only the three reduced corners were run; the 45-corner grade, mismatch and
   post-layout phase spacing remain open.
 
+# PFD: design note (issues #24/#113/#136, rewire #151)
+
+Status: see "Evidence status" below — the one statement, in this note, of what
+ran for this block and what it showed.
+
+Pins: `pfd REF FB UP DN VDD VSS`. `REF` = input clock (via the supervisor's
+`REFM` mask), `FB` = tap N; DN raises delay, UP lowers it. Topology adopted
+from `2AMLogic/sg13g2-pll@83e59fe` and redrawn on `sg13_lv_*`
+(spec/decisions/0006, 0007): 2x `edgedet` (3-stage, 0.16 µm devices, #136)
+into two SR latches, reset = AND of the two lanes delayed by NAND + 1 inverter
+(0008's polarity — the sibling's NAND + two fails C1 on these cells; the
+`ctl_1g` control arm of the bench demonstrates it).
+
+Since #151 the latch is `srlatch_buf` (spec/decisions/0015, ratified on
+PR #152): the `srlatch_fast` core (device-level 4 µm NAND pairs, `XIS`
+`inv2x_lv`, `XIR` `inv4x_lv`) with the lane output behind an `inv4x_lv` driver
+(`Q = inv4x(QB)`, sized for the 4 fF bench load) and the shared reset NAND
+(`XNR nand2x_lv`) tapped on the `QN` storage nodes, so the 4 fF CP-input load
+leaves the storage node and the driver's delay stays out of the reset path.
+`edgedet`, `XNR`, `XR1` are untouched by 0015; `srlatch_fast` remains defined
+in `design/tools/cells.py` but has no consumer in `pfd.spice` any more.
+
+## Evidence status
+
+Full 0006 fit gate (`sim/pfd-fit/run.sh`, criteria C1–C3 in
+`sim/pfd-fit/grade.py` — unchanged by 0015), batch fleet, reduced_set corners
+(tt/1.2 V/27 °C, ss/1.080 V/125 °C, ff/1.32 V/−40 °C), 1 GHz and the 500 MHz
+fallback, plus the `ctl_1g` sibling-polarity control at 1 GHz:
+
+- **2026-11-23, after the `srlatch_buf` rewire
+  (`sim/pfd-fit/results/20261123T001411Z/`, issue #151): C1–C3 PASS at every
+  corner at both frequencies.** ss/1 GHz — the corner every earlier run failed
+  — reads a 205.1..207.8 ps reset-pulse width against the 250 ps cap (42.2 ps
+  margin) and C1 ratios 1.050..1.161 at every graded offset ≥ 10 ps (no dead
+  zone at nonzero offset, which 0015's single-corner probe could not show).
+  The `ctl_1g` control on the same latch with the sibling polarity still
+  fails (dead zone), isolating the polarity argument on the committed cell.
+- Earlier runs: 2026-11-05 (`20261105T125120Z`), 2026-11-15
+  (`20261115T001809Z`, `20261115T124912Z`) — C1/C3 pass everywhere, C2 failing
+  at ss/1 GHz (362..370 ps); the two-knob refutation and sizing history is in
+  `spec/decisions/0011` and the 0015 record. The reconciliation probe
+  `20261123T002000Z` shows the wired-in netlist reproduces 0015's unwired
+  probe figures with 0.0 ps delta.
+- All numbers are **simulated, never measured**; ideal sources, 4 fF bench
+  loads (derived from the CP input stage in the 2026-11-23 run record:
+  true 4.37..4.97 fF across corners, kept at 4 fF with headroom argued there).
+  Only the three reduced corners were run; mismatch, the 45-corner grade and
+  post-layout effects remain open.
+
 # False-lock supervisor: design note (issue #53)
 
 Status: **drawn and smoke-simulated at one corner (tt / 1.2 V / 27 °C); not
