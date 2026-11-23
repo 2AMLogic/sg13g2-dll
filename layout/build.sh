@@ -32,7 +32,30 @@ json_from_stdout() {  # strip any uvx install notices before the first '{'
 }
 
 mkdir -p layout/runs
-: > layout/runs/.current
+CURRENT=layout/runs/.current
+SCRATCH=""
+cleanup() { rm -f "$CURRENT" ${SCRATCH:+"$SCRATCH"}; }
+trap 'cleanup' EXIT
+: > "$CURRENT"
+
+# publish_report <cell> <name> <expected-status> <cmd...>
+# Stage the klt envelope in a temp file beside its destination and replace the
+# committed report only after the pipeline succeeded, the JSON parses and the
+# status is the expected one. On any failure the previous copy is untouched.
+publish_report() {
+    local cell=$1 name=$2 want=$3; shift 3
+    local dest="layout/$cell/${name}_report.json" status
+    SCRATCH=$(mktemp "$dest.XXXXXX")
+    "$@" 2>/dev/null | json_from_stdout > "$SCRATCH" \
+        || { echo "FAIL: $name command failed" >&2; exit 1; }
+    status=$(python3 -c "import json,sys;print(json.load(open(sys.argv[1]))['status'])" "$SCRATCH") \
+        || { echo "FAIL: $name report is not valid JSON" >&2; exit 1; }
+    echo "  $name: $status"
+    [ "$status" = "$want" ] || { echo "FAIL: $name status $status (want $want)" >&2; exit 1; }
+    mv -f "$SCRATCH" "$dest"
+    SCRATCH=""
+    REPORT_STATUS=$status
+}
 
 for cell in $CELLS; do
     echo "== $cell"
@@ -61,19 +84,12 @@ for cell in $CELLS; do
 
     $GEN layout/check_psd.py "layout/$cell/$cell.gds"
 
-    "$KLT" drc --deck sg13g2 --format json "layout/$cell/$cell.gds" 2>/dev/null \
-        | json_from_stdout > "layout/$cell/drc_report.json"
-    drc_status=$(python3 -c "import json;print(json.load(open('layout/$cell/drc_report.json'))['status'])")
-    echo "  drc sg13g2: $drc_status"
-    [ "$drc_status" = "clean" ] || { echo "FAIL: drc not clean" >&2; exit 1; }
+    publish_report "$cell" drc clean "$KLT" drc --deck sg13g2 --format json "layout/$cell/$cell.gds"
+    drc_status=$REPORT_STATUS
+    publish_report "$cell" lvs match "$KLT" lvs "layout/$cell/lvs_request.json" --format json
+    lvs_status=$REPORT_STATUS
 
-    "$KLT" lvs "layout/$cell/lvs_request.json" --format json 2>/dev/null \
-        | json_from_stdout > "layout/$cell/lvs_report.json"
-    lvs_status=$(python3 -c "import json;print(json.load(open('layout/$cell/lvs_report.json'))['status'])")
-    echo "  lvs: $lvs_status"
-    [ "$lvs_status" = "match" ] || { echo "FAIL: lvs not match" >&2; exit 1; }
-
-    echo "$cell gds=$built drc=$drc_status lvs=$lvs_status" >> layout/runs/.current
+    echo "$cell gds=$built drc=$drc_status lvs=$lvs_status" >> "$CURRENT"
 done
 
 if [ "$record" = 1 ]; then
@@ -93,10 +109,9 @@ if [ "$record" = 1 ]; then
         echo "next to each GDS are this run's envelopes; the sha256 below binds"
         echo "them to the stream that produced them."
         echo
-        cat layout/runs/.current
+        cat "$CURRENT"
     } > "$dir/record.md"
     echo "run record: $dir/record.md"
 fi
 
-rm -f layout/runs/.current
 echo "OK"

@@ -183,7 +183,9 @@ class Cell:
     def place(self, part, ox, oy):
         src = kdb.Layout()
         src.read(part.gds)
-        src.dbu = DBU
+        if abs(src.dbu - DBU) > 1e-12:
+            raise ValueError(
+                f"part {part.name}: GDS dbu {src.dbu} um != layout dbu {DBU} um")
         stop = src.top_cell()
         stop.flatten(-1, True)
         cell = self.ly.create_cell(part.name)
@@ -286,6 +288,10 @@ class Cell:
         gx0 = placed.pad(i, "g")[0]
         x0 = sx0 + 0.01
         x1 = min(x0 + W1_NARROW, gx0 - 0.20)
+        if U(x1) <= U(x0):
+            raise ValueError(
+                f"stub_s_up {placed.part.name}[{i}]: source window "
+                f"[{x0:.3f}, {x1:.3f}] has no width on the grid")
         self._m1(net, x0, placed.activ_top(), x1, y_track + 0.15)
         self.via(net, (x0 + x1) / 2, y_track)
         return (x0 + x1) / 2
@@ -338,7 +344,12 @@ class Cell:
 
     # -- self-check + output ----------------------------------------------------
     def check(self):
-        """Deterministic collision checks for the two routed layers."""
+        """Collision self-check over the routing ledgers only.
+
+        M1: different nets recorded in `m1_v` whose vertical overlap exceeds
+        0.30 um and whose x gap is below CLEAR_M1. Directly drawn M1 (the
+        body-tie pads in psub_tap / well_tie) is not in the ledger and is not
+        covered; DRC is the real check."""
         problems = []
         for a in range(len(self.m1_v)):
             for b in range(a + 1, len(self.m1_v)):
