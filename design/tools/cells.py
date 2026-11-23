@@ -91,10 +91,10 @@ c.mos("MNB2", "n", "4u", L, D="midb", G="Q", S="VSS", B="VSS")
 # node. Q is the buffered output (inv4x of the internal complement, sized for the
 # 4 fF bench load), QB is that lightly loaded internal complement, and QN exposes
 # the internal storage node the reset NAND taps, so the driver delay does not
-# re-enter the reset path. Not instantiated by design/pfd.sch: until 0015 is
-# ratified its only consumer is the retained probe deck committed with it.
+# re-enter the reset path. Instantiated by design/pfd.sch since 0015 was ratified
+# and the rewire landed (issue #151).
 c = add(Cell("srlatch_buf", logic_ports(["S", "R"], ["Q", "QB", "QN"]),
-             "set/reset latch, cross-coupled device-level NAND2 (4u) with inverted inputs (S, R active high), buffered lane output (issue #140 candidate, spec/decisions/0015): same core as srlatch_fast; Q = inv4x(QB) sized for the bench load, QB is the lightly loaded internal complement and QN the internal storage node tapped by the reset NAND so the driver stays out of the reset path"))
+             "set/reset latch, cross-coupled device-level NAND2 (4u) with inverted inputs (S, R active high), buffered lane output (spec/decisions/0015, issue #140; wired into the PFD by issue #151): same core as srlatch_fast; Q = inv4x(QB) sized for the bench load, QB is the lightly loaded internal complement and QN the internal storage node tapped by the reset NAND so the driver stays out of the reset path"))
 c.sub("XIS", "inv2x_lv", A="S", Y="SB", VDD="VDD", VSS="VSS")
 c.sub("XIR", "inv4x_lv", A="R", Y="RB", VDD="VDD", VSS="VSS")
 c.mos("MPQ1", "p", "4u", L, D="QN", G="SB", S="VDD", B="VDD")
@@ -108,12 +108,12 @@ c.mos("MNB2", "n", "4u", L, D="midb", G="QN", S="VSS", B="VSS")
 c.sub("XOQ", "inv4x_lv", A="QB", Y="Q", VDD="VDD", VSS="VSS")
 
 c = add(Cell("pfd", "REF:i:l FB:i:l UP:o:r DN:o:r VDD:io:t VSS:io:b",
-             "tri-state PFD: 2x edgedet + 2x srlatch_fast, reset = AND(UP,DN) delayed by NAND + 1 inverter (issue #113)"))
+             "tri-state PFD: 2x edgedet + 2x srlatch_buf, reset = AND(QN_up,QN_dn) delayed by NAND + 1 inverter (issue #113); latch lane outputs buffered and the reset NAND re-tapped onto the QN storage nodes per spec/decisions/0015 (issue #151)"))
 c.sub("XED_UP", "edgedet", X="REF", OUT="set_up", VDD="VDD", VSS="VSS")
 c.sub("XED_DN", "edgedet", X="FB", OUT="set_dn", VDD="VDD", VSS="VSS")
-c.sub("XLU", "srlatch_fast", S="set_up", R="reset", Q="UP", QB="upb_n", VDD="VDD", VSS="VSS")
-c.sub("XLD", "srlatch_fast", S="set_dn", R="reset", Q="DN", QB="dnb_n", VDD="VDD", VSS="VSS")
-c.sub("XNR", "nand2x_lv", A1="UP", A2="DN", Y="reset_n0", VDD="VDD", VSS="VSS")
+c.sub("XLU", "srlatch_buf", S="set_up", R="reset", Q="UP", QB="up_qb", QN="up_qn", VDD="VDD", VSS="VSS")
+c.sub("XLD", "srlatch_buf", S="set_dn", R="reset", Q="DN", QB="dn_qb", QN="dn_qn", VDD="VDD", VSS="VSS")
+c.sub("XNR", "nand2x_lv", A1="up_qn", A2="dn_qn", Y="reset_n0", VDD="VDD", VSS="VSS")
 c.sub("XR1", "inv4x_lv", A="reset_n0", Y="reset", VDD="VDD", VSS="VSS")
 
 # ------------------------------------------------------------- charge pump --

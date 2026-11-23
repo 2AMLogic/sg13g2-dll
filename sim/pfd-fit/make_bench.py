@@ -25,20 +25,39 @@ T0 = 5e-9               # REF's first rising VDD/2 crossing
 WARM, TAIL = 3, 3       # cycles at offset 0 before and after the sweep
 # FB-minus-REF offsets, ps, ascending so successive cycles differ by <= 80 ps
 OFFSETS_PS = [-160, -80, -40, -20, -10, -5, 0, 5, 10, 20, 40, 80, 160]
-LOAD_F = 4e-15          # on each of UP and DN: CP input inverter + switch gate, estimated
+# On each of UP and DN. Derived, not estimated, since issue #151 (EE finding 1
+# of PR #152): the CP input gates the node drives are design/netlist/cp.spice's
+# XIUP/XIDN inv_lv input (P 1u + N 0.5u) plus the switch gate (XLEGP XXSWD
+# P 3u on UP, XLEGN XXSWO N 1u on DN), all L = 0.13u. Quasi-static charge
+# integration over a full 0->Vdd->0 swing of those gates (cp biased by
+# cp_bias, per reduced_set corner; method and numbers retained in the issue
+# #151 run records) gives C_eff = 4.37..4.97 fF across the three corners
+# (UP 4.52/4.37/4.66, DN 4.71/4.45/4.97 fF at tt/ss/ff). The 4 fF model is
+# kept deliberately: it is the byte-stable stimulus of the 0006 bench and of
+# the retained 0015 probe (probe-vs-gate reconciliation compares identical
+# decks), and the headroom analysis in the run record shows the miss enters
+# the C2 width only through the driver's fall-minus-rise difference
+# (~2 ps for the full +1 fF), inside the ss margin 0015 measured.
+LOAD_F = 4e-15
 FREQS = {"1g": 1e9, "500m": 500e6}
 
-# The sibling's reset path, kept verbatim (two inverters after the NAND, so the
-# reset is the NAND output, not its complement), on the same lv cells the redrawn
-# PFD uses (issue #113: srlatch_fast/nand2x_lv/inv4x_lv, all defined in
-# pfd.spice; the shared `srlatch` left the PFD hierarchy with the redraw).
+# The sibling's reset polarity (two inverters after the NAND, so the reset is
+# the NAND output, not its complement), applied to the committed latch itself:
+# since issue #151 the PFD instantiates srlatch_buf (7 pins: S R Q QB QN VDD
+# VSS, spec/decisions/0015) and its reset NAND taps the QN storage nodes, so
+# the control differs from the committed pfd ONLY in the reset polarity - the
+# same latch, the same NAND (nand2x_lv) tap on the QN storage nodes, one
+# inverter more after the NAND (XI1+XI2 instead of pfd's single XR1), on the
+# cells pfd.spice defines (issue #113). This is the deliberate
+# choice recorded in issue #151's run record: the control grades the new
+# latch's lane-output arrangement with the opposite (sibling) reset polarity.
 SIBLING_POLARITY = """\
 .subckt pfd_sib REF FB UP DN VDD VSS
 XED_UP REF set_up VDD VSS edgedet
 XED_DN FB set_dn VDD VSS edgedet
-XLU set_up reset UP upb_n VDD VSS srlatch_fast
-XLD set_dn reset DN dnb_n VDD VSS srlatch_fast
-XNR UP DN reset_raw VDD VSS nand2x_lv
+XLU set_up reset UP up_qb up_qn VDD VSS srlatch_buf
+XLD set_dn reset DN dn_qb dn_qn VDD VSS srlatch_buf
+XNR up_qn dn_qn reset_raw VDD VSS nand2x_lv
 XI1 reset_raw reset_d1 VDD VSS inv4x_lv
 XI2 reset_d1 reset VDD VSS inv4x_lv
 .ends
