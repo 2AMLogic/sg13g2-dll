@@ -10,8 +10,9 @@
 
 ## What the earlier records said
 
-Two passages name a single dead rest state for the sibling reset polarity
-(`reset = NAND(UP, DN)`, an even inversion count):
+Two earlier records name a single dead rest state for the sibling reset polarity. In the
+unbuffered topology they describe, the reset NAND senses the UP and DN lanes directly.
+The two following inverters preserve its polarity, giving `reset = NAND(UP, DN)`.
 
 - 0008 "PFD redraw" reads the sibling netlist and predicts "the latches are held in reset and
   UP/DN would follow the edge-detector pulses" — explicitly a reading, not a simulation.
@@ -41,8 +42,8 @@ the committed envelope:
 | mos_ss/1.080V/125C | 1.080 V | −0.049 V | 0.003 V | 38 | **held in reset** |
 | mos_ff/1.320V/−40C | 0.000 V (1.6e-7) | 1.270 V | 1.321 V | 0 | **stuck set** |
 
-- **ss rests held in reset** — `reset` asserted at rest, the storage nodes pulse on every input
-  edge, the lanes never rise.
+- **ss rests held in reset** — `reset` is asserted at rest. During the sweep, each storage
+  node crosses VDD/2 38 times and `reset` crosses 26 times. UP and DN stay below 3 mV.
 - **tt and ff rest stuck set** — both latches set, `reset` a driven logic low (deasserted), the
   lanes at VDD before the first REF edge; a set pulse cannot change an already-set latch and
   nothing ever resets it. `sim/pfd-fit/results/20261123T012643Z/record.md` (single-corner local
@@ -51,11 +52,14 @@ the committed envelope:
 - In **both** states the edge detectors fire on every input edge and no lane pulse is released
   at any offset: `wUP = wDN = 0` ps, C1 ratio 0.00, at all three corners.
 
-Which state a physical power-up would take is not simulated; each corner shows the state its
-DC operating point resolves to. The committed polarity (`reset = AND(UP, DN)` via NAND + one inverter) has neither
-dead state: deasserted at `(0, 0)` so a set pulse releases the lane, asserted at `(1, 1)` as the
-self-terminating reset pulse C2 measures — the 0008 argument read off the DUT instead of the
-netlist.
+Each simulated corner starts from its DC operating point. Physical power-up remains untested.
+In the committed `srlatch_buf` design, the reset NAND senses the latch storage nodes
+`up_qn` and `dn_qn`. One inverter gives `reset = AND(up_qn, dn_qn)`. With both nodes low,
+reset is deasserted so an input edge can set its latch. When both nodes go high, reset
+asserts and clears the latches. The buffered sibling control senses the same nodes through
+a NAND and two inverters, giving `reset = NAND(up_qn, dn_qn)`. For each zero-offset cycle,
+`sim/pfd-fit/grade.py` checks C2 using the smaller of the UP and DN pulse widths at the
+buffered outputs.
 
 ## Evidence 2: run 2's control at tt — stuck set, not held in reset (simulated, never measured)
 
