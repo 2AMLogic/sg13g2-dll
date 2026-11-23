@@ -1,0 +1,41 @@
+* klt sim -- generated corner deck, do not edit
+.lib /var/tmp/eda-job-klt-sim-603ea5992192/inputs/cornerMOSlv.lib mos_ss
+.include /var/tmp/eda-job-klt-sim-603ea5992192/inputs/netlist.cir
+.temp 125
+.meas tran v_reset_rest min v(xdut.reset) from=4.000n to=4.900n
+.meas tran v_reset_min min v(xdut.reset) from=4.000n to=24.000n
+.meas tran v_reset_max max v(xdut.reset) from=4.000n to=24.000n
+.meas tran v_up_max max v(up) from=4.000n to=24.000n
+.meas tran v_dn_max max v(dn) from=4.000n to=24.000n
+.meas tran v_up_qn_min min v(xdut.up_qn) from=4.000n to=24.000n
+.meas tran v_dn_qn_min min v(xdut.dn_qn) from=4.000n to=24.000n
+.control
+pre_osdi /var/tmp/eda-job-klt-sim-603ea5992192/inputs/psp103.osdi
+pre_osdi /var/tmp/eda-job-klt-sim-603ea5992192/inputs/psp103_nqs.osdi
+pre_osdi /var/tmp/eda-job-klt-sim-603ea5992192/inputs/r3_cmc.osdi
+pre_osdi /var/tmp/eda-job-klt-sim-603ea5992192/inputs/mosvar.osdi
+save all
+alter Vdd=1.08
+set filetype=ascii
+tran 5p 25.000n
+let __klt_xing_0 = v(ref)
+write /var/tmp/eda-job-klt-sim-603ea5992192/outputs/artifacts/mos_ss_1p080V_125C/crossings_0.raw __klt_xing_0
+let __klt_xing_1 = v(fb)
+write /var/tmp/eda-job-klt-sim-603ea5992192/outputs/artifacts/mos_ss_1p080V_125C/crossings_1.raw __klt_xing_1
+let __klt_xing_2 = v(up)
+write /var/tmp/eda-job-klt-sim-603ea5992192/outputs/artifacts/mos_ss_1p080V_125C/crossings_2.raw __klt_xing_2
+let __klt_xing_3 = v(dn)
+write /var/tmp/eda-job-klt-sim-603ea5992192/outputs/artifacts/mos_ss_1p080V_125C/crossings_3.raw __klt_xing_3
+let __klt_xing_4 = v(xdut.set_up)
+write /var/tmp/eda-job-klt-sim-603ea5992192/outputs/artifacts/mos_ss_1p080V_125C/crossings_4.raw __klt_xing_4
+let __klt_xing_5 = v(xdut.set_dn)
+write /var/tmp/eda-job-klt-sim-603ea5992192/outputs/artifacts/mos_ss_1p080V_125C/crossings_5.raw __klt_xing_5
+let __klt_xing_6 = v(xdut.reset)
+write /var/tmp/eda-job-klt-sim-603ea5992192/outputs/artifacts/mos_ss_1p080V_125C/crossings_6.raw __klt_xing_6
+let __klt_xing_7 = v(xdut.up_qn)
+write /var/tmp/eda-job-klt-sim-603ea5992192/outputs/artifacts/mos_ss_1p080V_125C/crossings_7.raw __klt_xing_7
+let __klt_xing_8 = v(xdut.dn_qn)
+write /var/tmp/eda-job-klt-sim-603ea5992192/outputs/artifacts/mos_ss_1p080V_125C/crossings_8.raw __klt_xing_8
+quit
+.endc
+.end

@@ -1,0 +1,1285 @@
+{
+  "schema_version": 3,
+  "netlist": {
+    "path": "sim/build/issue-201-diag/decks/ctl_1g.spice",
+    "scope": "repo"
+  },
+  "status": "pass",
+  "corner_count": 1,
+  "passed": 1,
+  "failed": 0,
+  "errored": 0,
+  "inconclusive": 0,
+  "diagnostic_counts": {
+    "by_code": {},
+    "by_severity": {},
+    "corners_with_diagnostics": 0
+  },
+  "metrics": {
+    "sim__corner__count": 1,
+    "sim__corner__passed_count": 1,
+    "sim__corner__failed_count": 0,
+    "sim__corner__errored_count": 0,
+    "sim__corner__inconclusive_count": 0
+  },
+  "environment": {
+    "engine": "ngspice",
+    "engine_version": "47",
+    "ngspice_binary": "/home/ubuntu/.local/bin/ngspice",
+    "engine_build": {
+      "version_banner": "******\n** ngspice-47 : Circuit level simulation program\n** Compiled with KLU Direct Linear Solver\n** The U. C. Berkeley CAD Group\n** Copyright 1985-1994, Regents of the University of California.\n** Copyright 2001-2026, The ngspice team.\n** Please get your ngspice manual from https://ngspice.sourceforge.io/docs.html\n** Please file your bug-reports at http://ngspice.sourceforge.net/bugrep.html\n** Creation Date: Fri Nov 13 23:19:32 UTC 2026\n******",
+      "binary_sha256": "39ca1adb826660324c3626f72bd946ec40704f0f3fc8e243c623f76e24b3eee2",
+      "probe": "ok",
+      "reason": null
+    },
+    "ngspice_init": {
+      "source": "none",
+      "lines": null,
+      "sha256": null
+    },
+    "models_lib": {
+      "path": null,
+      "scope": "external"
+    },
+    "models_lib_sha256": "03d505847c880d233b341be115a1e5460edf4d8e9b3e8a7df791a52fa4455d67",
+    "models_lib_sha256_scope": "local",
+    "netlist_sha256": "b5fc586d53e55387cd1a62e06b5e221857a7ee77a6d9347ee26140aba086e992",
+    "netlist_sha256_scope": "staged",
+    "netlist_closure": [
+      {
+        "path": "sim/build/issue-201-diag/decks/ctl_1g.spice",
+        "scope": "repo",
+        "sha256": "b5fc586d53e55387cd1a62e06b5e221857a7ee77a6d9347ee26140aba086e992"
+      },
+      {
+        "path": "sim/build/issue-201-diag/decks/pfd.spice",
+        "scope": "repo",
+        "sha256": "218423053287320d97e41fea5fdc97328f6a08c061f8834ae768e3519714829d"
+      }
+    ],
+    "netlist_identity": "sha256:cb7f1c9e69bbf03bd4dae6e1723cdd7b8f79fcb3d7a003a995a7b3d58e2de18d",
+    "netlist_source": "schematic",
+    "osdi_preload": [
+      {
+        "name": "psp103.osdi",
+        "path": null,
+        "scope": "external",
+        "sha256": "2e4299c4683997e26469410dc1ab36b02ced924b1ac0972d6c4eae360e1fc796"
+      },
+      {
+        "name": "psp103_nqs.osdi",
+        "path": null,
+        "scope": "external",
+        "sha256": "839b164483205601c09032951f6c41d3580f15e506dc40a7202950d3afbdfc7d"
+      },
+      {
+        "name": "r3_cmc.osdi",
+        "path": null,
+        "scope": "external",
+        "sha256": "4fead17bc2e9cbfe3df6f106e9dbd6f2cdcd48c002af9c56c2ca0b0712fce350"
+      },
+      {
+        "name": "mosvar.osdi",
+        "path": null,
+        "scope": "external",
+        "sha256": "25e64a374ab523dbfeb7ffed75dcb8b086ee10f06120a9074bd68b92d7b0fb41"
+      }
+    ],
+    "engine_host": "local",
+    "backend": {
+      "resolved": "local",
+      "source": "flag",
+      "requested": "local"
+    }
+  },
+  "coverage": {
+    "corners_simulated": 1,
+    "measurements_declared": 27,
+    "measurements_with_limits": 0,
+    "unrecognized_limit_keys": [],
+    "schema_version": 1,
+    "known": true,
+    "checked": [
+      "measurement:[0,\"mos_tt/1.200V/27C\",\"t_dn\"]/observation",
+      "measurement:[0,\"mos_tt/1.200V/27C\",\"t_dn_qn\"]/observation",
+      "measurement:[0,\"mos_tt/1.200V/27C\",\"t_fb\"]/observation",
+      "measurement:[0,\"mos_tt/1.200V/27C\",\"t_ref\"]/observation",
+      "measurement:[0,\"mos_tt/1.200V/27C\",\"t_reset\"]/observation",
+      "measurement:[0,\"mos_tt/1.200V/27C\",\"t_set_dn\"]/observation",
+      "measurement:[0,\"mos_tt/1.200V/27C\",\"t_set_up\"]/observation",
+      "measurement:[0,\"mos_tt/1.200V/27C\",\"t_up\"]/observation",
+      "measurement:[0,\"mos_tt/1.200V/27C\",\"t_up_qn\"]/observation",
+      "measurement:[0,\"mos_tt/1.200V/27C\",\"v_dn_max\"]/observation",
+      "measurement:[0,\"mos_tt/1.200V/27C\",\"v_dn_qb_max\"]/observation",
+      "measurement:[0,\"mos_tt/1.200V/27C\",\"v_dn_qb_min\"]/observation",
+      "measurement:[0,\"mos_tt/1.200V/27C\",\"v_dn_qn_max\"]/observation",
+      "measurement:[0,\"mos_tt/1.200V/27C\",\"v_dn_qn_min\"]/observation",
+      "measurement:[0,\"mos_tt/1.200V/27C\",\"v_dn_rest_min\"]/observation",
+      "measurement:[0,\"mos_tt/1.200V/27C\",\"v_reset_d1_rest\"]/observation",
+      "measurement:[0,\"mos_tt/1.200V/27C\",\"v_reset_max\"]/observation",
+      "measurement:[0,\"mos_tt/1.200V/27C\",\"v_reset_min\"]/observation",
+      "measurement:[0,\"mos_tt/1.200V/27C\",\"v_reset_raw_rest\"]/observation",
+      "measurement:[0,\"mos_tt/1.200V/27C\",\"v_reset_rest\"]/observation",
+      "measurement:[0,\"mos_tt/1.200V/27C\",\"v_reset_rest_max\"]/observation",
+      "measurement:[0,\"mos_tt/1.200V/27C\",\"v_up_max\"]/observation",
+      "measurement:[0,\"mos_tt/1.200V/27C\",\"v_up_qb_max\"]/observation",
+      "measurement:[0,\"mos_tt/1.200V/27C\",\"v_up_qb_min\"]/observation",
+      "measurement:[0,\"mos_tt/1.200V/27C\",\"v_up_qn_max\"]/observation",
+      "measurement:[0,\"mos_tt/1.200V/27C\",\"v_up_qn_min\"]/observation",
+      "measurement:[0,\"mos_tt/1.200V/27C\",\"v_up_rest_min\"]/observation"
+    ],
+    "skipped": [],
+    "inapplicable": [
+      {
+        "id": "measurement:[0,\"mos_tt/1.200V/27C\",\"t_dn\"]/limits",
+        "reason": "characterization_without_limits"
+      },
+      {
+        "id": "measurement:[0,\"mos_tt/1.200V/27C\",\"t_dn_qn\"]/limits",
+        "reason": "characterization_without_limits"
+      },
+      {
+        "id": "measurement:[0,\"mos_tt/1.200V/27C\",\"t_fb\"]/limits",
+        "reason": "characterization_without_limits"
+      },
+      {
+        "id": "measurement:[0,\"mos_tt/1.200V/27C\",\"t_ref\"]/limits",
+        "reason": "characterization_without_limits"
+      },
+      {
+        "id": "measurement:[0,\"mos_tt/1.200V/27C\",\"t_reset\"]/limits",
+        "reason": "characterization_without_limits"
+      },
+      {
+        "id": "measurement:[0,\"mos_tt/1.200V/27C\",\"t_set_dn\"]/limits",
+        "reason": "characterization_without_limits"
+      },
+      {
+        "id": "measurement:[0,\"mos_tt/1.200V/27C\",\"t_set_up\"]/limits",
+        "reason": "characterization_without_limits"
+      },
+      {
+        "id": "measurement:[0,\"mos_tt/1.200V/27C\",\"t_up\"]/limits",
+        "reason": "characterization_without_limits"
+      },
+      {
+        "id": "measurement:[0,\"mos_tt/1.200V/27C\",\"t_up_qn\"]/limits",
+        "reason": "characterization_without_limits"
+      },
+      {
+        "id": "measurement:[0,\"mos_tt/1.200V/27C\",\"v_dn_max\"]/limits",
+        "reason": "characterization_without_limits"
+      },
+      {
+        "id": "measurement:[0,\"mos_tt/1.200V/27C\",\"v_dn_qb_max\"]/limits",
+        "reason": "characterization_without_limits"
+      },
+      {
+        "id": "measurement:[0,\"mos_tt/1.200V/27C\",\"v_dn_qb_min\"]/limits",
+        "reason": "characterization_without_limits"
+      },
+      {
+        "id": "measurement:[0,\"mos_tt/1.200V/27C\",\"v_dn_qn_max\"]/limits",
+        "reason": "characterization_without_limits"
+      },
+      {
+        "id": "measurement:[0,\"mos_tt/1.200V/27C\",\"v_dn_qn_min\"]/limits",
+        "reason": "characterization_without_limits"
+      },
+      {
+        "id": "measurement:[0,\"mos_tt/1.200V/27C\",\"v_dn_rest_min\"]/limits",
+        "reason": "characterization_without_limits"
+      },
+      {
+        "id": "measurement:[0,\"mos_tt/1.200V/27C\",\"v_reset_d1_rest\"]/limits",
+        "reason": "characterization_without_limits"
+      },
+      {
+        "id": "measurement:[0,\"mos_tt/1.200V/27C\",\"v_reset_max\"]/limits",
+        "reason": "characterization_without_limits"
+      },
+      {
+        "id": "measurement:[0,\"mos_tt/1.200V/27C\",\"v_reset_min\"]/limits",
+        "reason": "characterization_without_limits"
+      },
+      {
+        "id": "measurement:[0,\"mos_tt/1.200V/27C\",\"v_reset_raw_rest\"]/limits",
+        "reason": "characterization_without_limits"
+      },
+      {
+        "id": "measurement:[0,\"mos_tt/1.200V/27C\",\"v_reset_rest\"]/limits",
+        "reason": "characterization_without_limits"
+      },
+      {
+        "id": "measurement:[0,\"mos_tt/1.200V/27C\",\"v_reset_rest_max\"]/limits",
+        "reason": "characterization_without_limits"
+      },
+      {
+        "id": "measurement:[0,\"mos_tt/1.200V/27C\",\"v_up_max\"]/limits",
+        "reason": "characterization_without_limits"
+      },
+      {
+        "id": "measurement:[0,\"mos_tt/1.200V/27C\",\"v_up_qb_max\"]/limits",
+        "reason": "characterization_without_limits"
+      },
+      {
+        "id": "measurement:[0,\"mos_tt/1.200V/27C\",\"v_up_qb_min\"]/limits",
+        "reason": "characterization_without_limits"
+      },
+      {
+        "id": "measurement:[0,\"mos_tt/1.200V/27C\",\"v_up_qn_max\"]/limits",
+        "reason": "characterization_without_limits"
+      },
+      {
+        "id": "measurement:[0,\"mos_tt/1.200V/27C\",\"v_up_qn_min\"]/limits",
+        "reason": "characterization_without_limits"
+      },
+      {
+        "id": "measurement:[0,\"mos_tt/1.200V/27C\",\"v_up_rest_min\"]/limits",
+        "reason": "characterization_without_limits"
+      }
+    ],
+    "unknown": [],
+    "nothing_checked": false,
+    "nothing_checked_reasons": []
+  },
+  "provenance": {
+    "klt_version": "0.9.3.dev3510+gfd0e55db542e",
+    "klt_git_commit": "fd0e55db542eba350b120393c20df20592811f7d",
+    "klt_reinstall_spec": "klayout-tools @ git+https://github.com/2AMLogic/klayout-tools@fd0e55db542eba350b120393c20df20592811f7d",
+    "klayout_version": "0.30.12",
+    "pdk": {
+      "name": "ihp-sg13g2",
+      "source": "PDK_ROOT environment variable",
+      "version": "fetched:0.3.0"
+    },
+    "deck": {
+      "name": "cornerMOSlv.lib",
+      "content_hash": "sha256:03d505847c880d233b341be115a1e5460edf4d8e9b3e8a7df791a52fa4455d67",
+      "released": false
+    },
+    "input": {
+      "content_hash": "sha256:b5fc586d53e55387cd1a62e06b5e221857a7ee77a6d9347ee26140aba086e992",
+      "role": "netlist"
+    }
+  },
+  "measurements": [
+    {
+      "name": "t_ref",
+      "unit": null,
+      "limits": null,
+      "status": "pass",
+      "worst_case": {
+        "corner_id": "mos_tt/1.200V/27C",
+        "value": 19,
+        "margin": null
+      },
+      "min": {
+        "corner_id": "mos_tt/1.200V/27C",
+        "value": 19
+      },
+      "max": {
+        "corner_id": "mos_tt/1.200V/27C",
+        "value": 19
+      }
+    },
+    {
+      "name": "t_fb",
+      "unit": null,
+      "limits": null,
+      "status": "pass",
+      "worst_case": {
+        "corner_id": "mos_tt/1.200V/27C",
+        "value": 19,
+        "margin": null
+      },
+      "min": {
+        "corner_id": "mos_tt/1.200V/27C",
+        "value": 19
+      },
+      "max": {
+        "corner_id": "mos_tt/1.200V/27C",
+        "value": 19
+      }
+    },
+    {
+      "name": "t_up",
+      "unit": null,
+      "limits": null,
+      "status": "pass",
+      "worst_case": {
+        "corner_id": "mos_tt/1.200V/27C",
+        "value": 0,
+        "margin": null
+      },
+      "min": {
+        "corner_id": "mos_tt/1.200V/27C",
+        "value": 0
+      },
+      "max": {
+        "corner_id": "mos_tt/1.200V/27C",
+        "value": 0
+      }
+    },
+    {
+      "name": "t_dn",
+      "unit": null,
+      "limits": null,
+      "status": "pass",
+      "worst_case": {
+        "corner_id": "mos_tt/1.200V/27C",
+        "value": 0,
+        "margin": null
+      },
+      "min": {
+        "corner_id": "mos_tt/1.200V/27C",
+        "value": 0
+      },
+      "max": {
+        "corner_id": "mos_tt/1.200V/27C",
+        "value": 0
+      }
+    },
+    {
+      "name": "t_set_up",
+      "unit": null,
+      "limits": null,
+      "status": "pass",
+      "worst_case": {
+        "corner_id": "mos_tt/1.200V/27C",
+        "value": 38,
+        "margin": null
+      },
+      "min": {
+        "corner_id": "mos_tt/1.200V/27C",
+        "value": 38
+      },
+      "max": {
+        "corner_id": "mos_tt/1.200V/27C",
+        "value": 38
+      }
+    },
+    {
+      "name": "t_set_dn",
+      "unit": null,
+      "limits": null,
+      "status": "pass",
+      "worst_case": {
+        "corner_id": "mos_tt/1.200V/27C",
+        "value": 38,
+        "margin": null
+      },
+      "min": {
+        "corner_id": "mos_tt/1.200V/27C",
+        "value": 38
+      },
+      "max": {
+        "corner_id": "mos_tt/1.200V/27C",
+        "value": 38
+      }
+    },
+    {
+      "name": "t_reset",
+      "unit": null,
+      "limits": null,
+      "status": "pass",
+      "worst_case": {
+        "corner_id": "mos_tt/1.200V/27C",
+        "value": 0,
+        "margin": null
+      },
+      "min": {
+        "corner_id": "mos_tt/1.200V/27C",
+        "value": 0
+      },
+      "max": {
+        "corner_id": "mos_tt/1.200V/27C",
+        "value": 0
+      }
+    },
+    {
+      "name": "t_up_qn",
+      "unit": null,
+      "limits": null,
+      "status": "pass",
+      "worst_case": {
+        "corner_id": "mos_tt/1.200V/27C",
+        "value": 0,
+        "margin": null
+      },
+      "min": {
+        "corner_id": "mos_tt/1.200V/27C",
+        "value": 0
+      },
+      "max": {
+        "corner_id": "mos_tt/1.200V/27C",
+        "value": 0
+      }
+    },
+    {
+      "name": "t_dn_qn",
+      "unit": null,
+      "limits": null,
+      "status": "pass",
+      "worst_case": {
+        "corner_id": "mos_tt/1.200V/27C",
+        "value": 0,
+        "margin": null
+      },
+      "min": {
+        "corner_id": "mos_tt/1.200V/27C",
+        "value": 0
+      },
+      "max": {
+        "corner_id": "mos_tt/1.200V/27C",
+        "value": 0
+      }
+    },
+    {
+      "name": "v_reset_rest",
+      "unit": "V",
+      "limits": null,
+      "status": "pass",
+      "worst_case": {
+        "corner_id": "mos_tt/1.200V/27C",
+        "value": 1.06634e-07,
+        "margin": null
+      },
+      "min": {
+        "corner_id": "mos_tt/1.200V/27C",
+        "value": 1.06634e-07
+      },
+      "max": {
+        "corner_id": "mos_tt/1.200V/27C",
+        "value": 1.06634e-07
+      }
+    },
+    {
+      "name": "v_reset_min",
+      "unit": "V",
+      "limits": null,
+      "status": "pass",
+      "worst_case": {
+        "corner_id": "mos_tt/1.200V/27C",
+        "value": -0.000191434,
+        "margin": null
+      },
+      "min": {
+        "corner_id": "mos_tt/1.200V/27C",
+        "value": -0.000191434
+      },
+      "max": {
+        "corner_id": "mos_tt/1.200V/27C",
+        "value": -0.000191434
+      }
+    },
+    {
+      "name": "v_reset_max",
+      "unit": "V",
+      "limits": null,
+      "status": "pass",
+      "worst_case": {
+        "corner_id": "mos_tt/1.200V/27C",
+        "value": 0.000205247,
+        "margin": null
+      },
+      "min": {
+        "corner_id": "mos_tt/1.200V/27C",
+        "value": 0.000205247
+      },
+      "max": {
+        "corner_id": "mos_tt/1.200V/27C",
+        "value": 0.000205247
+      }
+    },
+    {
+      "name": "v_up_max",
+      "unit": "V",
+      "limits": null,
+      "status": "pass",
+      "worst_case": {
+        "corner_id": "mos_tt/1.200V/27C",
+        "value": 1.20052,
+        "margin": null
+      },
+      "min": {
+        "corner_id": "mos_tt/1.200V/27C",
+        "value": 1.20052
+      },
+      "max": {
+        "corner_id": "mos_tt/1.200V/27C",
+        "value": 1.20052
+      }
+    },
+    {
+      "name": "v_dn_max",
+      "unit": "V",
+      "limits": null,
+      "status": "pass",
+      "worst_case": {
+        "corner_id": "mos_tt/1.200V/27C",
+        "value": 1.20052,
+        "margin": null
+      },
+      "min": {
+        "corner_id": "mos_tt/1.200V/27C",
+        "value": 1.20052
+      },
+      "max": {
+        "corner_id": "mos_tt/1.200V/27C",
+        "value": 1.20052
+      }
+    },
+    {
+      "name": "v_up_qn_min",
+      "unit": "V",
+      "limits": null,
+      "status": "pass",
+      "worst_case": {
+        "corner_id": "mos_tt/1.200V/27C",
+        "value": 1.15484,
+        "margin": null
+      },
+      "min": {
+        "corner_id": "mos_tt/1.200V/27C",
+        "value": 1.15484
+      },
+      "max": {
+        "corner_id": "mos_tt/1.200V/27C",
+        "value": 1.15484
+      }
+    },
+    {
+      "name": "v_up_qn_max",
+      "unit": "V",
+      "limits": null,
+      "status": "pass",
+      "worst_case": {
+        "corner_id": "mos_tt/1.200V/27C",
+        "value": 1.24325,
+        "margin": null
+      },
+      "min": {
+        "corner_id": "mos_tt/1.200V/27C",
+        "value": 1.24325
+      },
+      "max": {
+        "corner_id": "mos_tt/1.200V/27C",
+        "value": 1.24325
+      }
+    },
+    {
+      "name": "v_dn_qn_min",
+      "unit": "V",
+      "limits": null,
+      "status": "pass",
+      "worst_case": {
+        "corner_id": "mos_tt/1.200V/27C",
+        "value": 1.15478,
+        "margin": null
+      },
+      "min": {
+        "corner_id": "mos_tt/1.200V/27C",
+        "value": 1.15478
+      },
+      "max": {
+        "corner_id": "mos_tt/1.200V/27C",
+        "value": 1.15478
+      }
+    },
+    {
+      "name": "v_dn_qn_max",
+      "unit": "V",
+      "limits": null,
+      "status": "pass",
+      "worst_case": {
+        "corner_id": "mos_tt/1.200V/27C",
+        "value": 1.24332,
+        "margin": null
+      },
+      "min": {
+        "corner_id": "mos_tt/1.200V/27C",
+        "value": 1.24332
+      },
+      "max": {
+        "corner_id": "mos_tt/1.200V/27C",
+        "value": 1.24332
+      }
+    },
+    {
+      "name": "v_up_qb_min",
+      "unit": "V",
+      "limits": null,
+      "status": "pass",
+      "worst_case": {
+        "corner_id": "mos_tt/1.200V/27C",
+        "value": -0.00745154,
+        "margin": null
+      },
+      "min": {
+        "corner_id": "mos_tt/1.200V/27C",
+        "value": -0.00745154
+      },
+      "max": {
+        "corner_id": "mos_tt/1.200V/27C",
+        "value": -0.00745154
+      }
+    },
+    {
+      "name": "v_up_qb_max",
+      "unit": "V",
+      "limits": null,
+      "status": "pass",
+      "worst_case": {
+        "corner_id": "mos_tt/1.200V/27C",
+        "value": 0.00654631,
+        "margin": null
+      },
+      "min": {
+        "corner_id": "mos_tt/1.200V/27C",
+        "value": 0.00654631
+      },
+      "max": {
+        "corner_id": "mos_tt/1.200V/27C",
+        "value": 0.00654631
+      }
+    },
+    {
+      "name": "v_dn_qb_min",
+      "unit": "V",
+      "limits": null,
+      "status": "pass",
+      "worst_case": {
+        "corner_id": "mos_tt/1.200V/27C",
+        "value": -0.00746313,
+        "margin": null
+      },
+      "min": {
+        "corner_id": "mos_tt/1.200V/27C",
+        "value": -0.00746313
+      },
+      "max": {
+        "corner_id": "mos_tt/1.200V/27C",
+        "value": -0.00746313
+      }
+    },
+    {
+      "name": "v_dn_qb_max",
+      "unit": "V",
+      "limits": null,
+      "status": "pass",
+      "worst_case": {
+        "corner_id": "mos_tt/1.200V/27C",
+        "value": 0.00655215,
+        "margin": null
+      },
+      "min": {
+        "corner_id": "mos_tt/1.200V/27C",
+        "value": 0.00655215
+      },
+      "max": {
+        "corner_id": "mos_tt/1.200V/27C",
+        "value": 0.00655215
+      }
+    },
+    {
+      "name": "v_reset_rest_max",
+      "unit": "V",
+      "limits": null,
+      "status": "pass",
+      "worst_case": {
+        "corner_id": "mos_tt/1.200V/27C",
+        "value": 1.06634e-07,
+        "margin": null
+      },
+      "min": {
+        "corner_id": "mos_tt/1.200V/27C",
+        "value": 1.06634e-07
+      },
+      "max": {
+        "corner_id": "mos_tt/1.200V/27C",
+        "value": 1.06634e-07
+      }
+    },
+    {
+      "name": "v_up_rest_min",
+      "unit": "V",
+      "limits": null,
+      "status": "pass",
+      "worst_case": {
+        "corner_id": "mos_tt/1.200V/27C",
+        "value": 1.2,
+        "margin": null
+      },
+      "min": {
+        "corner_id": "mos_tt/1.200V/27C",
+        "value": 1.2
+      },
+      "max": {
+        "corner_id": "mos_tt/1.200V/27C",
+        "value": 1.2
+      }
+    },
+    {
+      "name": "v_dn_rest_min",
+      "unit": "V",
+      "limits": null,
+      "status": "pass",
+      "worst_case": {
+        "corner_id": "mos_tt/1.200V/27C",
+        "value": 1.2,
+        "margin": null
+      },
+      "min": {
+        "corner_id": "mos_tt/1.200V/27C",
+        "value": 1.2
+      },
+      "max": {
+        "corner_id": "mos_tt/1.200V/27C",
+        "value": 1.2
+      }
+    },
+    {
+      "name": "v_reset_raw_rest",
+      "unit": "V",
+      "limits": null,
+      "status": "pass",
+      "worst_case": {
+        "corner_id": "mos_tt/1.200V/27C",
+        "value": 1.97856e-07,
+        "margin": null
+      },
+      "min": {
+        "corner_id": "mos_tt/1.200V/27C",
+        "value": 1.97856e-07
+      },
+      "max": {
+        "corner_id": "mos_tt/1.200V/27C",
+        "value": 1.97856e-07
+      }
+    },
+    {
+      "name": "v_reset_d1_rest",
+      "unit": "V",
+      "limits": null,
+      "status": "pass",
+      "worst_case": {
+        "corner_id": "mos_tt/1.200V/27C",
+        "value": 1.2,
+        "margin": null
+      },
+      "min": {
+        "corner_id": "mos_tt/1.200V/27C",
+        "value": 1.2
+      },
+      "max": {
+        "corner_id": "mos_tt/1.200V/27C",
+        "value": 1.2
+      }
+    }
+  ],
+  "corners": [
+    {
+      "corner_id": "mos_tt/1.200V/27C",
+      "process": "mos_tt",
+      "supply_v": {
+        "Vdd": 1.2
+      },
+      "temperature_c": 27,
+      "status": "pass",
+      "runtime_s": 2.122,
+      "peak_rss_bytes": 120229888,
+      "engine_exit_code": 0,
+      "engine_killed_by_signal": null,
+      "measurements": [
+        {
+          "name": "t_ref",
+          "value": 19,
+          "unit": null,
+          "status": "pass",
+          "margin": null,
+          "crossings": {
+            "times": [
+              5e-09,
+              6e-09,
+              7e-09,
+              8e-09,
+              9.000000000000001e-09,
+              1.0000000000000002e-08,
+              1.1000000000000001e-08,
+              1.2000000000000003e-08,
+              1.2999999999999996e-08,
+              1.4000000000000003e-08,
+              1.5000000000000002e-08,
+              1.6000000000000004e-08,
+              1.6999999999999997e-08,
+              1.7999999999999996e-08,
+              1.9e-08,
+              1.9999999999999997e-08,
+              2.1e-08,
+              2.2000000000000002e-08,
+              2.2999999999999998e-08
+            ],
+            "edges": [
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise"
+            ],
+            "truncated": false,
+            "level": 0.6
+          }
+        },
+        {
+          "name": "t_fb",
+          "value": 19,
+          "unit": null,
+          "status": "pass",
+          "margin": null,
+          "crossings": {
+            "times": [
+              5e-09,
+              6e-09,
+              7e-09,
+              7.840000000000001e-09,
+              8.920000000000001e-09,
+              9.960000000000001e-09,
+              1.0979999999999998e-08,
+              1.1990000000000005e-08,
+              1.2994999999999998e-08,
+              1.4000000000000003e-08,
+              1.5005000000000004e-08,
+              1.6010000000000002e-08,
+              1.702e-08,
+              1.804e-08,
+              1.9080000000000003e-08,
+              2.016e-08,
+              2.1e-08,
+              2.2000000000000002e-08,
+              2.2999999999999998e-08
+            ],
+            "edges": [
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise",
+              "rise"
+            ],
+            "truncated": false,
+            "level": 0.6
+          }
+        },
+        {
+          "name": "t_up",
+          "value": 0,
+          "unit": null,
+          "status": "pass",
+          "margin": null,
+          "crossings": {
+            "times": [],
+            "edges": [],
+            "truncated": false,
+            "level": 0.6
+          }
+        },
+        {
+          "name": "t_dn",
+          "value": 0,
+          "unit": null,
+          "status": "pass",
+          "margin": null,
+          "crossings": {
+            "times": [],
+            "edges": [],
+            "truncated": false,
+            "level": 0.6
+          }
+        },
+        {
+          "name": "t_set_up",
+          "value": 38,
+          "unit": null,
+          "status": "pass",
+          "margin": null,
+          "crossings": {
+            "times": [
+              5.07680323095278e-09,
+              5.1902793594211845e-09,
+              6.076803230991058e-09,
+              6.190279359160278e-09,
+              7.076803231020261e-09,
+              7.190279358882595e-09,
+              8.076803306680379e-09,
+              8.190279456621609e-09,
+              9.076803225047526e-09,
+              9.190279441724384e-09,
+              1.0076812049302866e-08,
+              1.0190289165316789e-08,
+              1.1076800601866553e-08,
+              1.1190275382495946e-08,
+              1.2076810314211635e-08,
+              1.2190280123206532e-08,
+              1.3076817456324735e-08,
+              1.3190262771614825e-08,
+              1.4076803231228681e-08,
+              1.4190279356979087e-08,
+              1.5076811289780747e-08,
+              1.5190229451203713e-08,
+              1.607678059850918e-08,
+              1.6190250119402385e-08,
+              1.7076774917832417e-08,
+              1.7190272366259407e-08,
+              1.807680604666613e-08,
+              1.8190259355535733e-08,
+              1.9076800237172532e-08,
+              1.9190241413294142e-08,
+              2.0076803134671107e-08,
+              2.0190290211723536e-08,
+              2.1076803231399456e-08,
+              2.1190279355178338e-08,
+              2.2076803231436973e-08,
+              2.219027935492026e-08,
+              2.3076803231465877e-08,
+              2.3190279354645354e-08
+            ],
+            "edges": [
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall"
+            ],
+            "truncated": false,
+            "level": 0.6
+          }
+        },
+        {
+          "name": "t_set_dn",
+          "value": 38,
+          "unit": null,
+          "status": "pass",
+          "margin": null,
+          "crossings": {
+            "times": [
+              5.0768031041258436e-09,
+              5.190279559481978e-09,
+              6.076803104164117e-09,
+              6.1902795592212905e-09,
+              7.076803104193319e-09,
+              7.1902795589438134e-09,
+              7.916803008632206e-09,
+              8.030290406610467e-09,
+              8.996800110184511e-09,
+              9.110241616065685e-09,
+              1.0036805919753196e-08,
+              1.0150259559647941e-08,
+              1.1056774790136824e-08,
+              1.1170272567867356e-08,
+              1.2066780472890483e-08,
+              1.2180250318655806e-08,
+              1.3071811153407696e-08,
+              1.3185229653383657e-08,
+              1.4076803104359943e-08,
+              1.4190279557122482e-08,
+              1.5081817318764574e-08,
+              1.5195262981625016e-08,
+              1.608681018621638e-08,
+              1.6200280325844766e-08,
+              1.7096800467163635e-08,
+              1.7210275587929666e-08,
+              1.811681192297704e-08,
+              1.8230289362077076e-08,
+              1.915680308618626e-08,
+              1.9270279626078874e-08,
+              2.023680318307988e-08,
+              2.0350279640291313e-08,
+              2.1076803105564288e-08,
+              2.1190279554342942e-08,
+              2.2076803104610058e-08,
+              2.2190279554983572e-08,
+              2.3076803104638952e-08,
+              2.3190279554708865e-08
+            ],
+            "edges": [
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall",
+              "rise",
+              "fall"
+            ],
+            "truncated": false,
+            "level": 0.6
+          }
+        },
+        {
+          "name": "t_reset",
+          "value": 0,
+          "unit": null,
+          "status": "pass",
+          "margin": null,
+          "crossings": {
+            "times": [],
+            "edges": [],
+            "truncated": false,
+            "level": 0.6
+          }
+        },
+        {
+          "name": "t_up_qn",
+          "value": 0,
+          "unit": null,
+          "status": "pass",
+          "margin": null,
+          "crossings": {
+            "times": [],
+            "edges": [],
+            "truncated": false,
+            "level": 0.6
+          }
+        },
+        {
+          "name": "t_dn_qn",
+          "value": 0,
+          "unit": null,
+          "status": "pass",
+          "margin": null,
+          "crossings": {
+            "times": [],
+            "edges": [],
+            "truncated": false,
+            "level": 0.6
+          }
+        },
+        {
+          "name": "v_reset_rest",
+          "value": 1.06634e-07,
+          "unit": "V",
+          "status": "pass",
+          "margin": null
+        },
+        {
+          "name": "v_reset_min",
+          "value": -0.000191434,
+          "unit": "V",
+          "status": "pass",
+          "margin": null
+        },
+        {
+          "name": "v_reset_max",
+          "value": 0.000205247,
+          "unit": "V",
+          "status": "pass",
+          "margin": null
+        },
+        {
+          "name": "v_up_max",
+          "value": 1.20052,
+          "unit": "V",
+          "status": "pass",
+          "margin": null
+        },
+        {
+          "name": "v_dn_max",
+          "value": 1.20052,
+          "unit": "V",
+          "status": "pass",
+          "margin": null
+        },
+        {
+          "name": "v_up_qn_min",
+          "value": 1.15484,
+          "unit": "V",
+          "status": "pass",
+          "margin": null
+        },
+        {
+          "name": "v_up_qn_max",
+          "value": 1.24325,
+          "unit": "V",
+          "status": "pass",
+          "margin": null
+        },
+        {
+          "name": "v_dn_qn_min",
+          "value": 1.15478,
+          "unit": "V",
+          "status": "pass",
+          "margin": null
+        },
+        {
+          "name": "v_dn_qn_max",
+          "value": 1.24332,
+          "unit": "V",
+          "status": "pass",
+          "margin": null
+        },
+        {
+          "name": "v_up_qb_min",
+          "value": -0.00745154,
+          "unit": "V",
+          "status": "pass",
+          "margin": null
+        },
+        {
+          "name": "v_up_qb_max",
+          "value": 0.00654631,
+          "unit": "V",
+          "status": "pass",
+          "margin": null
+        },
+        {
+          "name": "v_dn_qb_min",
+          "value": -0.00746313,
+          "unit": "V",
+          "status": "pass",
+          "margin": null
+        },
+        {
+          "name": "v_dn_qb_max",
+          "value": 0.00655215,
+          "unit": "V",
+          "status": "pass",
+          "margin": null
+        },
+        {
+          "name": "v_reset_rest_max",
+          "value": 1.06634e-07,
+          "unit": "V",
+          "status": "pass",
+          "margin": null
+        },
+        {
+          "name": "v_up_rest_min",
+          "value": 1.2,
+          "unit": "V",
+          "status": "pass",
+          "margin": null
+        },
+        {
+          "name": "v_dn_rest_min",
+          "value": 1.2,
+          "unit": "V",
+          "status": "pass",
+          "margin": null
+        },
+        {
+          "name": "v_reset_raw_rest",
+          "value": 1.97856e-07,
+          "unit": "V",
+          "status": "pass",
+          "margin": null
+        },
+        {
+          "name": "v_reset_d1_rest",
+          "value": 1.2,
+          "unit": "V",
+          "status": "pass",
+          "margin": null
+        }
+      ],
+      "diagnostics": [],
+      "artifacts": {
+        "log": "/home/ubuntu/GitHub/sg13g2-dll/.loom/worktrees/issue-201/sim/build/issue-201-diag/artifacts_mos_tt/mos_tt_1p200V_27C/ngspice.log",
+        "raw": null,
+        "waveform": null,
+        "deck": "/home/ubuntu/GitHub/sg13g2-dll/.loom/worktrees/issue-201/sim/build/issue-201-diag/artifacts_mos_tt/mos_tt_1p200V_27C/corner.cir"
+      },
+      "monte_carlo": null
+    }
+  ]
+}

@@ -10,6 +10,7 @@ sim/corners.json". Nothing here simulates.
 """
 import json
 import os
+import re
 import sys
 import tempfile
 import unittest
@@ -133,6 +134,75 @@ class ControlArmGradesCommittedLatch(unittest.TestCase):
                                if l.startswith("XI")]), 2)
         self.assertIn("XNR up_qn dn_qn reset_n0 VDD VSS", pfd_netlist)
         self.assertNotIn("srlatch_fast", mb.SIBLING_POLARITY)
+
+
+class ControlProbes(unittest.TestCase):
+    """`ctl_1g` must show WHY its lanes are dead (issue #201).
+
+    Before this the control measured only the four ports, so a deck that never
+    elaborated, a stimulus that never reached the DUT and the documented
+    stuck-reset all read `t_up = t_dn = 0`. The control request now carries the
+    DUT-internal crossings the retained `pfd` probe deck already used plus the
+    level probes grade.py needs to tell reset-asserted from reset-never-asserted;
+    the `pfd_*` arms are unchanged.
+    """
+
+    PERIOD = 1e-9
+
+    def measurements(self, tag="ctl_1g"):
+        return {m["name"]: m for m in mb.request(tag, 19, self.PERIOD)["measurements"]}
+
+    def test_control_request_probes_the_dut_internals(self):
+        ms = self.measurements()
+        half = {"frac_of": "Vdd", "fraction": 0.5}
+        self.assertEqual([n for n, m in ms.items() if "crossings" in m][4:],
+                         [f"t_{n}" for n in mb.CONTROL_NODES])
+        self.assertEqual([n for n, m in ms.items() if "spice" in m], list(mb.CONTROL_LEVELS))
+        for node in mb.CONTROL_NODES:
+            with self.subTest(node=node):
+                x = ms[f"t_{node}"]["crossings"]
+                self.assertEqual((x["signal"], x["edge"], x["level"]), (f"v(xdut.{node})", "either", half))
+        self.assertEqual(ms["v_reset_rest"]["spice"],
+                         ".meas tran v_reset_rest min v(xdut.reset) from=4.000n to=4.900n")
+        self.assertEqual(ms["v_reset_min"]["spice"],
+                         ".meas tran v_reset_min min v(xdut.reset) from=4.000n to=24.000n")
+        self.assertEqual(ms["v_reset_max"]["spice"],
+                         ".meas tran v_reset_max max v(xdut.reset) from=4.000n to=24.000n")
+        self.assertEqual(ms["v_up_max"]["spice"], ".meas tran v_up_max max v(up) from=4.000n to=24.000n")
+        self.assertEqual(ms["v_dn_max"]["spice"], ".meas tran v_dn_max max v(dn) from=4.000n to=24.000n")
+        self.assertEqual(ms["v_up_qn_min"]["spice"],
+                         ".meas tran v_up_qn_min min v(xdut.up_qn) from=4.000n to=24.000n")
+        self.assertEqual(ms["v_dn_qn_min"]["spice"],
+                         ".meas tran v_dn_qn_min min v(xdut.dn_qn) from=4.000n to=24.000n")
+
+    def test_every_probed_node_is_a_net_of_the_control_arm(self):
+        nets = {tok for line in mb.SIBLING_POLARITY.splitlines() if line.startswith("X")
+                for tok in line.split()[1:-1]}
+        for node in mb.CONTROL_NODES:
+            with self.subTest(node=node):
+                self.assertIn(node, nets)
+
+    def test_pfd_arms_measure_the_ports_only(self):
+        for tag, period in (("pfd_1g", 1e-9), ("pfd_500m", 2e-9)):
+            with self.subTest(tag=tag):
+                ms = mb.request(tag, 19, period)["measurements"]
+                self.assertEqual([m["name"] for m in ms], ["t_ref", "t_fb", "t_up", "t_dn"])
+                self.assertTrue(all("crossings" in m for m in ms))
+
+    def test_probe_windows_bracket_the_stimulus_inside_the_analysis(self):
+        req = mb.request("ctl_1g", 19, self.PERIOD)
+        tstop = float(req["analysis"]["args"].split()[1][:-1]) * 1e-9
+        window = lambda name: [float(x) * 1e-9 for x in
+                               re.findall(r"(?:from|to)=([\d.]+)n", self.measurements()[name]["spice"])]
+        rest, sweep = window("v_reset_rest"), window("v_reset_min")
+        offs = mb.offsets()
+        first_edge = mb.T0 - mb.EDGE / 2
+        last_edge = mb.T0 + (len(offs) - 1) * self.PERIOD + max(mb.OFFSETS_PS) * 1e-12 + self.PERIOD / 2 + mb.EDGE / 2
+        self.assertLess(rest[0], rest[1])
+        self.assertLess(rest[1], first_edge)
+        self.assertLessEqual(sweep[0], first_edge)
+        self.assertLess(last_edge, sweep[1])
+        self.assertLessEqual(sweep[1], tstop)
 
 
 if __name__ == "__main__":
