@@ -58,6 +58,8 @@ W2 = 0.40          # Metal2 route width           (deck min 0.20)
 VIA = 0.19         # Via1 fixed size              (deck via1.width.1)
 CLEAR_M1 = 0.20    # Metal1-Metal1 clearance kept (deck min 0.18)
 CLEAR_M2 = 0.24    # Metal2-Metal2 clearance kept (deck min 0.21)
+PSD_ENC = 0.0      # pSD exactly over pfet Activ (a ring outside Activ is read as P+ Activ by the curated deck)
+NWELL_ENC = 0.40   # NWell enclosure of pfet Activ (deck min 0.31)
 PAD_W = 0.42       # generator S/D and gate Metal1 pad width
 
 
@@ -100,6 +102,7 @@ class Part:
         self.report = _parse_json(stdout)
         with open(self.report_path, "w") as fh:
             json.dump(self.report, fh, indent=1, sort_keys=True)
+        self.flavor = params.get("flavor")
         self.w = params.get("w_um")
         self.l = params.get("l_um")
         self.bbox = self.report["bbox_um"]
@@ -187,11 +190,38 @@ class Cell:
             tli = self.ly.layer(info)
             for s in stop.shapes(li).each():
                 cell.shapes(tli).insert(s)
+        if part.flavor == "pfet":
+            self._draw_psd(cell, src, stop)
         self.top.insert(kdb.CellInstArray(
             cell.cell_index(), kdb.Trans(kdb.Trans.R0, U(ox), U(oy))))
         p = _Placed(part, ox, oy)
         self.placed[part.name] = p
         return p
+
+    def _draw_psd(self, cell, src, stop):
+        """Draw the p+ select (pSD) over a pfet block's Activ.
+
+        klt 0.8.0's mos_array declares no S/D implant role for the sg13g2
+        pfet flavor and draws no mask, but the PDK runset derives P+ active
+        as a drawn-mask AND (`pactiv_con = activ - gatpoly & psd`, antenna.drc
+        in IHP-Open-PDK): without pSD every PMOS S/D is n+ as drawn, and the
+        deck's implant-derived rules pass vacuously. IHP's own stdcells draw
+        pSD over the pfet Activ and no nSD (n+ is the default), so the same
+        is done here; the n-well tie islands lie outside the block's Activ
+        and stay uncovered by pSD.
+        """
+        ali = src.layer(*ACTIV)
+        reg = kdb.Region(stop.shapes(ali)).merged()
+        reg.size(U(PSD_ENC))
+        reg.merge()
+        cell.shapes(self.ly.layer(*PSD)).insert(reg)
+        # With P+ Activ now real, nwell.enclosing.pactiv.1 is live (it passed
+        # vacuously before); the generator's own NWell margin is too tight for
+        # it, so grow the well around the Activ to NWELL_ENC.
+        wreg = kdb.Region(stop.shapes(ali)).merged()
+        wreg.size(U(NWELL_ENC))
+        wreg.merge()
+        cell.shapes(self.ly.layer(*NWELL)).insert(wreg)
 
     # -- primitive drawing ----------------------------------------------------
     def rect(self, layer, x0, y0, x1, y1):

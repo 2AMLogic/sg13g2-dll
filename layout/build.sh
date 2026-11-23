@@ -6,6 +6,7 @@
 # Usage (from anywhere; the script locates the repo root itself):
 #   layout/build.sh            rebuild + verify + refresh envelopes
 #   layout/build.sh --record   also append the run record
+#   LAYOUT_REGEN=1 layout/build.sh   accept a deliberate stream change
 #
 # Environment: PDK / PDK_ROOT default to ihp-sg13g2 / ~/share/pdk (the same
 # resolution sim/pdk.json pins). klt comes from scripts/klt.sh (pinned
@@ -43,16 +44,22 @@ for cell in $CELLS; do
     built=$(sha256sum "layout/$cell/$cell.gds" | cut -d' ' -f1)
     if git ls-files --error-unmatch "layout/$cell/$cell.gds" >/dev/null 2>&1; then
         committed=$(git show "HEAD:layout/$cell/$cell.gds" | sha256sum | cut -d' ' -f1)
-        if [ "$built" != "$committed" ]; then
+        if [ "$built" != "$committed" ] && [ "${LAYOUT_REGEN:-0}" = 1 ]; then
+            echo "  gds changed vs HEAD (LAYOUT_REGEN=1; commit the new stream): $built"
+        elif [ "$built" != "$committed" ]; then
             echo "FAIL: layout/$cell/$cell.gds drifted from HEAD" >&2
             echo "  committed $committed" >&2
             echo "  rebuilt   $built" >&2
             exit 1
+        else
+            echo "  gds reproduces HEAD (sha256 $built)"
         fi
-        echo "  gds reproduces HEAD (sha256 $built)"
+        :
     else
         echo "  gds not yet committed (sha256 $built)"
     fi
+
+    $GEN layout/check_psd.py "layout/$cell/$cell.gds" || { echo "FAIL: pfet S/D without pSD" >&2; exit 1; }
 
     "$KLT" drc --deck sg13g2 --format json "layout/$cell/$cell.gds" 2>/dev/null \
         | json_from_stdout > "layout/$cell/drc_report.json"

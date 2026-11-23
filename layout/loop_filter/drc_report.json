@@ -399,7 +399,7 @@
   },
   "provenance": {
     "klt_version": "0.8.0",
-    "klayout_version": "0.30.13",
+    "klayout_version": "0.30.14",
     "pdk": null,
     "deck": {
       "name": "sg13g2",

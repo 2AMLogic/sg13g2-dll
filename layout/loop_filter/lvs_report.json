@@ -120,7 +120,7 @@
   ],
   "environment": {
     "engine": "klayout",
-    "engine_version": "0.30.13",
+    "engine_version": "0.30.14",
     "netgen_binary": null,
     "layout_sha256": "abd1746d3f90b250d4ee0b00bd51a851cd6d547da4a9c8f86fa4c6398ad14d92",
     "reference_sha256": "9dbaeb026c53fc070cf393dc2dffadbca8376d803c07bee6749acf6b4517e08d",
@@ -128,7 +128,7 @@
   },
   "provenance": {
     "klt_version": "0.8.0",
-    "klayout_version": "0.30.13",
+    "klayout_version": "0.30.14",
     "pdk": null,
     "deck": {
       "name": "sg13g2",

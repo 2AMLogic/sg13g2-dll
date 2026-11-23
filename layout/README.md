@@ -52,6 +52,24 @@ Two ingredients per cell, both committed and re-runnable:
    pfet block's NWell gets an n+ island tied to VDD (the curated deck
    derives taps from the nSD/pSD implant markers), so LVS reports
    `body_verification: verified`, not just "unchecked", on all three cells.
+   That `verified` rests on the **klt deck's** nSD/pSD convention, not the
+   PDK's: in the pinned PDK `nSD.drawing` (7/0) is `valid=false` and IHP's
+   own runset treats n+ as the default (`nactiv_con = activ - gatpoly -
+   (psd | nsd_block)`), so IHP's reference cells draw no 7/0. The 7/0 on the
+   n-well ties is drawn for the deck; under IHP's derivation those ties
+   resolve as n+ only because pSD does not cover them.
+3. **pSD over every pfet (post-review fix).** `klt gen mos_array` draws no
+   S/D implant for the sg13g2 pfet (see the disclosure below), and the PDK
+   derives P+ active as `activ - gatpoly & psd`, so the first version of
+   these streams had 15 pfets that were n+ as drawn while DRC was clean and
+   LVS matched. `common.py:_draw_psd` now draws pSD exactly over each pfet
+   block's Activ and grows the NWell to 0.40 µm around it (the real P+
+   region makes `nwell.enclosing.pactiv.1` live; the generator's own margin
+   failed it). `layout/check_psd.py`, run by `build.sh` for every cell,
+   asserts `(Activ AND NWell) - pSD - nSD` is empty, because the deck
+   cannot: measured on the committed streams, `cp` 209.440 µm² pactiv =
+   206.920 pSD-covered + 2.520 n-well tie, 0 uncovered; `cp_bias` 43.528 =
+   42.808 + 0.720, 0 uncovered.
 
 Rebuild everything and append a run record:
 
@@ -147,6 +165,12 @@ their subject layers are absent from that stream:
   every FEOL/low-metal rule its stream lacks): additionally
   `activ.enclosing.cont.1`, `activ.space.1`, `activ.width.1`, `cont.space.1`, `cont.width.1`, `gatpoly.enclosing.cont.1`, `gatpoly.separation.activ.1`, `gatpoly.space.1`, `gatpoly.width.1`, `metal1.enclosing.via1.1`, `metal1.space.1`, `metal1.width.1`, `metal2.space.1`, `metal2.width.1`, `nwell.enclosing.nactiv.1`, `nwell.enclosing.nactiv.dig.1`, `nwell.enclosing.nactiv.hv.1`, `nwell.enclosing.pactiv.1`, `nwell.enclosing.pactiv.dig.1`, `nwell.enclosing.pactiv.hv.1`, `nwell.space.1`, `nwell.space.nactiv.1`, `nwell.space.nactiv.dig.1`, `nwell.space.nactiv.hv.1`, `nwell.space.pactiv.1`, `nwell.space.pactiv.dig.1`, `nwell.space.pactiv.hv.1`, `nwell.width.1`, `psd.area.1`, `psd.space.1`, `psd.width.1`, `via1.space.1`, `via1.width.1`
 
+**Generator `drc_hints` (all 17 MOS part reports)**: `sd_implant_present:
+false`, note "family 'sg13g2' declares no S/D implant role ('pplus') for
+flavor 'pfet' -- no implant mask was drawn". The nfets are unaffected
+(n+ is the default); the pfet pSD is drawn by `common.py` as described
+above, not by the generator.
+
 **LVS `power_connectivity.status`**: `unchecked` on all three cells — the
 documented, expected value for a `subckt-call` reference, whose netlist
 carries its own power/ground pins and nets that take part in the ordinary
@@ -189,3 +213,10 @@ issue rather than duplicating):
 — `klt gen-compose` cannot bus multi-pin nets across same-row blocks even
 with per-net routing planes and waypoints, which is why interconnect is
 hand-drawn here rather than composed.
+
+Second gap, found in review of the first version of this PR: the generator
+draws no pfet S/D implant and the curated deck passes its implant-derived
+rules vacuously when none is drawn, so a PMOS-less layout was DRC `clean`
+and LVS `match` —
+[klayout-tools#7531](https://github.com/2AMLogic/klayout-tools/issues/7531).
+`layout/check_psd.py` is the interim derived-region check.
