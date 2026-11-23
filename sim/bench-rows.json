@@ -56,7 +56,7 @@
     "12": {
       "bench": "sim/false-lock",
       "status": "runnable",
-      "note": "LOCK graded in every row-8 run"
+      "note": "end-of-run LOCK graded against the row-8 verdict in every run (verdict and exit code); the 128-cycle latency is graded in sim/lock-time from the ls_* samples (16-cycle resolution)"
     }
   }
 }
