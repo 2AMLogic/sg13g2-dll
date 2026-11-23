@@ -2,6 +2,27 @@
 
 Chronological record of merged PRs and closed issues. Maintained by the Guide role.
 
+### 2026-11-23
+
+- **PR #209**: docs: correct the ctl_1g rest-state record to two states (0016)
+- **PR #202**: fix: make the pfd-fit control state why its lanes are dead
+- **PR #205**: test: decouple the noise-method record reproduction test from the live PDK pin
+- **PR #193**: sim: diagnose the ss failures of win_det and vmov_cmp (setup margin, DC quiet window, one-shot/latch pair)
+- **PR #200**: feat: rewire the PFD latch to srlatch_buf per 0015 and close the ss/1 GHz fit gate
+- **Issue #204** (closed): Decisions 0008/0011 describe the sibling-polarity control as "held in reset"; the probed run shows two dead rest states (stuck set at tt and ff)
+- **Issue #206** (closed): Decisions 0008/0011 and design/NOTES.md call the pfd-fit control "held in reset"; the probes show two dead rest states
+- **Issue #201** (closed): pfd-fit control arm (ctl_1g) produces zero crossings on both lanes — a broken deck and the documented polarity failure are indistinguishable
+- **Issue #199** (closed): noise-method record reproduction test couples a committed record to the live sim/pdk.json pin
+- **Issue #189** (closed): Diagnose the ss failures of supervisor win_det and lock-detector vmov_cmp: measurement-only slice of #148
+- **Issue #151** (closed): Redesign the PFD latch to srlatch_buf per 0015 and re-run the full fit gate
+
+### 2026-11-22
+
+- **PR #198**: fix: read noise-method record provenance from the envelope, not host disk
+- **PR #152**: spec(0015): ratifiable buffered-lane-output PFD latch record with retained ss headroom probe
+- **Issue #197** (closed): Remove disk OSDI re-hashing and duplicate envelope helpers in sim/noise-method
+- **Issue #140** (closed): Operator ruling: closing the PFD fit gate at ss/1 GHz (C2, issue #136)
+
 ### 2026-11-19
 
 - **PR #176**: docs: index decision records 0008-0012 and 0014 in spec README
