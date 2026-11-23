@@ -125,7 +125,9 @@ fallback, plus the `ctl_1g` sibling-polarity control at 1 GHz:
   margin) and C1 ratios 1.050..1.161 at every graded offset ≥ 10 ps (no dead
   zone at nonzero offset, which 0015's single-corner probe could not show).
   The `ctl_1g` control on the same latch with the sibling polarity still
-  fails (dead zone), isolating the polarity argument on the committed cell.
+  fails — resting stuck set at tt/ff and held in reset at ss, so it releases
+  no lane pulse at any offset (spec/decisions/0016) — isolating the polarity
+  argument on the committed cell.
 - Earlier runs: 2026-11-05 (`20261105T125120Z`), 2026-11-15
   (`20261115T001809Z`, `20261115T124912Z`) — C1/C3 pass everywhere, C2 failing
   at ss/1 GHz (362..370 ps); the two-knob refutation and sizing history is in
