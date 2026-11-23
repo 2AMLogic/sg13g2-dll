@@ -17,6 +17,8 @@
 | [`decisions/0012-cp-bias-currents-below-bounded-step-assumption.md`](decisions/0012-cp-bias-currents-below-bounded-step-assumption.md) | Charge pump delivers 2-6 uA, not the assumed 20 uA; `cp` stays `adopting`; simulated (proposed) |
 | [`decisions/0013-consumer-requirements-aib-recompare.md`](decisions/0013-consumer-requirements-aib-recompare.md) | `sg13g2-aib` requirements re-compared with the columns corrected (consumer target = this spec's fallback); dispositions of the 250 MHz point, row 3's fallback phase count and row 6's fallback jitter limit, plus a dated correction to 0002's jitter fit; changes no row (proposed) |
 | [`decisions/0014-row-6-noise-method.md`](decisions/0014-row-6-noise-method.md) | Row 6 noise method: one thermal `trnoise` equivalent per delay stage, calibrated per deck, validated on a known case (proposed) |
+| [`decisions/0015-pfd-buffered-lane-output.md`](decisions/0015-pfd-buffered-lane-output.md) | PFD latch output moves behind a driver (`srlatch_buf`); the latch family and the gate are unchanged (proposed) |
+| [`decisions/0016-ctl-1g-rest-states.md`](decisions/0016-ctl-1g-rest-states.md) | The sibling-polarity `ctl_1g` control has two dead rest states; 0008/0011 named one (proposed) |
 
 Machine-readable corner set: [`../sim/corners.json`](../sim/corners.json)
 (schema 1, consumed by `../sim/harness/gridspec.py`).
