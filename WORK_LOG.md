@@ -4,6 +4,8 @@ Chronological record of merged PRs and closed issues. Maintained by the Guide ro
 
 ### 2026-11-23
 
+- **PR #215**: docs: index decisions 0015 and 0016 in spec/README.md
+- **Issue #212** (closed): spec/README.md index is missing rows for decisions 0015 and 0016
 - **PR #209**: docs: correct the ctl_1g rest-state record to two states (0016)
 - **PR #202**: fix: make the pfd-fit control state why its lanes are dead
 - **PR #205**: test: decouple the noise-method record reproduction test from the live PDK pin
