@@ -4,6 +4,10 @@ Chronological record of merged PRs and closed issues. Maintained by the Guide ro
 
 ### 2026-11-23
 
+- **PR #208**: docs(pfd-fit): drop stale --require-pass from grade usage, restate run.sh no-local-fallback as fleet policy
+- **Issue #207** (closed): pfd-fit bench: grade.py documents a --require-pass flag that does not exist, plus three retained-record/comment inaccuracies
+- **PR #215**: docs: index decisions 0015 and 0016 in spec/README.md
+- **Issue #212** (closed): spec/README.md index is missing rows for decisions 0015 and 0016
 - **PR #209**: docs: correct the ctl_1g rest-state record to two states (0016)
 - **PR #202**: fix: make the pfd-fit control state why its lanes are dead
 - **PR #205**: test: decouple the noise-method record reproduction test from the live PDK pin

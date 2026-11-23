@@ -423,6 +423,97 @@ class Grading(unittest.TestCase):
         self.assertIsNone(dllbench.lock_time(self.T, {"ref_ns": 0.0}, vals, j_end))
 
 
+class LockRows(unittest.TestCase):
+    """Rows 7 and 12 reach the verdict and the exit code (issue #91)."""
+    T = 1e-9
+
+    def corner_vals(self, req, lock_at, lock_rise, perr=0.001, d8=None, lock_end=1.0):
+        """Sampled values: delay settles at cycle `lock_at`, LOCK rises at
+        cycle `lock_rise` (None: never)."""
+        j_end = req["window"]["j_end"]
+        v = {"perr": perr, "vcpp": 1e-6, "d8_64": req["period_s"] if d8 is None else d8,
+             "rail_hi": 0.3, "rail_lo": 0.4, "lock_end": lock_end}
+        for j in range(16, j_end + 1, 16):
+            v[f"te_{j}"] = (j + 0.5) * req["period_s"]
+            v[f"ds_{j}"] = req["period_s"] if lock_at is not None and j >= lock_at else 0.5 * req["period_s"]
+            v[f"ls_{j}"] = 1.0 if lock_rise is not None and j >= lock_rise else 0.0
+        return v
+
+    def record(self, bench, **kw):
+        d = tempfile.mkdtemp()
+        out = os.path.join(d, "o")
+        dllbench.build(os.path.join(SIM, bench), out, DUT, 1e9, 0.02, 5.0, "/osdi")
+        man = jload(os.path.join(out, "manifest.json"))
+        for req in man["requests"]:
+            corners = []
+            for i, st in enumerate(req["states"]):
+                meas = [{"name": k, "value": v} for k, v in self.corner_vals(req, **kw).items()]
+                meas += [{"name": "ic_seen", "value": st["ic"]["vic"]},
+                         {"name": "tclk_edge", "value": max(st["ic"]["vtclk"], 0.0) * 1e-9}]
+                meas += [{"name": f"{a}_seen", "value": st["ic"][a]} for a in dllbench.AXES[1:]]
+                corners.append({"corner_id": f"tt_27_1v20_{i}", "status": "pass",
+                                "supply_v": dict(st["ic"], Vdd=1.2), "measurements": meas})
+            env = {"status": "pass", "passed": len(corners), "corner_count": len(corners), "failed": 0, "errored": 0,
+                   "environment": {"engine": "ngspice", "engine_version": "44"}, "corners": corners}
+            with open(os.path.join(out, f"{req['tag']}.envelope.json"), "w", encoding="utf-8") as fh:
+                json.dump(env, fh)
+        status = dllbench.grade(os.path.join(SIM, bench), out)
+        with open(os.path.join(out, "record.md"), encoding="utf-8") as fh:
+            return status, fh.read()
+
+    def test_a_prompt_lock_with_timely_lock_passes(self):
+        status, text = self.record("lock-time", lock_at=160, lock_rise=288)
+        self.assertEqual(status, 0, text)
+        self.assertIn("row 7 on this DUT", text)
+        self.assertNotIn("NOT all corners pass", text)
+
+    def test_a_slow_lock_fails_row_7(self):
+        # lock settles at cycle 1200: 1.2 us at 1 GHz, over the 1 us limit
+        status, text = self.record("lock-time", lock_at=1200, lock_rise=1328)
+        self.assertEqual(status, 6, text)
+        self.assertRegex(text, r"row 7 .*NOT all corners pass")
+        self.assertIn("- harness: PASS", text)
+
+    def test_no_lock_time_fails_row_7(self):
+        status, text = self.record("lock-time", lock_at=None, lock_rise=None, perr=0.5, lock_end=0.0)
+        self.assertEqual(status, 6, text)
+        self.assertRegex(text, r"row 7 .*NOT all corners pass")
+
+    def test_lock_stuck_low_in_a_passing_run_fails_row_12(self):
+        status, text = self.record("lock-time", lock_at=160, lock_rise=None, lock_end=0.0)
+        self.assertEqual(status, 6, text)
+        self.assertRegex(text, r"row 12 end-of-run LOCK .*NOT all corners pass")
+
+    def test_lock_high_in_a_failing_run_fails_row_12(self):
+        # delay locks at 2 T: row 8 fails, LOCK must stay low
+        status, text = self.record("lock-time", lock_at=160, lock_rise=160, d8=2 * self.T, perr=0.0)
+        self.assertEqual(status, 6, text)
+        self.assertRegex(text, r"row 12 end-of-run LOCK .*NOT all corners pass")
+        self.assertRegex(text, r"row 12 128-cycle LOCK latency .*NOT all corners pass")
+
+    def test_a_late_lock_rise_fails_the_latency(self):
+        # lock at 160, LOCK only at 304 (> 160 + 128 cycles); end-of-run LOCK is high
+        status, text = self.record("lock-time", lock_at=160, lock_rise=304)
+        self.assertEqual(status, 6, text)
+        self.assertRegex(text, r"row 12 128-cycle LOCK latency .*NOT all corners pass")
+        self.assertRegex(text, r"row 12 end-of-run LOCK on this DUT: all corners pass")
+
+    def test_false_lock_bench_grades_end_of_run_and_says_latency_is_not_graded(self):
+        status, text = self.record("false-lock", lock_at=160, lock_rise=160, lock_end=0.0)
+        self.assertEqual(status, 6, text)
+        self.assertRegex(text, r"row 12 end-of-run LOCK .*NOT all corners pass")
+        self.assertRegex(text, r"row 12 128-cycle LOCK latency on this DUT: NOT GRADED")
+
+    def test_lock_latency_unit(self):
+        st = {"ref_ns": 0.0}
+        j_end = dllbench.window_end(self.T, dllbench.run_length(1e9))
+        req = {"window": {"j_end": j_end}, "period_s": self.T}
+        v = self.corner_vals(req, lock_at=160, lock_rise=288)
+        self.assertTrue(dllbench.lock_latency_ok(self.T, st, v, j_end, True, 160.5 * self.T))
+        self.assertFalse(dllbench.lock_latency_ok(self.T, st, v, j_end, False, None))
+        self.assertFalse(dllbench.lock_latency_ok(self.T, st, v, j_end, True, None))
+
+
 class HarnessArity(unittest.TestCase):
     """The start-state arity leg expects the arity the manifest declares for each
     axis, not a hard 2 -- so a bench that deliberately sweeps one start state is
@@ -467,11 +558,13 @@ class HarnessArity(unittest.TestCase):
     def test_nine_state_benches_keep_grading_clean(self):
         # the per-axis expectation must not turn the full nine-state grid red
         # (vic sweeps 6 distinct values at 1 GHz, the other axes 2).
-        for bench in ("false-lock", "lock-time"):
+        # lock-time's fixture carries no te_/ds_/ls_ samples, so rows 7 and 12
+        # honestly have no lock time: a result (6), still not a harness fault.
+        for bench, clean in (("false-lock", 0), ("lock-time", 6)):
             rc, record = self.graded(bench)
             self.assertIn("- harness: PASS", record, bench)
             self.assertNotIn("distinct start states", record, bench)
-            self.assertEqual(rc, 0, bench)
+            self.assertEqual(rc, clean, bench)
 
     def test_multi_state_axis_short_of_its_declared_arity_is_a_problem(self):
         # s1_min_rail (vic 0.0) and s3_mid (vic 0.5) are 2 distinct vic values --
