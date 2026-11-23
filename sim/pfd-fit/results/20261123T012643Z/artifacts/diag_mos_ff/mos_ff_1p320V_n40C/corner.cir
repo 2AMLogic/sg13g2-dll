@@ -1,0 +1,52 @@
+* klt sim -- generated corner deck, do not edit
+.lib /home/ubuntu/share/pdk/ihp-sg13g2/libs.tech/ngspice/models/cornerMOSlv.lib mos_ff
+.include /home/ubuntu/GitHub/sg13g2-dll/.loom/worktrees/issue-201/sim/build/issue-201-diag/requests/../decks/ctl_1g.spice
+.temp -40
+.meas tran v_reset_rest min v(xdut.reset) from=4.000n to=4.900n
+.meas tran v_reset_min min v(xdut.reset) from=4.000n to=24.000n
+.meas tran v_reset_max max v(xdut.reset) from=4.000n to=24.000n
+.meas tran v_up_max max v(up) from=4.000n to=24.000n
+.meas tran v_dn_max max v(dn) from=4.000n to=24.000n
+.meas tran v_up_qn_min min v(xdut.up_qn) from=4.000n to=24.000n
+.meas tran v_up_qn_max max v(xdut.up_qn) from=4.000n to=24.000n
+.meas tran v_dn_qn_min min v(xdut.dn_qn) from=4.000n to=24.000n
+.meas tran v_dn_qn_max max v(xdut.dn_qn) from=4.000n to=24.000n
+.meas tran v_up_qb_min min v(xdut.up_qb) from=4.000n to=24.000n
+.meas tran v_up_qb_max max v(xdut.up_qb) from=4.000n to=24.000n
+.meas tran v_dn_qb_min min v(xdut.dn_qb) from=4.000n to=24.000n
+.meas tran v_dn_qb_max max v(xdut.dn_qb) from=4.000n to=24.000n
+.meas tran v_reset_rest_max max v(xdut.reset) from=4.000n to=4.900n
+.meas tran v_up_rest_min min v(up) from=4.000n to=4.900n
+.meas tran v_dn_rest_min min v(dn) from=4.000n to=4.900n
+.meas tran v_reset_raw_rest find v(xdut.reset_raw) at=4n
+.meas tran v_reset_d1_rest find v(xdut.reset_d1) at=4n
+.control
+pre_osdi /home/ubuntu/share/pdk/ihp-sg13g2/libs.tech/ngspice/osdi/psp103.osdi
+pre_osdi /home/ubuntu/share/pdk/ihp-sg13g2/libs.tech/ngspice/osdi/psp103_nqs.osdi
+pre_osdi /home/ubuntu/share/pdk/ihp-sg13g2/libs.tech/ngspice/osdi/r3_cmc.osdi
+pre_osdi /home/ubuntu/share/pdk/ihp-sg13g2/libs.tech/ngspice/osdi/mosvar.osdi
+save all
+alter Vdd=1.32
+set filetype=ascii
+tran 5p 25.000n
+let __klt_xing_0 = v(ref)
+write /home/ubuntu/GitHub/sg13g2-dll/.loom/worktrees/issue-201/sim/build/issue-201-diag/artifacts_mos_ff/mos_ff_1p320V_n40C/crossings_0.raw __klt_xing_0
+let __klt_xing_1 = v(fb)
+write /home/ubuntu/GitHub/sg13g2-dll/.loom/worktrees/issue-201/sim/build/issue-201-diag/artifacts_mos_ff/mos_ff_1p320V_n40C/crossings_1.raw __klt_xing_1
+let __klt_xing_2 = v(up)
+write /home/ubuntu/GitHub/sg13g2-dll/.loom/worktrees/issue-201/sim/build/issue-201-diag/artifacts_mos_ff/mos_ff_1p320V_n40C/crossings_2.raw __klt_xing_2
+let __klt_xing_3 = v(dn)
+write /home/ubuntu/GitHub/sg13g2-dll/.loom/worktrees/issue-201/sim/build/issue-201-diag/artifacts_mos_ff/mos_ff_1p320V_n40C/crossings_3.raw __klt_xing_3
+let __klt_xing_4 = v(xdut.set_up)
+write /home/ubuntu/GitHub/sg13g2-dll/.loom/worktrees/issue-201/sim/build/issue-201-diag/artifacts_mos_ff/mos_ff_1p320V_n40C/crossings_4.raw __klt_xing_4
+let __klt_xing_5 = v(xdut.set_dn)
+write /home/ubuntu/GitHub/sg13g2-dll/.loom/worktrees/issue-201/sim/build/issue-201-diag/artifacts_mos_ff/mos_ff_1p320V_n40C/crossings_5.raw __klt_xing_5
+let __klt_xing_6 = v(xdut.reset)
+write /home/ubuntu/GitHub/sg13g2-dll/.loom/worktrees/issue-201/sim/build/issue-201-diag/artifacts_mos_ff/mos_ff_1p320V_n40C/crossings_6.raw __klt_xing_6
+let __klt_xing_7 = v(xdut.up_qn)
+write /home/ubuntu/GitHub/sg13g2-dll/.loom/worktrees/issue-201/sim/build/issue-201-diag/artifacts_mos_ff/mos_ff_1p320V_n40C/crossings_7.raw __klt_xing_7
+let __klt_xing_8 = v(xdut.dn_qn)
+write /home/ubuntu/GitHub/sg13g2-dll/.loom/worktrees/issue-201/sim/build/issue-201-diag/artifacts_mos_ff/mos_ff_1p320V_n40C/crossings_8.raw __klt_xing_8
+quit
+.endc
+.end

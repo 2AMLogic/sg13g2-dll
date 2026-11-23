@@ -1,0 +1,227 @@
+{
+  "_comment": [
+    "vmov_cmp standalone DC probe (issue #189): operating point + settled VCTRL sweep of the",
+    "committed VCTRL-movement sensor at the reduced_set corners (tt/ss/ff, composed by",
+    "sim/harness/gridspec.py --reduced-set; no corner value restated here). NOT a graded spec",
+    "result (sim/corners.json: the reduced set is never a recorded result) and NOT the tt smoke",
+    "gate -- sim/lock-detector-smoke/requests/ld.request.json is untouched. This is the",
+    "diagnostic slice of #148: why does `still` never assert at ss on the committed smoke",
+    "stimulus (issue #145 probe results/20261115T185846Z-probe/)?",
+    "Analysis: .dc sweep of the Vctrl source, 0..1.32 V at 5 mV (0.585/0.600/0.615/0.850 are",
+    "on-grid). In DC the low-pass cap is open, so vsb = vsb0 = vsa: the sweep varies the OTA",
+    "Corner units: the reduced set (gridspec --reduced-set) with the lock-detector bench's own passive sections added (cornerRES res_typ + cornerCAP cap_typ, exactly the sections sim/lock-detector-smoke/requests/ld.request.json carries beside its MOS section, per sim/corners.json whose corner axes are MOS x supply x temperature only).",
+    "pair's common-mode input and STILL(VCTRL) is the sensor's quiet window. Operating points",
+    "are read with FIND ... AT=<VCTRL> at the quiet smoke input 0.600 V, the ripple band edges",
+    "0.585/0.615 V, and the documented ~0.85 V validity ceiling.",
+    "Transitions: WHEN <out>=v(half) (50 % of the corner's own rail) rise=1/fall=1 over the",
+    "sweep; an errored WHEN card is the measurement's report that no such transition exists.",
+    "still_max_085/still_min_085 bracket STILL over the documented validity window [0, 0.85] V.",
+    "The OTA tail currents cannot be carried by any klt sim measurement form as shipped",
+    "(2AMLogic/klayout-tools#6997); i(vdd) (the block's whole supply current through its VDD",
+    "pin) and the internal node voltages are recorded instead.",
+    "/home/ubuntu/share/pdk/ihp-sg13g2/libs.tech/ngspice/osdi is substituted at staging. Simulated, never measured."
+  ],
+  "engine": "ngspice",
+  "netlist": "../decks/vmov_dc.spice",
+  "netlist_source": "schematic",
+  "models": {
+    "pdk": "ihp-sg13g2",
+    "lib": "libs.tech/ngspice/models/cornerMOSlv.lib"
+  },
+  "analysis": {
+    "kind": "dc",
+    "args": "Vctrl 0 1.32 0.005"
+  },
+  "measurements": [
+    {
+      "name": "vsa_0600",
+      "spice": ".meas dc vsa_0600 find v(xdut.vsa) at=0.6",
+      "unit": "V"
+    },
+    {
+      "name": "vsb_0600",
+      "spice": ".meas dc vsb_0600 find v(xdut.vsb) at=0.6",
+      "unit": "V"
+    },
+    {
+      "name": "vsb0_0600",
+      "spice": ".meas dc vsb0_0600 find v(xdut.vsb0) at=0.6",
+      "unit": "V"
+    },
+    {
+      "name": "tla_0600",
+      "spice": ".meas dc tla_0600 find v(xdut.tla) at=0.6",
+      "unit": "V"
+    },
+    {
+      "name": "tlb_0600",
+      "spice": ".meas dc tlb_0600 find v(xdut.tlb) at=0.6",
+      "unit": "V"
+    },
+    {
+      "name": "oa_0600",
+      "spice": ".meas dc oa_0600 find v(xdut.oa) at=0.6",
+      "unit": "V"
+    },
+    {
+      "name": "ob_0600",
+      "spice": ".meas dc ob_0600 find v(xdut.ob) at=0.6",
+      "unit": "V"
+    },
+    {
+      "name": "oab_0600",
+      "spice": ".meas dc oab_0600 find v(xdut.oab) at=0.6",
+      "unit": "V"
+    },
+    {
+      "name": "obb_0600",
+      "spice": ".meas dc obb_0600 find v(xdut.obb) at=0.6",
+      "unit": "V"
+    },
+    {
+      "name": "still_0600",
+      "spice": ".meas dc still_0600 find v(still) at=0.6",
+      "unit": "V"
+    },
+    {
+      "name": "still_0585",
+      "spice": ".meas dc still_0585 find v(still) at=0.585",
+      "unit": "V"
+    },
+    {
+      "name": "still_0615",
+      "spice": ".meas dc still_0615 find v(still) at=0.615",
+      "unit": "V"
+    },
+    {
+      "name": "still_0850",
+      "spice": ".meas dc still_0850 find v(still) at=0.85",
+      "unit": "V"
+    },
+    {
+      "name": "vsa_0850",
+      "spice": ".meas dc vsa_0850 find v(xdut.vsa) at=0.85",
+      "unit": "V"
+    },
+    {
+      "name": "idd_0600",
+      "spice": ".meas dc idd_0600 find i(vdd) at=0.6",
+      "unit": "A"
+    },
+    {
+      "name": "still_max_085",
+      "spice": ".meas dc still_max_085 max v(still) from=0 to=0.85",
+      "unit": "V"
+    },
+    {
+      "name": "still_min_085",
+      "spice": ".meas dc still_min_085 min v(still) from=0 to=0.85",
+      "unit": "V"
+    },
+    {
+      "name": "still_r1",
+      "spice": ".meas dc still_r1 when v(still)=v(half) rise=1",
+      "unit": "V"
+    },
+    {
+      "name": "still_f1",
+      "spice": ".meas dc still_f1 when v(still)=v(half) fall=1",
+      "unit": "V"
+    },
+    {
+      "name": "oab_r1",
+      "spice": ".meas dc oab_r1 when v(xdut.oab)=v(half) rise=1",
+      "unit": "V"
+    },
+    {
+      "name": "oab_f1",
+      "spice": ".meas dc oab_f1 when v(xdut.oab)=v(half) fall=1",
+      "unit": "V"
+    },
+    {
+      "name": "obb_r1",
+      "spice": ".meas dc obb_r1 when v(xdut.obb)=v(half) rise=1",
+      "unit": "V"
+    },
+    {
+      "name": "obb_f1",
+      "spice": ".meas dc obb_f1 when v(xdut.obb)=v(half) fall=1",
+      "unit": "V"
+    }
+  ],
+  "options": {
+    "osdi_preload": [
+      "/home/ubuntu/share/pdk/ihp-sg13g2/libs.tech/ngspice/osdi/psp103.osdi",
+      "/home/ubuntu/share/pdk/ihp-sg13g2/libs.tech/ngspice/osdi/psp103_nqs.osdi",
+      "/home/ubuntu/share/pdk/ihp-sg13g2/libs.tech/ngspice/osdi/r3_cmc.osdi",
+      "/home/ubuntu/share/pdk/ihp-sg13g2/libs.tech/ngspice/osdi/mosvar.osdi"
+    ],
+    "stage_model_inputs": true,
+    "keep_artifacts": true,
+    "timeout_s": 1200
+  },
+  "corners": {
+    "units": [
+      {
+        "process": {
+          "name": "mos_tt",
+          "sections": [
+            "mos_tt",
+            {
+              "lib": "libs.tech/ngspice/models/cornerRES.lib",
+              "section": "res_typ"
+            },
+            {
+              "lib": "libs.tech/ngspice/models/cornerCAP.lib",
+              "section": "cap_typ"
+            }
+          ]
+        },
+        "temperature_c": 27,
+        "supply_v": {
+          "Vdd": 1.2
+        }
+      },
+      {
+        "process": {
+          "name": "mos_ss",
+          "sections": [
+            "mos_ss",
+            {
+              "lib": "libs.tech/ngspice/models/cornerRES.lib",
+              "section": "res_typ"
+            },
+            {
+              "lib": "libs.tech/ngspice/models/cornerCAP.lib",
+              "section": "cap_typ"
+            }
+          ]
+        },
+        "temperature_c": 125,
+        "supply_v": {
+          "Vdd": 1.08
+        }
+      },
+      {
+        "process": {
+          "name": "mos_ff",
+          "sections": [
+            "mos_ff",
+            {
+              "lib": "libs.tech/ngspice/models/cornerRES.lib",
+              "section": "res_typ"
+            },
+            {
+              "lib": "libs.tech/ngspice/models/cornerCAP.lib",
+              "section": "cap_typ"
+            }
+          ]
+        },
+        "temperature_c": -40,
+        "supply_v": {
+          "Vdd": 1.32
+        }
+      }
+    ]
+  }
+}

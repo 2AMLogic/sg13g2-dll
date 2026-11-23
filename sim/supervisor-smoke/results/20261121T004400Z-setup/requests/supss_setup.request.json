@@ -1,0 +1,136 @@
+{
+  "_comment": [
+    "win_det / dffr_lv setup-margin probe (issue #189): at ss, what TAPH-fall-to-REF-rise",
+    "lead does the b_up sampler (a dffr_lv inside the committed win_det, with its",
+    "supervisor-internal loads) need to capture low, and where does the committed no-fault",
+    "phase's 100 ps lead sit against that requirement? The tt control in the same sweep is the",
+    "contrast the #145 probe already measured once (ss unit mis-latches at the nominal lead,",
+    "Corner: the reduced set's mos_ss point (gridspec --reduced-corner) with the supervisor bench's own passive section added (cornerRES res_typ, exactly the section sim/supervisor-smoke/requests/sup.request.json carries beside its MOS section, per sim/corners.json whose corner axes are MOS x supply x temperature only).",
+    "tt control captures low).",
+    "NOT a graded spec result (sim/corners.json: the reduced set is never a recorded result)",
+    "and NOT the tt smoke gate -- sim/supervisor-smoke/requests/sup.request.json is untouched.",
+    "Sweep: the `lead` axis is the Vlead DC source swept through corners.supply_v (an alter,",
+    "supported by every runner image), zipped with the corner's own Vdd row by",
+    "sim/harness/gridspec.py (--reduced-corner mos_ss|mos_tt --ic VLEAD=...). Vlead encodes",
+    "the lead in ns (0.100 V = 100 ps); values are distinct at the 3-decimal corner_id",
+    "formatting, so the axis cannot collide.",
+    "Grading: bup_end (v(b_up) settled at 2.4 ns, after the same second REF rise, before the",
+    "third) against 50 % of the corner's own rail, read from the envelope per unit -- the",
+    "run.sh-style bracket (largest failing / smallest passing lead) is derived in record.md",
+    "from the recorded crossing times t_ref_r2 - t_taph_f (each unit's TRUE lead, never the",
+    "source parameter). t_bup_r errors exactly when b_up never crosses (the pass case at a",
+    "healthy lead): that error is the capture-low observation, not a fault.",
+    "/home/ubuntu/share/pdk/ihp-sg13g2/libs.tech/ngspice/osdi is substituted at staging. Simulated, never measured."
+  ],
+  "engine": "ngspice",
+  "netlist": "../decks/sup_setup.spice",
+  "netlist_source": "schematic",
+  "models": {
+    "pdk": "ihp-sg13g2",
+    "lib": "libs.tech/ngspice/models/cornerMOSlv.lib"
+  },
+  "analysis": {
+    "kind": "tran",
+    "args": "1p 3n"
+  },
+  "measurements": [
+    {
+      "name": "t_ref_r2",
+      "spice": ".meas tran t_ref_r2 when v(ref)=v(half) rise=2",
+      "unit": "s"
+    },
+    {
+      "name": "t_taph_f",
+      "spice": ".meas tran t_taph_f when v(taph)=v(half) fall=1",
+      "unit": "s"
+    },
+    {
+      "name": "bup_end",
+      "spice": ".meas tran bup_end find v(xwin.b_up) at=2.4n",
+      "unit": "V"
+    },
+    {
+      "name": "t_bup_r",
+      "spice": ".meas tran t_bup_r when v(xwin.b_up)=v(half) rise=1",
+      "unit": "s"
+    }
+  ],
+  "options": {
+    "osdi_preload": [
+      "/home/ubuntu/share/pdk/ihp-sg13g2/libs.tech/ngspice/osdi/psp103.osdi",
+      "/home/ubuntu/share/pdk/ihp-sg13g2/libs.tech/ngspice/osdi/psp103_nqs.osdi",
+      "/home/ubuntu/share/pdk/ihp-sg13g2/libs.tech/ngspice/osdi/r3_cmc.osdi",
+      "/home/ubuntu/share/pdk/ihp-sg13g2/libs.tech/ngspice/osdi/mosvar.osdi"
+    ],
+    "stage_model_inputs": true,
+    "keep_artifacts": true,
+    "timeout_s": 600
+  },
+  "corners": {
+    "process": [
+      {
+        "name": "ss",
+        "sections": [
+          "mos_ss",
+          {
+            "lib": "libs.tech/ngspice/models/cornerRES.lib",
+            "section": "res_typ"
+          }
+        ]
+      }
+    ],
+    "temperature_c": [
+      125
+    ],
+    "supply_v": {
+      "Vdd": [
+        1.08,
+        1.08,
+        1.08,
+        1.08,
+        1.08,
+        1.08,
+        1.08,
+        1.08,
+        1.08,
+        1.08,
+        1.08,
+        1.08,
+        1.08,
+        1.08,
+        1.08,
+        1.08,
+        1.08,
+        1.08,
+        1.08,
+        1.08,
+        1.08,
+        1.08
+      ],
+      "VLEAD": [
+        -0.05,
+        -0.02,
+        0.0,
+        0.02,
+        0.04,
+        0.06,
+        0.07,
+        0.08,
+        0.09,
+        0.1,
+        0.11,
+        0.12,
+        0.13,
+        0.14,
+        0.15,
+        0.16,
+        0.18,
+        0.2,
+        0.24,
+        0.3,
+        0.35,
+        0.4
+      ]
+    }
+  }
+}

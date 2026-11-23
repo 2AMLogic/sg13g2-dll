@@ -68,6 +68,12 @@ failing C1 on insensitivity. The widened `srlatch_fast` NANDs hold the latch res
 set pulse under the sibling's active-low polarity. It is still a C1 failure (AC3's revised requirement
 holds); it demonstrates a stuck-reset corner, not a dead zone, and is not a broken deck.
 
+> **2026-11-23 pointer (issue #206):** the mechanism sentence above ("hold the latch reset")
+> is now probed and refuted: run 2's control rested **stuck set** at tt — `reset` deasserted
+> at rest, both lanes at VDD, no crossing ever (`sim/pfd-fit/results/20261123T045102Z/`, on
+> the retained run-2 deck byte-identical). The zero-width-pulse observation and the C1-failure
+> conclusion stand. See [0016](0016-ctl-1g-rest-states.md) for the two-state correction.
+
 ### Why the two criteria fight (simulated anchors, no new model)
 
 The UP/DN pulse ends when both the lane's own set pulse has ended *and* the shared reset has propagated.
@@ -188,3 +194,13 @@ improvement — it is what moved the window into existence, and it widened the f
 margins — but it does not close ss. Per 0006, the operator decision is filed as **issue #140** with the ranked
 options (latch-family topology change / ss-specific C2 relaxation / accept the 500 MHz
 fallback); C2 was **not** relaxed here, and `reuse.lock.json`'s `pfd` entry stays `adopting`.
+
+### Update 2026-11-16 (issue #140): the ruling chose the topology change; see 0015
+
+The 2026-11-15 operator ruling on #140 declined the C2 relaxation and the 500 MHz fallback and
+directed a latch-family / edge-detector topology change. That decision record is
+[0015](0015-pfd-buffered-lane-output.md) (ratifiable, with a retained ss headroom probe of its
+`srlatch_buf` candidate: width 205.2 ps at ss offset 0 against the 250 ps cap,
+`sim/pfd-fit/results/20261116T012100Z`); the redesign and the full-gate re-run are follow-up
+#151, after 0015 is ratified. Nothing above is rewritten by it; this record stands as the
+evidence the ruling built on.

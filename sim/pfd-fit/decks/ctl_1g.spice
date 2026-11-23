@@ -7,9 +7,9 @@ Vdd vdd 0 1.2
 .subckt pfd_sib REF FB UP DN VDD VSS
 XED_UP REF set_up VDD VSS edgedet
 XED_DN FB set_dn VDD VSS edgedet
-XLU set_up reset UP upb_n VDD VSS srlatch_fast
-XLD set_dn reset DN dnb_n VDD VSS srlatch_fast
-XNR UP DN reset_raw VDD VSS nand2x_lv
+XLU set_up reset UP up_qb up_qn VDD VSS srlatch_buf
+XLD set_dn reset DN dn_qb dn_qn VDD VSS srlatch_buf
+XNR up_qn dn_qn reset_raw VDD VSS nand2x_lv
 XI1 reset_raw reset_d1 VDD VSS inv4x_lv
 XI2 reset_d1 reset VDD VSS inv4x_lv
 .ends

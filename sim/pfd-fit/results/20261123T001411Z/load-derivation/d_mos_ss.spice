@@ -1,0 +1,30 @@
+* sg13g2-dll sim/pfd-fit LOAD_F derivation (issue #151, EE finding 1 of PR #152):
+* quasi-static switching charge of the UP and DN input nodes of the adopted
+* charge pump (design/netlist/cp.spice biased by design/netlist/cp_bias.spice).
+* UP drives: XIUP inv_lv input (P 1u + N 0.5u gates) + XLEGP XXSWD gate (P 3u);
+* DN drives: XIDN inv_lv input + XLEGN XXSWO gate (N 1u). L = 0.13u on all.
+* Method: 1 us ramps (quasi-static vs. every node's RC), integrate the source
+* current over each 0->VDD and VDD->0 window; C_eff = |Q|/VDD. Simulated, never
+* measured. Corner substituted per run: mos_ss / 125 / 1.08.
+.include "cp.spice"
+.include "cp_bias.spice"
+.lib /home/ubuntu/share/pdk/ihp-sg13g2/libs.tech/ngspice/models/cornerMOSlv.lib mos_ss
+.temp 125
+Vdd vdd 0 1.08
+Xb ibp icp ibn icn vdd 0 cp_bias
+Xcp up dn ibp icp ibn icn vout vdd 0 cp
+Rload vout 0 1MEG
+Vup up 0 PWL(0u 0 4u 0 5u 1.08 9u 1.08 10u 0 24u 0)
+Vdn dn 0 PWL(0u 0 14u 0 15u 1.08 19u 1.08 20u 0 24u 0)
+.control
+pre_osdi /home/ubuntu/share/pdk/ihp-sg13g2/libs.tech/ngspice/osdi/psp103.osdi
+pre_osdi /home/ubuntu/share/pdk/ihp-sg13g2/libs.tech/ngspice/osdi/psp103_nqs.osdi
+pre_osdi /home/ubuntu/share/pdk/ihp-sg13g2/libs.tech/ngspice/osdi/r3_cmc.osdi
+pre_osdi /home/ubuntu/share/pdk/ihp-sg13g2/libs.tech/ngspice/osdi/mosvar.osdi
+tran 1n 24u
+meas tran q_up_rise  integ i(Vup) from=4u to=5u
+meas tran q_up_fall  integ i(Vup) from=9u to=10u
+meas tran q_dn_rise  integ i(Vdn) from=14u to=15u
+meas tran q_dn_fall  integ i(Vdn) from=19u to=20u
+.endc
+.end

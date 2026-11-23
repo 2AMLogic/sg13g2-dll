@@ -2,17 +2,22 @@
 """Grade the noise-method bench against spec/decisions/0014 and write record.md.
 
 Usage:
-  summarize.py derive OUT     check the deterministic derivation against 0014
-  summarize.py calibrate OUT  print the calibrated equivalent amplitude IA (A)
-  summarize.py summarize OUT  write OUT/record.md; exit 1 unless the verdict is PASS
+  summarize.py derive OUT             check the deterministic derivation against 0014
+  summarize.py calibrate OUT TAG IA   print the calibrated equivalent amplitude IA (A)
+  summarize.py calibrate2 OUT IA_1    print IA_1 corrected by the two refinement runs
+  summarize.py summarize OUT          write OUT/record.md; exit 1 unless the verdict is PASS
 """
 import datetime
-import hashlib
 import json
 import math
+import os
 import pathlib
-import re
 import sys
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, os.path.join(os.path.dirname(HERE), "harness"))
+
+import evidence  # noqa: E402
 
 IA_PROBE = 1e-9
 N_SEEDS = 8
@@ -40,7 +45,6 @@ SPOTS_EXPECTED = {"s_10M": 5.7825e-7, "s_1G": 7.8104e-8, "s_100G": 8.3017e-10}
 EDGE_COUNT = 45
 EDGE_PERIOD = 2e-9
 EDGE_T0 = 0.2e-9
-OSDI_FILES = ("psp103.osdi", "psp103_nqs.osdi", "r3_cmc.osdi", "mosvar.osdi")
 
 
 def envelope(out, tag):
@@ -49,7 +53,7 @@ def envelope(out, tag):
 
 
 def measurements(env):
-    return {m["name"]: m.get("value") for m in env["corners"][0].get("measurements", [])}
+    return evidence.mvals(env["corners"][0])
 
 
 def diagnostics(env):
@@ -118,17 +122,6 @@ def edge_runs(out):
         rms = math.sqrt(sum(e * e for e in errs) / n)
         runs.append((f"edge-s{i}", mean, rms, errs))
     return runs
-
-
-def osdi_hashes():
-    import os
-
-    root = os.environ.get("SG13G2_OSDI_DIR", "")
-    return "; ".join(
-        f"`{name}` {hashlib.sha256((pathlib.Path(root) / name).read_bytes()).hexdigest()[:16]}…"
-        for name in OSDI_FILES
-        if (pathlib.Path(root) / name).is_file()
-    )
 
 
 def fmt(x):
@@ -215,7 +208,12 @@ def summarize(out):
     env0 = envelope(out, "sigma-s1").get("environment", {})
     klt_version = prov.get("klt_version", "unknown")
     engine = f"{env0.get('engine')} {env0.get('engine_version')}"
-    backend = (env0.get("backend") or {}).get("resolved", "unknown")
+    backend = evidence.backend_of(env0) or "unknown"
+    osdi = "; ".join(
+        f"`{o['name']}` {o['sha256'][:16]}…" for o in env0.get("osdi_preload", [])
+    )
+    with open(os.path.join(os.path.dirname(HERE), "pdk.json"), encoding="utf-8") as fh:
+        pdk_tag = json.load(fh)["release_tag"]
     tn_block = json.dumps(env0.get("transient_noise", {}))
     control_tn = envelope(out, "control").get("environment", {}).get("transient_noise")
     now = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
@@ -232,8 +230,8 @@ def summarize(out):
         f"- Verdict: **{'PASS' if not problems else 'FAIL'}**",
         f"- Stamp: {out.name} (UTC {now})",
         f"- klt: {klt_version}; engine: {engine}; backend: {backend}",
-        f"- OSDI models (sha256, first 16): {osdi_hashes()}",
-        "- PDK: IHP-Open-PDK v0.3.0 (sim/pdk.json)",
+        f"- OSDI models (sha256, first 16): {osdi}",
+        f"- PDK: IHP-Open-PDK {pdk_tag} (sim/pdk.json)",
         "",
         "## Method (from 0014)",
         "",
@@ -408,7 +406,11 @@ def main():
         "summarize": lambda: summarize(sys.argv[2]),
     }
     expected_args = {"derive": 3, "calibrate": 5, "calibrate2": 4, "summarize": 3}
-    if sys.argv[1] not in usage or len(sys.argv) != expected_args[sys.argv[1]]:
+    if (
+        len(sys.argv) < 2
+        or sys.argv[1] not in usage
+        or len(sys.argv) != expected_args[sys.argv[1]]
+    ):
         print(__doc__, file=sys.stderr)
         sys.exit(2)
     usage[sys.argv[1]]()
