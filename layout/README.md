@@ -58,18 +58,21 @@ Two ingredients per cell, both committed and re-runnable:
    (psd | nsd_block)`), so IHP's reference cells draw no 7/0. The 7/0 on the
    n-well ties is drawn for the deck; under IHP's derivation those ties
    resolve as n+ only because pSD does not cover them.
-3. **pSD over every pfet (post-review fix).** `klt gen mos_array` draws no
-   S/D implant for the sg13g2 pfet (see the disclosure below), and the PDK
-   derives P+ active as `activ - gatpoly & psd`, so the first version of
-   these streams had 15 pfets that were n+ as drawn while DRC was clean and
-   LVS matched. `common.py:_draw_psd` now draws pSD exactly over each pfet
-   block's Activ and grows the NWell to 0.40 µm around it (the real P+
-   region makes `nwell.enclosing.pactiv.1` live; the generator's own margin
-   failed it). `layout/check_psd.py`, run by `build.sh` for every cell,
-   asserts `(Activ AND NWell) - pSD - nSD` is empty, because the deck
-   cannot: measured on the committed streams, `cp` 209.440 µm² pactiv =
-   206.920 pSD-covered + 2.520 n-well tie, 0 uncovered; `cp_bias` 43.528 =
-   42.808 + 0.720, 0 uncovered.
+3. **pSD enclosure for pfets and substrate ties.** The pinned
+   `klt gen mos_array` omits the sg13g2 pfet implant. The PDK derives P+
+   source/drain as `(activ - gatpoly) & psd`. In `common.py`, each pfet
+   block occupies its own NWell. `_draw_psd` encloses all its Activ,
+   including dummies, by 0.18 µm (`pSD.c`). It grows and shrinks the
+   implant by 0.155 µm to fill gaps below the 0.31 µm spacing limit
+   (`pSD.b`). This produces one continuous implant per well. The NWell
+   extends at least 0.40 µm beyond the pfet Activ, and the p+ substrate
+   tie has its own 0.03 µm implant enclosure (`pSD.c1`).
+
+   `build.sh` runs `layout/check_psd.py` on each written GDS. It checks
+   both enclosures and the pSD clearance to nfet Activ (0.18 µm) and n+
+   well ties (0.03 µm). All four checks found zero area in violation in
+   both MOS cells. The implant encloses 206.920 µm² of pfet Activ across
+   seven wells in `cp` and 42.808 µm² across two wells in `cp_bias`.
 
 Rebuild everything and append a run record:
 
@@ -155,6 +158,17 @@ the curated sg13g2 deck transcribes from IHP-Open-PDK v0.3.0):
 `Act, Cnt, Gat, M1, M2, M3, M4, M5, MIM, NW, TM1, TM2, TV1, TV2, V1, V2,
 V3, V4, pSD`.
 
+**pSD rule coverage.** In klt 0.8.0, the `pSD` group checks
+`psd.width.1`, `psd.space.1` and `psd.area.1`. The deck source lists
+the omitted rules in two groups.
+
+> `pSD.c`/`c1`/`d`/`d1` (enclosure/separation vs Activ/NWell/PWell) and
+> `pSD.e`/`f`/`g`/`h` (abutted-tie rules).
+
+These rules are absent from `coverage.rules_skipped` even when the stream
+contains pSD. The enclosure and clearance measurements above come from the
+stream check. The abutted-tie rules remain outside its scope. [Pinned deck source](https://github.com/2AMLogic/klayout-tools/blob/v0.8.0/src/klayout_tools/decks/sg13g2.py#L972-L983)
+
 **DRC `coverage.rules_skipped`** — rules the deck did not evaluate because
 their subject layers are absent from that stream:
 
@@ -220,3 +234,7 @@ rules vacuously when none is drawn, so a PMOS-less layout was DRC `clean`
 and LVS `match` —
 [klayout-tools#7531](https://github.com/2AMLogic/klayout-tools/issues/7531).
 `layout/check_psd.py` is the interim derived-region check.
+
+A separate deck gap allows coincident pSD and Activ edges inside NWell to
+pass curated DRC with zero enclosure. A three-rectangle reproducer and an
+enclosed control are documented upstream. [klayout-tools#7640](https://github.com/2AMLogic/klayout-tools/issues/7640)

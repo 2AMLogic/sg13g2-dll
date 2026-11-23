@@ -41,7 +41,7 @@ GATPOLY = (5, 0)
 NWELL = (31, 0)
 CONT = (6, 0)
 NSD = (7, 0)      # n+ implant: well tie inside NWell
-PSD = (14, 0)     # p+ implant: substrate tie outside every NWell
+PSD = (14, 0)     # p+ implant for pfets and substrate ties
 M1 = (8, 0)
 M1_TEXT = (8, 25)
 VIA1 = (19, 0)
@@ -58,7 +58,9 @@ W2 = 0.40          # Metal2 route width           (deck min 0.20)
 VIA = 0.19         # Via1 fixed size              (deck via1.width.1)
 CLEAR_M1 = 0.20    # Metal1-Metal1 clearance kept (deck min 0.18)
 CLEAR_M2 = 0.24    # Metal2-Metal2 clearance kept (deck min 0.21)
-PSD_ENC = 0.0      # pSD exactly over pfet Activ (a ring outside Activ is read as P+ Activ by the curated deck)
+PFET_PSD_ENC = 0.18  # pSD.c: enclosure of P+ Activ in NWell
+TAP_PSD_ENC = 0.03   # pSD.c1: enclosure of P+ substrate-tie Activ
+PSD_SPACE = 0.31     # pSD.b: minimum implant spacing / notch
 NWELL_ENC = 0.40   # NWell enclosure of pfet Activ (deck min 0.31)
 PAD_W = 0.42       # generator S/D and gate Metal1 pad width
 
@@ -210,18 +212,17 @@ class Cell:
         is done here; the n-well tie islands lie outside the block's Activ
         and stay uncovered by pSD.
         """
-        ali = src.layer(*ACTIV)
-        reg = kdb.Region(stop.shapes(ali)).merged()
-        reg.size(U(PSD_ENC))
-        reg.merge()
-        cell.shapes(self.ly.layer(*PSD)).insert(reg)
+        active = kdb.Region(stop.shapes(src.layer(*ACTIV))).merged()
+        implant = active.sized(U(PFET_PSD_ENC))
+        # Each block occupies its own NWell. Close narrow gaps between the
+        # enclosed fingers (including dummies) without shrinking their rings.
+        half_space = U(PSD_SPACE / 2)
+        implant = implant.sized(half_space).sized(-half_space)
+        cell.shapes(self.ly.layer(*PSD)).insert(implant)
         # With P+ Activ now real, nwell.enclosing.pactiv.1 is live (it passed
         # vacuously before); the generator's own NWell margin is too tight for
         # it, so grow the well around the Activ to NWELL_ENC.
-        wreg = kdb.Region(stop.shapes(ali)).merged()
-        wreg.size(U(NWELL_ENC))
-        wreg.merge()
-        cell.shapes(self.ly.layer(*NWELL)).insert(wreg)
+        cell.shapes(self.ly.layer(*NWELL)).insert(active.sized(U(NWELL_ENC)).merged())
 
     # -- primitive drawing ----------------------------------------------------
     def rect(self, layer, x0, y0, x1, y1):
@@ -298,7 +299,8 @@ class Cell:
         """p+ substrate-tie island (Activ+pSD+Cont+Metal1) dropped to a
         Metal2 track -- ties every nfet body to the named net."""
         self.rect(ACTIV, x, y_island_bottom, x + 0.6, y_island_bottom + 0.6)
-        self.rect(PSD, x, y_island_bottom, x + 0.6, y_island_bottom + 0.6)
+        self.rect(PSD, x - TAP_PSD_ENC, y_island_bottom - TAP_PSD_ENC,
+                  x + 0.6 + TAP_PSD_ENC, y_island_bottom + 0.6 + TAP_PSD_ENC)
         c = 0.22
         self.rect(CONT, x + c, y_island_bottom + c,
                   x + 0.6 - c, y_island_bottom + 0.6 - c)
