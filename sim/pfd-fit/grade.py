@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Grade the 0006 PFD fit gate from `klt sim` envelopes (pure reduction).
 
-    grade.py --out fit-gate.md [--require-pass] ENVELOPE.json ...
+    grade.py --out fit-gate.md ENVELOPE.json ...
 
 Envelope tags are `pfd_<f>` (the DLL's pfd.sch) or `ctl_<f>` (the control: the
 sibling's reset polarity). Frequencies come from make_bench.FREQS.
