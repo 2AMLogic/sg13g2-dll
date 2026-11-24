@@ -512,7 +512,7 @@ class Evidence(unittest.TestCase):
 
     def test_corners_of_renders_each_distinct_corner(self):
         # A record quotes the corners the run used, each paired with its own
-        # supply and temperature (issue #119). corner_of() would render a
+        # supply and temperature (issue #119). A per-axis reducer would render a
         # cross-product range here; run_conditions() would elide to (+2 more).
         env = {"corners": [
             {"process": "mos_tt", "supply_v": {"Vdd": 1.2}, "temperature_c": 27},
@@ -538,7 +538,7 @@ class Evidence(unittest.TestCase):
 
     def test_corners_of_degrades_on_missing_fields(self):
         # No envelope (the NOT-RUN path) reads as "corner not recorded", the
-        # fallback corner_of() already uses -- never a raise.
+        # fallback every record writer shares -- never a raise.
         self.assertEqual(evidence.corners_of(None), "corner not recorded")
         self.assertEqual(evidence.corners_of({}), "corner not recorded")
         self.assertEqual(evidence.corners_of({"corners": []}), "corner not recorded")
