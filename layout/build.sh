@@ -20,8 +20,8 @@ cd "$ROOT"
 
 export PDK="${PDK:-ihp-sg13g2}"
 export PDK_ROOT="${PDK_ROOT:-$HOME/share/pdk}"
-KLT=scripts/klt.sh
-GEN="uv run --with klayout==0.30.13 python3"
+KLT="${KLT:-scripts/klt.sh}"
+GEN="${GEN:-uv run --with klayout==0.30.13 python3}"
 CELLS="loop_filter cp_bias cp"
 
 record=0
@@ -32,11 +32,12 @@ json_from_stdout() {  # strip any uvx install notices before the first '{'
 }
 
 mkdir -p layout/runs
-CURRENT=layout/runs/.current
+# Per-invocation summary: concurrent builds must never share or delete each
+# other's file, so allocate it with mktemp and remove only our own on exit.
+CURRENT=$(mktemp layout/runs/.current.XXXXXX)
 SCRATCH=""
 cleanup() { rm -f "$CURRENT" ${SCRATCH:+"$SCRATCH"}; }
 trap 'cleanup' EXIT
-: > "$CURRENT"
 
 # publish_report <cell> <name> <expected-status> <cmd...>
 # Stage the klt envelope in a temp file beside its destination and replace the
@@ -48,10 +49,28 @@ publish_report() {
     SCRATCH=$(mktemp "$dest.XXXXXX")
     "$@" 2>/dev/null | json_from_stdout > "$SCRATCH" \
         || { echo "FAIL: $name command failed" >&2; exit 1; }
-    status=$(python3 -c "import json,sys;print(json.load(open(sys.argv[1]))['status'])" "$SCRATCH") \
-        || { echo "FAIL: $name report is not valid JSON" >&2; exit 1; }
-    echo "  $name: $status"
-    [ "$status" = "$want" ] || { echo "FAIL: $name status $status (want $want)" >&2; exit 1; }
+    # Validate inside Python so the decoded value is compared exactly (shell
+    # command substitution would strip a trailing newline from the verdict),
+    # and give the validated file the destination's mode before the rename.
+    status=$(python3 -c '
+import json, os, stat, sys
+scratch, want, dest = sys.argv[1:4]
+try:
+    status = json.load(open(scratch))["status"]
+except Exception:
+    sys.exit(2)
+sys.stderr.write("  %s: %r\n" % (os.path.basename(dest), status))
+if not isinstance(status, str) or status != want:
+    sys.exit(1)
+mode = stat.S_IMODE(os.stat(dest).st_mode) if os.path.exists(dest) else 0o644
+os.chmod(scratch, mode)
+print(status)
+' "$SCRATCH" "$want" "$dest") || {
+        rc=$?
+        if [ "$rc" = 2 ]; then echo "FAIL: $name report is not valid JSON" >&2
+        else echo "FAIL: $name status is not exactly '$want'" >&2; fi
+        exit 1
+    }
     mv -f "$SCRATCH" "$dest"
     SCRATCH=""
     REPORT_STATUS=$status

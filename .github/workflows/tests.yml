@@ -27,3 +27,5 @@ jobs:
         run: python3 -I -m unittest discover -s sim/harness/tests
       - name: PFD-fit unit tests
         run: python3 -I -m unittest discover -s sim/pfd-fit/tests
+      - name: Layout build-script tests
+        run: python3 -I -m unittest discover -s layout/tests
