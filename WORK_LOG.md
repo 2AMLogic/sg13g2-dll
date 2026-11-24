@@ -4,6 +4,8 @@ Chronological record of merged PRs and closed issues. Maintained by the Guide ro
 
 ### 2026-11-24
 
+- **PR #234**: refactor: remove the unwired srlatch_fast cell
+- **Issue #203** (closed): Remove srlatch_fast: unwired since the srlatch_buf rewire (#151)
 - **PR #232**: refactor: route loop_filter layout through common.Cell
 - **PR #228**: test: run overlapping build.sh invocations in concurrent summary test
 - **PR #227**: fix: report missing LOCK latency samples apart from wrong LOCK timing
