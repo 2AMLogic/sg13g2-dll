@@ -11,6 +11,7 @@ import shutil
 import stat
 import subprocess
 import tempfile
+import time
 import unittest
 from pathlib import Path
 
@@ -42,7 +43,14 @@ class BuildPublish(unittest.TestCase):
         klt = r / "klt-stub.sh"
         klt.write_text(
             '#!/usr/bin/env bash\n'
-            'case "$1" in drc) printf "%s" "$DRC_OUT";; lvs) printf "%s" "$LVS_OUT";;'
+            'case "$1" in drc)\n'
+            '  if [ -n "${KLT_STARTED:-}" ]; then\n'
+            '    echo x >> "$KLT_STARTED.n"\n'
+            '    # pause inside the 2nd cell, after A wrote its first summary row\n'
+            '    if [ "$(wc -l < "$KLT_STARTED.n")" = 2 ]; then\n'
+            '      touch "$KLT_STARTED"; sleep "${KLT_SLEEP:-0}"; fi\n'
+            '  fi\n'
+            '  printf "%s" "$DRC_OUT";; lvs) printf "%s" "$LVS_OUT";;'
             ' version) echo stub;; esac\nexit "${KLT_RC:-0}"\n')
         klt.chmod(0o755)
         git = lambda *a: subprocess.run(
@@ -85,13 +93,32 @@ class BuildPublish(unittest.TestCase):
         self._rejected(lvs="not json {")
 
     def test_concurrent_summary_isolated(self):
-        # A failing build's exit trap must not delete a sibling's summary.
+        # Two real overlapping builds: B fails on its first cell while A is
+        # still running; B's exit trap must not touch A's summary.
         runs = self.tmp / "layout" / "runs"
-        runs.mkdir(exist_ok=True)
-        other = runs / ".current.sibling"
-        other.write_text("keep\n")
+        started = self.tmp / "a-started"
+        e = dict(os.environ, KLT=str(self.tmp / "klt-stub.sh"), GEN="true",
+                 DRC_OUT='{"status":"clean"}', LVS_OUT='{"status":"match"}',
+                 KLT_STARTED=str(started), KLT_SLEEP="1")
+        a = subprocess.Popen(
+            ["bash", str(self.tmp / "layout" / "build.sh"), "--record"],
+            env=e, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        self.addCleanup(lambda: a.poll() is None and a.kill())
+        for _ in range(100):  # wait until A is inside its second cell
+            if started.exists():
+                break
+            time.sleep(0.1)
+        self.assertTrue(started.exists(), "build A never started")
+        self.assertIsNone(a.poll(), "build A finished before B started")
         self.assertNotEqual(self.run_build(drc='{"status":"dirty"}').returncode, 0)
-        self.assertTrue(other.exists())
+        out, err = a.communicate(timeout=60)
+        self.assertEqual(a.returncode, 0, err)
+        records = list(runs.glob("*/record.md"))
+        self.assertEqual(len(records), 1)
+        text = records[0].read_text()
+        for c in CELLS:
+            self.assertIn(c + " gds=", text)
+        self.assertEqual(list(runs.glob(".current*")), [])
 
 
 if __name__ == "__main__":
