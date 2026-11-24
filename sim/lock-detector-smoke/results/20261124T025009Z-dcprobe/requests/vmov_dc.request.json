@@ -1,0 +1,239 @@
+{
+  "_comment": [
+    "vmov_cmp standalone DC probe, issue #196: the same quiet-input .dc sweep and corners as the issue #189 probe",
+    "(results/20261121T004307Z-dcprobe, request unchanged except the measurement set), re-run on the replica-referenced",
+    "threshold-stage vmov_cmp (decision 0017). The #189 output flags oab/obb no longer exist; the active-high stillness",
+    "flags sa/sb, the OTA outputs oa/ob and the replica nodes da/ra/rb are recorded instead. Reduced-set corners (tt/ss/ff)",
+    "with the bench's own passive sections; a probe, never a graded spec result (sim/corners.json); i(vdd) is recorded, not",
+    "Second submission: the first (results/20261124T023824Z-dcprobe, job klt-sim-cbe007fbe062) errored every WHEN transition card ('out of interval') because STILL never crosses 50% of the rail anywhere in 0..1.32 V; that is itself the finding and is recorded in its envelope. This request replaces the transition cards by explicit points and min/max over the whole sweep. Simulated, never measured.",
+    "tail currents (2AMLogic/klayout-tools#6997). Simulated, never measured."
+  ],
+  "engine": "ngspice",
+  "netlist": "../decks/vmov_dc.spice",
+  "netlist_source": "schematic",
+  "models": {
+    "pdk": "ihp-sg13g2",
+    "lib": "libs.tech/ngspice/models/cornerMOSlv.lib"
+  },
+  "analysis": {
+    "kind": "dc",
+    "args": "Vctrl 0 1.32 0.005"
+  },
+  "measurements": [
+    {
+      "name": "vsa_0600",
+      "spice": ".meas dc vsa_0600 find v(xdut.vsa) at=0.6",
+      "unit": "V"
+    },
+    {
+      "name": "vsb_0600",
+      "spice": ".meas dc vsb_0600 find v(xdut.vsb) at=0.6",
+      "unit": "V"
+    },
+    {
+      "name": "vsb0_0600",
+      "spice": ".meas dc vsb0_0600 find v(xdut.vsb0) at=0.6",
+      "unit": "V"
+    },
+    {
+      "name": "tla_0600",
+      "spice": ".meas dc tla_0600 find v(xdut.tla) at=0.6",
+      "unit": "V"
+    },
+    {
+      "name": "tlb_0600",
+      "spice": ".meas dc tlb_0600 find v(xdut.tlb) at=0.6",
+      "unit": "V"
+    },
+    {
+      "name": "oa_0600",
+      "spice": ".meas dc oa_0600 find v(xdut.oa) at=0.6",
+      "unit": "V"
+    },
+    {
+      "name": "ob_0600",
+      "spice": ".meas dc ob_0600 find v(xdut.ob) at=0.6",
+      "unit": "V"
+    },
+    {
+      "name": "still_0600",
+      "spice": ".meas dc still_0600 find v(still) at=0.6",
+      "unit": "V"
+    },
+    {
+      "name": "still_0585",
+      "spice": ".meas dc still_0585 find v(still) at=0.585",
+      "unit": "V"
+    },
+    {
+      "name": "still_0615",
+      "spice": ".meas dc still_0615 find v(still) at=0.615",
+      "unit": "V"
+    },
+    {
+      "name": "still_0850",
+      "spice": ".meas dc still_0850 find v(still) at=0.85",
+      "unit": "V"
+    },
+    {
+      "name": "vsa_0850",
+      "spice": ".meas dc vsa_0850 find v(xdut.vsa) at=0.85",
+      "unit": "V"
+    },
+    {
+      "name": "idd_0600",
+      "spice": ".meas dc idd_0600 find i(vdd) at=0.6",
+      "unit": "A"
+    },
+    {
+      "name": "still_max_085",
+      "spice": ".meas dc still_max_085 max v(still) from=0 to=0.85",
+      "unit": "V"
+    },
+    {
+      "name": "still_min_085",
+      "spice": ".meas dc still_min_085 min v(still) from=0 to=0.85",
+      "unit": "V"
+    },
+    {
+      "name": "sa_0600",
+      "spice": ".meas dc sa_0600 find v(xdut.sa) at=0.6",
+      "unit": "V"
+    },
+    {
+      "name": "sb_0600",
+      "spice": ".meas dc sb_0600 find v(xdut.sb) at=0.6",
+      "unit": "V"
+    },
+    {
+      "name": "da_0600",
+      "spice": ".meas dc da_0600 find v(xdut.da) at=0.6",
+      "unit": "V"
+    },
+    {
+      "name": "ra_0600",
+      "spice": ".meas dc ra_0600 find v(xdut.ra) at=0.6",
+      "unit": "V"
+    },
+    {
+      "name": "rb_0600",
+      "spice": ".meas dc rb_0600 find v(xdut.rb) at=0.6",
+      "unit": "V"
+    },
+    {
+      "name": "still_0050",
+      "spice": ".meas dc still_0050 find v(still) at=0.05",
+      "unit": "V"
+    },
+    {
+      "name": "still_0300",
+      "spice": ".meas dc still_0300 find v(still) at=0.3",
+      "unit": "V"
+    },
+    {
+      "name": "still_1000",
+      "spice": ".meas dc still_1000 find v(still) at=1.0",
+      "unit": "V"
+    },
+    {
+      "name": "still_1315",
+      "spice": ".meas dc still_1315 find v(still) at=1.315",
+      "unit": "V"
+    },
+    {
+      "name": "still_max_all",
+      "spice": ".meas dc still_max_all max v(still) from=0 to=1.32",
+      "unit": "V"
+    },
+    {
+      "name": "still_min_all",
+      "spice": ".meas dc still_min_all min v(still) from=0 to=1.32",
+      "unit": "V"
+    },
+    {
+      "name": "sa_min_085",
+      "spice": ".meas dc sa_min_085 min v(xdut.sa) from=0 to=0.85",
+      "unit": "V"
+    },
+    {
+      "name": "sb_min_085",
+      "spice": ".meas dc sb_min_085 min v(xdut.sb) from=0 to=0.85",
+      "unit": "V"
+    }
+  ],
+  "options": {
+    "osdi_preload": [
+      "/home/ubuntu/share/pdk/ihp-sg13g2/libs.tech/ngspice/osdi/psp103.osdi",
+      "/home/ubuntu/share/pdk/ihp-sg13g2/libs.tech/ngspice/osdi/psp103_nqs.osdi",
+      "/home/ubuntu/share/pdk/ihp-sg13g2/libs.tech/ngspice/osdi/r3_cmc.osdi",
+      "/home/ubuntu/share/pdk/ihp-sg13g2/libs.tech/ngspice/osdi/mosvar.osdi"
+    ],
+    "stage_model_inputs": true,
+    "keep_artifacts": true,
+    "timeout_s": 1200
+  },
+  "corners": {
+    "units": [
+      {
+        "process": {
+          "name": "mos_tt",
+          "sections": [
+            "mos_tt",
+            {
+              "lib": "libs.tech/ngspice/models/cornerRES.lib",
+              "section": "res_typ"
+            },
+            {
+              "lib": "libs.tech/ngspice/models/cornerCAP.lib",
+              "section": "cap_typ"
+            }
+          ]
+        },
+        "temperature_c": 27,
+        "supply_v": {
+          "Vdd": 1.2
+        }
+      },
+      {
+        "process": {
+          "name": "mos_ss",
+          "sections": [
+            "mos_ss",
+            {
+              "lib": "libs.tech/ngspice/models/cornerRES.lib",
+              "section": "res_typ"
+            },
+            {
+              "lib": "libs.tech/ngspice/models/cornerCAP.lib",
+              "section": "cap_typ"
+            }
+          ]
+        },
+        "temperature_c": 125,
+        "supply_v": {
+          "Vdd": 1.08
+        }
+      },
+      {
+        "process": {
+          "name": "mos_ff",
+          "sections": [
+            "mos_ff",
+            {
+              "lib": "libs.tech/ngspice/models/cornerRES.lib",
+              "section": "res_typ"
+            },
+            {
+              "lib": "libs.tech/ngspice/models/cornerCAP.lib",
+              "section": "cap_typ"
+            }
+          ]
+        },
+        "temperature_c": -40,
+        "supply_v": {
+          "Vdd": 1.32
+        }
+      }
+    ]
+  }
+}

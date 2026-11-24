@@ -291,7 +291,7 @@ from the PFD and supervisor work and adds `vmov_cmp`. No second PFD or charge pu
 | LOCK rises within 128 cycles after the predicate first holds | Good cycles are counted from the first good one; LOCK rises at the 128th. The predicate first holds at the 64th, so the lag is 64 cycles plus synchroniser latency. Smoke: 131 cycles after the stimulus became ideal, 67 after the predicate would first hold. |
 | LOCK falls within 128 cycles after it stops holding | The first not-good sample asserts `bad`, which resets the latch and asynchronously clears the counter. Smoke: LOCK fell 1.1 ns after the error was applied. |
 | senses the delay error | `s1`, `s2`: TAPN and a copy delayed by 4 inverters sampled by REF delayed by 2 inverters (`dffr_lv`). `s1 & ~s2` is true when the TAPN edge is inside a window set by gate delays, not by the PFD output. |
-| senses the 5 mV control-voltage criterion | `vmov_cmp`: two matched source followers copy VCTRL, one through an R-C low-pass (5 × rppd 0.5/8 µm ≈ 21 kΩ, MIM 20 × 20 µm, τ ≈ 10 ns); two OTAs with a deliberate offset flag `|VCTRL − lowpass| ≳ 5 mV`. |
+| senses the 5 mV control-voltage criterion | `vmov_cmp`: two matched source followers copy VCTRL, one through an R-C low-pass (5 × rppd 0.5/8 µm ≈ 21 kΩ, MIM 20 × 20 µm, τ ≈ 10 ns); two balanced OTAs, each read by a replica-referenced threshold stage (decision 0017), flag `|VCTRL − lowpass|` of about 3–5 mV and above. |
 | digital output at the rail, 20 fF load | `LOCK` is driven by `inv_lv` then `inv2x_lv`; smoke rise time 86 ps into 20 fF. |
 
 Design choices that row 12 does not fix: the count is 128 (8-bit ripple counter of
@@ -316,14 +316,15 @@ same absolute times.
   delay of T from 2 T. The false-lock exclusion is the supervisor's (0005 / #53),
   and the "never 1 in a run that fails row 8" clause is therefore **not shown**;
   it is for the false-lock bench (#28).
-- **The VCTRL threshold is a trim, not a spec.** At tt a whole-cell step test
-  held `STILL` for +4 mV / −5 mV steps and dropped it at +5 mV / −8 mV. Moving
-  the trim device by 0.1 µm went from "never flags" to "always flags". Random
-  mismatch (not simulated) is wider than that window, so the real threshold at
-  other corners or on silicon is unknown. A repeatable 5 mV sensor needs offset
-  cancellation. Valid only for VCTRL below roughly 0.85 V (the follower outputs
-  must stay under the PMOS pair's input range); above that `STILL` is
-  meaningless.
+- **The VCTRL threshold is now a width ratio, not a 0.1 µm trim, but it is still not a spec.** Before
+  issue #196, a whole-cell step test at tt held `STILL` for +4 mV / −5 mV steps and dropped it at +5 mV / −8 mV, and
+  moving the trim device by 0.1 µm went from "never flags" to "always flags". The replica-referenced stage
+  (decision 0017) sets the threshold by the 1.6 µm : 2 µm sense/replica width ratio; the step probe
+  `sim/lock-detector-smoke/results/20261124T024845Z-stepprobe/` brackets it between 3 mV (held) and 5 mV (dropped)
+  at tt, ss and ff, not located finer. Random mismatch (not simulated) is not known to be narrower than that
+  window; #41's Monte Carlo grade decides. Valid only for VCTRL below roughly 0.85 V (the follower outputs must stay
+  under the PMOS pair's input range); above that the pair is off and `STILL` stays high, which says nothing about
+  movement.
 - **ss / 1.080 V / 125 °C: the block never sets LOCK (issue #145 probe,
   `sim/lock-detector-smoke/results/20261115T185846Z-probe/`).** The VCTRL
   movement sensor `vmov_cmp` never asserts `still` at ss (raw flat at ~0 V for
@@ -348,6 +349,17 @@ same absolute times.
   outputs sit a few mV from their load inverter's trip at the smoke input —
   the trim fragility above, simulated per corner. A probe, not a graded
   result; remedy with #148.
+- **Revised `vmov_cmp` (issue #196, decision 0017): `LOCK` now asserts at ss in simulation.** The two-unit probe
+  `sim/lock-detector-smoke/results/20261124T023824Z-probe/` (the #145 request, byte-identical) shows `LOCK` rising at
+  356.95 ns at ss (353.08 ns at tt), falling at 521.42 ns (521.10 ns) after the +240 ps error and reacquiring at
+  711.95 ns (710.08 ns); no `LOCK` crossing before 353 ns at either corner, so it stays low through the ripple phase.
+  The quiet DC sweep `.../20261124T025009Z-dcprobe/` shows `STILL` high over the whole 0–1.32 V sweep at tt, ss and ff
+  (the old edges 0.4774 / 0.6125 / 0.8523 V are gone), and the existing tt smoke bench
+  `.../20261124T023824Z-smoke/` passes all five gates. All simulated, three reduced-set corner points and a
+  diagnostic probe, not a graded result. The two bullets above describe the sensor **before** this change and are
+  kept as the record of what was measured then. Costs: block supply current at VCTRL = 0.600 V rises from
+  128 / 65 / 194 µA to 217 / 123 / 364 µA (tt / ss / ff), sizing not optimised for power; mismatch and the 45-corner grade
+  remain #41's.
 - **The one-shot/latch set path itself works at ss (issue #189 bench,
   `sim/edgedet-srlatch-ss/results/20261121T010654Z/`).** Driven on `to` by an
   external rising edge (the #148 acceptance-criterion-3 substitution), the
@@ -357,8 +369,8 @@ same absolute times.
   tt control 114.5 ps, same verdict. So the ss failures above are entirely
   upstream of the pair; the one-shot is not the ss limiter. A diagnostic
   bench, not a graded result.
-- Not simulated: corners other than the tt smoke corner and the ss probe above
-  (no supply or temperature axis beyond those two points); other frequencies;
+- Not simulated: corners other than the tt smoke corner, the ss/tt probe and the tt/ss/ff DC and step probes above
+  (no supply or temperature axis beyond those points); other frequencies;
   the real delay line, PFD and charge pump (stimulus is ideal); noise or
   metastability of `s1`/`s2` near the window edge; the 64-cycle p-p definition
   of the predicate (the low-pass flags a drift of VCTRL as movement, which is

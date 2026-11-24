@@ -290,7 +290,7 @@ c.sub("XMSK", "refmask", REF="REF", RSTB="RSTB", REFM="REFM", VDD="VDD", VSS="VS
 # goes through an R-C low-pass (R 5 x 4.2 kohm rppd, C 20 um x 20 um MIM, tau ~ 10 ns),
 # so the other copy minus the low-passed copy is the movement of VCTRL. Two OTAs, one
 # per sign, each followed by a replica-referenced threshold stage so the flag only drops
-# when the difference exceeds the threshold (about 4-5 mV on VCTRL at tt/ss/ff). STILL = 1 when neither OTA has flipped.
+# when the difference exceeds the threshold (held at 3 mV, dropped at 5 mV on VCTRL, tt/ss/ff; decision 0017). STILL = 1 when neither OTA has flipped.
 c = add(Cell("vmov_cmp", "VCTRL:i:l STILL:o:r VDD:io:t VSS:io:b",
              "VCTRL movement sensor: STILL = 1 while |VCTRL - lowpass(VCTRL)| is below the offset-set threshold"))
 c.mos("MFA", "n", "2u", "1u", D="VDD", G="VCTRL", S="vsa", B="VSS")

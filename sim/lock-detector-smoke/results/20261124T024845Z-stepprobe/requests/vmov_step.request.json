@@ -1,0 +1,219 @@
+{
+  "_comment": [
+    "vmov_cmp VCTRL step probe, issue #196: the motion threshold of the replica-referenced sensor at tt/ss/ff (reduced-set corners, bench passive sections as in the DC probe).",
+    "Not a graded spec result; simulated, never measured. Step sequence is in decks/vmov_step.spice. The earlier tt step test quoted in design/tools/cells.py (4 mV up / 5 mV down held, 5 mV up / 8 mV down dropped) used the same idea on the previous topology."
+  ],
+  "engine": "ngspice",
+  "netlist": "../decks/vmov_step.spice",
+  "netlist_source": "schematic",
+  "models": {
+    "pdk": "ihp-sg13g2",
+    "lib": "libs.tech/ngspice/models/cornerMOSlv.lib"
+  },
+  "analysis": {
+    "kind": "tran",
+    "args": "20p 1300n"
+  },
+  "measurements": [
+    {
+      "name": "still_quiet_95n",
+      "spice": ".meas tran still_quiet_95n find v(still) at=95n",
+      "unit": "V"
+    },
+    {
+      "name": "still_min_s01_up3mV",
+      "spice": ".meas tran still_min_s01_up3mV min v(still) from=101n to=160n",
+      "unit": "V"
+    },
+    {
+      "name": "still_end_s01",
+      "spice": ".meas tran still_end_s01 find v(still) at=195n",
+      "unit": "V"
+    },
+    {
+      "name": "still_min_s02_dn3mV",
+      "spice": ".meas tran still_min_s02_dn3mV min v(still) from=201n to=260n",
+      "unit": "V"
+    },
+    {
+      "name": "still_end_s02",
+      "spice": ".meas tran still_end_s02 find v(still) at=295n",
+      "unit": "V"
+    },
+    {
+      "name": "still_min_s03_dn3mV",
+      "spice": ".meas tran still_min_s03_dn3mV min v(still) from=301n to=360n",
+      "unit": "V"
+    },
+    {
+      "name": "still_end_s03",
+      "spice": ".meas tran still_end_s03 find v(still) at=395n",
+      "unit": "V"
+    },
+    {
+      "name": "still_min_s04_up3mV",
+      "spice": ".meas tran still_min_s04_up3mV min v(still) from=401n to=460n",
+      "unit": "V"
+    },
+    {
+      "name": "still_end_s04",
+      "spice": ".meas tran still_end_s04 find v(still) at=495n",
+      "unit": "V"
+    },
+    {
+      "name": "still_min_s05_up5mV",
+      "spice": ".meas tran still_min_s05_up5mV min v(still) from=501n to=560n",
+      "unit": "V"
+    },
+    {
+      "name": "still_end_s05",
+      "spice": ".meas tran still_end_s05 find v(still) at=595n",
+      "unit": "V"
+    },
+    {
+      "name": "still_min_s06_dn5mV",
+      "spice": ".meas tran still_min_s06_dn5mV min v(still) from=601n to=660n",
+      "unit": "V"
+    },
+    {
+      "name": "still_end_s06",
+      "spice": ".meas tran still_end_s06 find v(still) at=695n",
+      "unit": "V"
+    },
+    {
+      "name": "still_min_s07_dn5mV",
+      "spice": ".meas tran still_min_s07_dn5mV min v(still) from=701n to=760n",
+      "unit": "V"
+    },
+    {
+      "name": "still_end_s07",
+      "spice": ".meas tran still_end_s07 find v(still) at=795n",
+      "unit": "V"
+    },
+    {
+      "name": "still_min_s08_up5mV",
+      "spice": ".meas tran still_min_s08_up5mV min v(still) from=801n to=860n",
+      "unit": "V"
+    },
+    {
+      "name": "still_end_s08",
+      "spice": ".meas tran still_end_s08 find v(still) at=895n",
+      "unit": "V"
+    },
+    {
+      "name": "still_min_s09_up8mV",
+      "spice": ".meas tran still_min_s09_up8mV min v(still) from=901n to=960n",
+      "unit": "V"
+    },
+    {
+      "name": "still_end_s09",
+      "spice": ".meas tran still_end_s09 find v(still) at=995n",
+      "unit": "V"
+    },
+    {
+      "name": "still_min_s10_dn8mV",
+      "spice": ".meas tran still_min_s10_dn8mV min v(still) from=1001n to=1060n",
+      "unit": "V"
+    },
+    {
+      "name": "still_end_s10",
+      "spice": ".meas tran still_end_s10 find v(still) at=1095n",
+      "unit": "V"
+    },
+    {
+      "name": "still_min_s11_dn8mV",
+      "spice": ".meas tran still_min_s11_dn8mV min v(still) from=1101n to=1160n",
+      "unit": "V"
+    },
+    {
+      "name": "still_end_s11",
+      "spice": ".meas tran still_end_s11 find v(still) at=1195n",
+      "unit": "V"
+    },
+    {
+      "name": "still_min_s12_up8mV",
+      "spice": ".meas tran still_min_s12_up8mV min v(still) from=1201n to=1260n",
+      "unit": "V"
+    },
+    {
+      "name": "still_end_s12",
+      "spice": ".meas tran still_end_s12 find v(still) at=1295n",
+      "unit": "V"
+    }
+  ],
+  "options": {
+    "osdi_preload": [
+      "/home/ubuntu/share/pdk/ihp-sg13g2/libs.tech/ngspice/osdi/psp103.osdi",
+      "/home/ubuntu/share/pdk/ihp-sg13g2/libs.tech/ngspice/osdi/psp103_nqs.osdi",
+      "/home/ubuntu/share/pdk/ihp-sg13g2/libs.tech/ngspice/osdi/r3_cmc.osdi",
+      "/home/ubuntu/share/pdk/ihp-sg13g2/libs.tech/ngspice/osdi/mosvar.osdi"
+    ],
+    "stage_model_inputs": true,
+    "keep_artifacts": true,
+    "timeout_s": 1200
+  },
+  "corners": {
+    "units": [
+      {
+        "process": {
+          "name": "mos_tt",
+          "sections": [
+            "mos_tt",
+            {
+              "lib": "libs.tech/ngspice/models/cornerRES.lib",
+              "section": "res_typ"
+            },
+            {
+              "lib": "libs.tech/ngspice/models/cornerCAP.lib",
+              "section": "cap_typ"
+            }
+          ]
+        },
+        "temperature_c": 27,
+        "supply_v": {
+          "Vdd": 1.2
+        }
+      },
+      {
+        "process": {
+          "name": "mos_ss",
+          "sections": [
+            "mos_ss",
+            {
+              "lib": "libs.tech/ngspice/models/cornerRES.lib",
+              "section": "res_typ"
+            },
+            {
+              "lib": "libs.tech/ngspice/models/cornerCAP.lib",
+              "section": "cap_typ"
+            }
+          ]
+        },
+        "temperature_c": 125,
+        "supply_v": {
+          "Vdd": 1.08
+        }
+      },
+      {
+        "process": {
+          "name": "mos_ff",
+          "sections": [
+            "mos_ff",
+            {
+              "lib": "libs.tech/ngspice/models/cornerRES.lib",
+              "section": "res_typ"
+            },
+            {
+              "lib": "libs.tech/ngspice/models/cornerCAP.lib",
+              "section": "cap_typ"
+            }
+          ]
+        },
+        "temperature_c": -40,
+        "supply_v": {
+          "Vdd": 1.32
+        }
+      }
+    ]
+  }
+}
