@@ -4,6 +4,8 @@ Chronological record of merged PRs and closed issues. Maintained by the Guide ro
 
 ### 2026-11-24
 
+- **PR #237**: refactor: route delay-sanity corner headings through evidence.corners_of
+- **Issue #236** (closed): Remove corner_of() in sim/delay-sanity/summarize.py: route through evidence.corners_of()
 - **PR #234**: refactor: remove the unwired srlatch_fast cell
 - **Issue #203** (closed): Remove srlatch_fast: unwired since the srlatch_buf rewire (#151)
 - **PR #232**: refactor: route loop_filter layout through common.Cell
