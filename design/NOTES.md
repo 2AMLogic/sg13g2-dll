@@ -103,13 +103,12 @@ into two SR latches, reset = AND of the two lanes delayed by NAND + 1 inverter
 `ctl_1g` control arm of the bench demonstrates it).
 
 Since #151 the latch is `srlatch_buf` (spec/decisions/0015, ratified on
-PR #152): the `srlatch_fast` core (device-level 4 µm NAND pairs, `XIS`
-`inv2x_lv`, `XIR` `inv4x_lv`) with the lane output behind an `inv4x_lv` driver
+PR #152): a device-level 4 µm cross-coupled NAND2 core (`XIS` `inv2x_lv`,
+`XIR` `inv4x_lv`) with the lane output behind an `inv4x_lv` driver
 (`Q = inv4x(QB)`, sized for the 4 fF bench load) and the shared reset NAND
 (`XNR nand2x_lv`) tapped on the `QN` storage nodes, so the 4 fF CP-input load
 leaves the storage node and the driver's delay stays out of the reset path.
-`edgedet`, `XNR`, `XR1` are untouched by 0015; `srlatch_fast` remains defined
-in `design/tools/cells.py` but has no consumer in `pfd.spice` any more.
+`edgedet`, `XNR`, `XR1` are untouched by 0015.
 
 ## Evidence status
 
