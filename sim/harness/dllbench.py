@@ -456,13 +456,14 @@ def grade(bench_dir, out):
             key = (req["tag"], st["name"])
             s = summary.setdefault(key, {"n": 0, "locked": 0, "one_period": 0, "row8": 0, "lock_ok": 0,
                                          "lock_time_max": None, "no_lock_time": 0, "multi": 0,
-                                         "lock_late": 0, "lock_bad": 0, "latency_bad": 0, "sampled": 0})
+                                         "lock_late": 0, "lock_bad": 0, "lock_absent": 0, "latency_bad": 0, "sampled": 0})
             s["n"] += 1
             s["locked"] += f["locked"]
             s["one_period"] += f["one_period"]
             s["row8"] += f["row8_pass"]
             s["lock_ok"] += bool(f["lock_ok"])
-            s["lock_bad"] += not f["lock_ok"]
+            s["lock_bad"] += f["lock_ok"] is False
+            s["lock_absent"] += f["lock_ok"] is None
             if f["locked"] and f["delay_periods"] not in (None, 1):
                 s["multi"] += 1
             if "lock_time_s" in f:
@@ -506,9 +507,10 @@ def grade(bench_dir, out):
     # lock_late already counts the no-lock-time corners (lock_time_ok is False for them)
     r7_bad = sum(v["lock_late"] for v in summary.values())
     r12_end_bad = sum(v["lock_bad"] for v in summary.values())
+    r12_end_absent = sum(v["lock_absent"] for v in summary.values())
     r12_lat_bad = sum(v["latency_bad"] for v in summary.values())
     rows_ok = (not problems and not any(failing) and not (7 in rows and sampled and r7_bad)
-               and not (12 in rows and (r12_end_bad or r12_lat_bad)))
+               and not (12 in rows and (r12_end_bad or r12_end_absent or r12_lat_bad)))
     graded = rows_graded(manifest)
 
     def result(bad, what):
@@ -544,7 +546,12 @@ def grade(bench_dir, out):
         else:
             row_lines.append("- row 7 on this DUT: NOT GRADED -- this bench records no lock-time samples")
     if 12 in rows:
-        end = result(r12_end_bad, f"{r12_end_bad} corner(s) with LOCK inconsistent with the row-8 result at the end of the run")
+        end_why = []
+        if r12_end_bad:
+            end_why.append(f"{r12_end_bad} corner(s) with LOCK inconsistent with the row-8 result at the end of the run")
+        if r12_end_absent:
+            end_why.append(f"{r12_end_absent} corner(s) with no lock_end measurement")
+        end = result(r12_end_bad + r12_end_absent, ", ".join(end_why))
         row_lines.append(f"- row 12 end-of-run LOCK on this DUT: {end}")
         if sampled:
             row_lines.append(f"- row 12 {LOCK_LATENCY_CYCLES}-cycle LOCK latency on this DUT ({SAMPLE_STEP}-cycle sample "
