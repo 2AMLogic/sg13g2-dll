@@ -73,28 +73,16 @@ c.sub("XIR", "inv_lv", A="R", Y="RB", VDD="VDD", VSS="VSS")
 c.sub("XNQ", "nand2_lv", A1="SB", A2="QB", Y="Q", VDD="VDD", VSS="VSS")
 c.sub("XNQB", "nand2_lv", A1="RB", A2="Q", Y="QB", VDD="VDD", VSS="VSS")
 
-c = add(Cell("srlatch_fast", logic_ports(["S", "R"], ["Q", "QB"]),
-             "set/reset latch, cross-coupled device-level NAND2 (4u) with inverted inputs (S, R active high); PFD-local fast variant of srlatch for the reset loop (issue #113; resized in issue #136: device NANDs, 2x S-inverter, 4x R-inverter)"))
-c.sub("XIS", "inv2x_lv", A="S", Y="SB", VDD="VDD", VSS="VSS")
-c.sub("XIR", "inv4x_lv", A="R", Y="RB", VDD="VDD", VSS="VSS")
-c.mos("MPQ1", "p", "4u", L, D="Q", G="SB", S="VDD", B="VDD")
-c.mos("MPQ2", "p", "4u", L, D="Q", G="QB", S="VDD", B="VDD")
-c.mos("MNQ1", "n", "4u", L, D="Q", G="SB", S="midq", B="VSS")
-c.mos("MNQ2", "n", "4u", L, D="midq", G="QB", S="VSS", B="VSS")
-c.mos("MPB1", "p", "4u", L, D="QB", G="RB", S="VDD", B="VDD")
-c.mos("MPB2", "p", "4u", L, D="QB", G="Q", S="VDD", B="VDD")
-c.mos("MNB1", "n", "4u", L, D="QB", G="RB", S="midb", B="VSS")
-c.mos("MNB2", "n", "4u", L, D="midb", G="Q", S="VSS", B="VSS")
-
-# Issue #140 candidate (spec/decisions/0015): the srlatch_fast core with the lane
-# output moved behind a driver, so the bench load stops sitting on the storage
-# node. Q is the buffered output (inv4x of the internal complement, sized for the
+# Issue #140 candidate (spec/decisions/0015): the device-level 4u NAND2 latch
+# core (cross-coupled pairs, XIS inv2x_lv, XIR inv4x_lv) with the lane output
+# moved behind a driver, so the bench load stops sitting on the storage node.
+# Q is the buffered output (inv4x of the internal complement, sized for the
 # 4 fF bench load), QB is that lightly loaded internal complement, and QN exposes
 # the internal storage node the reset NAND taps, so the driver delay does not
 # re-enter the reset path. Instantiated by design/pfd.sch since 0015 was ratified
 # and the rewire landed (issue #151).
 c = add(Cell("srlatch_buf", logic_ports(["S", "R"], ["Q", "QB", "QN"]),
-             "set/reset latch, cross-coupled device-level NAND2 (4u) with inverted inputs (S, R active high), buffered lane output (spec/decisions/0015, issue #140; wired into the PFD by issue #151): same core as srlatch_fast; Q = inv4x(QB) sized for the bench load, QB is the lightly loaded internal complement and QN the internal storage node tapped by the reset NAND so the driver stays out of the reset path"))
+             "set/reset latch, cross-coupled device-level NAND2 (4u) with inverted inputs (S, R active high; XIS inv2x_lv, XIR inv4x_lv), buffered lane output (spec/decisions/0015, issue #140; wired into the PFD by issue #151): Q = inv4x(QB) sized for the bench load, QB is the lightly loaded internal complement and QN the internal storage node tapped by the reset NAND so the driver stays out of the reset path"))
 c.sub("XIS", "inv2x_lv", A="S", Y="SB", VDD="VDD", VSS="VSS")
 c.sub("XIR", "inv4x_lv", A="R", Y="RB", VDD="VDD", VSS="VSS")
 c.mos("MPQ1", "p", "4u", L, D="QN", G="SB", S="VDD", B="VDD")
