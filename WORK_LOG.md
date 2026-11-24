@@ -2,6 +2,19 @@
 
 Chronological record of merged PRs and closed issues. Maintained by the Guide role.
 
+### 2026-11-24
+
+- **PR #232**: refactor: route loop_filter layout through common.Cell
+- **PR #228**: test: run overlapping build.sh invocations in concurrent summary test
+- **PR #227**: fix: report missing LOCK latency samples apart from wrong LOCK timing
+- **PR #225**: fix: report a missing lock_end as such in the row-12 verdict
+- **PR #222**: layout: publish DRC/LVS reports atomically, guard stub window and part dbu
+- **Issue #231** (closed): Remove inline klayout.db boilerplate in layout/loop_filter/generate.py: route through common.Cell
+- **Issue #226** (closed): layout/tests: test_concurrent_summary_isolated passes on the pre-fix build.sh, so it does not guard the clobber it names
+- **Issue #224** (closed): dllbench row-12 latency verdict: missing ls_* samples are reported as 'wrong LOCK timing'
+- **Issue #221** (closed): layout/: build-script hardening and two disclosure corrections carried over from #194 review
+- **Issue #219** (closed): dllbench row-12 verdict: a missing lock_end is reported as 'LOCK inconsistent', and has no regression test
+
 ### 2026-11-23
 
 - **PR #194**: feat(layout): lay out cp, cp_bias and loop_filter with per-cell klt drc and klt lvs
