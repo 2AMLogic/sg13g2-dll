@@ -436,7 +436,7 @@ class LockRows(unittest.TestCase):
     INCONSISTENT = "corner(s) with LOCK inconsistent with the row-8 result at the end of the run"
     ABSENT = "corner(s) with no lock_end measurement"
 
-    def corner_vals(self, req, lock_at, lock_rise, perr=0.001, d8=None, lock_end=1.0):
+    def corner_vals(self, req, lock_at, lock_rise, perr=0.001, d8=None, lock_end=1.0, drop_ls=False):
         """Sampled values: delay settles at cycle `lock_at`, LOCK rises at
         cycle `lock_rise` (None: never)."""
         j_end = req["window"]["j_end"]
@@ -447,7 +447,8 @@ class LockRows(unittest.TestCase):
         for j in range(16, j_end + 1, 16):
             v[f"te_{j}"] = (j + 0.5) * req["period_s"]
             v[f"ds_{j}"] = req["period_s"] if lock_at is not None and j >= lock_at else 0.5 * req["period_s"]
-            v[f"ls_{j}"] = 1.0 if lock_rise is not None and j >= lock_rise else 0.0
+            if not drop_ls:
+                v[f"ls_{j}"] = 1.0 if lock_rise is not None and j >= lock_rise else 0.0
         return v
 
     def end_of_run_line(self, text):
@@ -512,6 +513,61 @@ class LockRows(unittest.TestCase):
         self.assertEqual(status, 6, text)
         self.assertRegex(text, r"row 12 128-cycle LOCK latency .*NOT all corners pass")
         self.assertRegex(text, r"row 12 end-of-run LOCK on this DUT: all corners pass")
+
+    LATENCY = "- row 12 128-cycle LOCK latency on this DUT"
+    WRONG = "corner(s) with the wrong LOCK timing"
+    NO_EVID = "corner(s) with insufficient LOCK evidence"
+
+    def latency_line(self, text):
+        return next(l for l in text.splitlines() if l.startswith(self.LATENCY))
+
+    def test_missing_ls_samples_count_as_insufficient_evidence(self):
+        status, text = self.record("lock-time", lock_at=160, lock_rise=288, drop_ls=True)
+        self.assertEqual(status, 6, text)
+        self.assertIn("- harness: PASS", text)
+        line = self.latency_line(text)
+        self.assertIn(f"9 {self.NO_EVID}", line)
+        self.assertNotIn(self.WRONG, line)
+        self.assertRegex(text, r"row 7 on this DUT .*all corners pass")
+        self.assertRegex(text, r"row 12 end-of-run LOCK on this DUT: all corners pass")
+
+    def test_wrong_level_keeps_the_wrong_timing_reason_only(self):
+        _, text = self.record("lock-time", lock_at=160, lock_rise=None, lock_end=0.0)
+        line = self.latency_line(text)
+        self.assertIn(f"9 {self.WRONG}", line)
+        self.assertNotIn(self.NO_EVID, line)
+
+    def test_mixed_record_reports_each_count_once_per_corner(self):
+        status, text = self.record(
+            "lock-time", lock_at=160, lock_rise=288,
+            per_corner=lambda i, st: {"drop_ls": True} if i % 2 == 0 else {"lock_rise": None})
+        self.assertEqual(status, 6, text)
+        line = self.latency_line(text)
+        wrong = int(re.search(rf"(\d+) {re.escape(self.WRONG)}", line).group(1))
+        absent = int(re.search(rf"(\d+) {re.escape(self.NO_EVID)}", line).group(1))
+        self.assertEqual((wrong + absent, wrong > 0, absent > 0), (9, True, True), line)
+
+    def test_latency_helper_row8_pass_branch(self):
+        st = {"ref_ns": 0.0}
+        v = self.corner_vals({"period_s": self.T, "window": {"j_end": 320}}, lock_at=160, lock_rise=288)
+        f = lambda vals, lt=1.6e-7: dllbench.lock_latency_ok(self.T, st, vals, 320, True, lt)
+        self.assertTrue(f(v))
+        self.assertIsNone(f(v, None))                      # no lock time
+        w = dict(v)
+        w.pop("ls_288")                                    # missing value at the deadline
+        self.assertIsNone(f(w))
+        self.assertIsNone(f(v, 1e-6))                      # deadline beyond the window
+        self.assertFalse(f(dict(v, ls_288=0.0)))
+
+    def test_latency_helper_row8_fail_branch(self):
+        st = {"ref_ns": 0.0}
+        v = self.corner_vals({"period_s": self.T, "window": {"j_end": 320}}, lock_at=160, lock_rise=None)
+        f = lambda vals: dllbench.lock_latency_ok(self.T, st, vals, 320, False, None)
+        self.assertTrue(f(v))
+        w = dict(v)
+        w.pop("ls_32")
+        self.assertIsNone(f(w))                            # a missing sample, no measured high
+        self.assertFalse(f(dict(w, ls_64=1.0)))            # a measured high beats a missing sample
 
     def test_false_lock_bench_grades_end_of_run_and_says_latency_is_not_graded(self):
         status, text = self.record("false-lock", lock_at=160, lock_rise=160, lock_end=0.0)

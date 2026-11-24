@@ -361,20 +361,27 @@ def lock_latency_ok(period, st, vals, j_end, row8_pass, lock_time_s):
     """Row 12 from the ls_<j> LOCK samples (resolution SAMPLE_STEP cycles).
     A run that fails row 8 must read LOCK low at every sample. A run that
     passes must read LOCK high at the first sample at or after the lock time
-    plus LOCK_LATENCY_CYCLES input cycles. Missing samples, no lock time or no
-    sample after the deadline is no evidence, so not ok."""
+    plus LOCK_LATENCY_CYCLES input cycles.
+
+    Three outcomes, like `lock_ok`: True (pass), False (a measured sample
+    shows the wrong level) and None (insufficient evidence: a missing sample,
+    no lock time, or no timestamped sample at or after the deadline)."""
     samples = []
     for j in range(SAMPLE_STEP, j_end + 1, SAMPLE_STEP):
         samples.append((vals.get(f"te_{j}"), vals.get(f"ls_{j}")))
     if not row8_pass:
-        return bool(samples) and all(ls is not None and ls <= 0.5 for _, ls in samples)
+        if any(ls is not None and ls > 0.5 for _, ls in samples):
+            return False
+        if samples and all(ls is not None for _, ls in samples):
+            return True
+        return None
     if lock_time_s is None:
-        return False
+        return None
     deadline = lock_time_s + st["ref_ns"] * 1e-9 + LOCK_LATENCY_CYCLES * period
     for te, ls in samples:
         if te is not None and te >= deadline:
-            return ls is not None and ls > 0.5
-    return False
+            return None if ls is None else ls > 0.5
+    return None
 
 
 def grade_corner(profile, period, st, vals, tol, j_end=None, limit=None):
@@ -456,7 +463,7 @@ def grade(bench_dir, out):
             key = (req["tag"], st["name"])
             s = summary.setdefault(key, {"n": 0, "locked": 0, "one_period": 0, "row8": 0, "lock_ok": 0,
                                          "lock_time_max": None, "no_lock_time": 0, "multi": 0,
-                                         "lock_late": 0, "lock_bad": 0, "lock_absent": 0, "latency_bad": 0, "sampled": 0})
+                                         "lock_late": 0, "lock_bad": 0, "lock_absent": 0, "latency_bad": 0, "latency_absent": 0, "sampled": 0})
             s["n"] += 1
             s["locked"] += f["locked"]
             s["one_period"] += f["one_period"]
@@ -473,7 +480,8 @@ def grade(bench_dir, out):
                     s["lock_time_max"] = max(s["lock_time_max"] or 0.0, f["lock_time_s"])
                 s["lock_late"] += not f["lock_time_ok"]
                 s["sampled"] += 1
-                s["latency_bad"] += not f["lock_latency_ok"]
+                s["latency_bad"] += f["lock_latency_ok"] is False
+                s["latency_absent"] += f["lock_latency_ok"] is None
     standin = manifest["stand_in"]
     lines += [f"# {cfg['bench']} bench record", "", "SIMULATED results, never measured.", ""]
     if standin:
@@ -509,8 +517,9 @@ def grade(bench_dir, out):
     r12_end_bad = sum(v["lock_bad"] for v in summary.values())
     r12_end_absent = sum(v["lock_absent"] for v in summary.values())
     r12_lat_bad = sum(v["latency_bad"] for v in summary.values())
+    r12_lat_absent = sum(v["latency_absent"] for v in summary.values())
     rows_ok = (not problems and not any(failing) and not (7 in rows and sampled and r7_bad)
-               and not (12 in rows and (r12_end_bad or r12_end_absent or r12_lat_bad)))
+               and not (12 in rows and (r12_end_bad or r12_end_absent or r12_lat_bad or r12_lat_absent)))
     graded = rows_graded(manifest)
 
     def result(bad, what):
@@ -554,10 +563,16 @@ def grade(bench_dir, out):
         end = result(r12_end_bad + r12_end_absent, ", ".join(end_why))
         row_lines.append(f"- row 12 end-of-run LOCK on this DUT: {end}")
         if sampled:
+            lat_why = []
+            if r12_lat_bad:
+                lat_why.append(f"{r12_lat_bad} corner(s) with the wrong LOCK timing")
+            if r12_lat_absent:
+                lat_why.append(f"{r12_lat_absent} corner(s) with insufficient LOCK evidence "
+                               "(missing ls_* sample or no lock time)")
             row_lines.append(f"- row 12 {LOCK_LATENCY_CYCLES}-cycle LOCK latency on this DUT ({SAMPLE_STEP}-cycle sample "
                              "resolution; LOCK low at every sample of a run failing row 8, high at the first sample "
                              f"at or after lock time + {LOCK_LATENCY_CYCLES} cycles of a passing run): "
-                             + result(r12_lat_bad, f"{r12_lat_bad} corner(s) with the wrong LOCK timing"))
+                             + result(r12_lat_bad + r12_lat_absent, ", ".join(lat_why)))
         else:
             row_lines.append(f"- row 12 {LOCK_LATENCY_CYCLES}-cycle LOCK latency on this DUT: NOT GRADED -- this bench "
                              "takes no ls_* samples; sim/lock-time grades it")
