@@ -89,18 +89,24 @@ XRL4 lp3 lp4 VSS rppd w=0.5u l=8u m=1 b=0
 XRL5 lp4 vsb VSS rppd w=0.5u l=8u m=1 b=0
 XCL vsb VSS cap_cmim w=20u l=20u m=1
 XMTA tla VSS VDD VDD sg13_lv_pmos w=1.5u l=1u ng=1 m=1
-XMA1 da vsb tla VDD sg13_lv_pmos w=3.59u l=1u ng=1 m=1
+XMA1 da vsb tla VDD sg13_lv_pmos w=4u l=1u ng=1 m=1
 XMA2 oa vsa tla VDD sg13_lv_pmos w=4u l=1u ng=1 m=1
 XMLA1 da da VSS VSS sg13_lv_nmos w=1u l=0.5u ng=1 m=1
 XMLA2 oa da VSS VSS sg13_lv_nmos w=1u l=0.5u ng=1 m=1
-XA1 oa oab VDD VSS inv_lv
+XMQPAR ra ra VDD VDD sg13_lv_pmos w=2u l=1u ng=1 m=1
+XMQNAR ra da VSS VSS sg13_lv_nmos w=2u l=0.5u ng=1 m=1
+XMQPAS sa ra VDD VDD sg13_lv_pmos w=2u l=1u ng=1 m=1
+XMQNAS sa oa VSS VSS sg13_lv_nmos w=1.6u l=0.5u ng=1 m=1
 XMTB tlb VSS VDD VDD sg13_lv_pmos w=1.5u l=1u ng=1 m=1
-XMB1 db vsa tlb VDD sg13_lv_pmos w=3.59u l=1u ng=1 m=1
+XMB1 db vsa tlb VDD sg13_lv_pmos w=4u l=1u ng=1 m=1
 XMB2 ob vsb tlb VDD sg13_lv_pmos w=4u l=1u ng=1 m=1
 XMLB1 db db VSS VSS sg13_lv_nmos w=1u l=0.5u ng=1 m=1
 XMLB2 ob db VSS VSS sg13_lv_nmos w=1u l=0.5u ng=1 m=1
-XB1 ob obb VDD VSS inv_lv
-XSN oab obb still_n VDD VSS nand2_lv
+XMQPBR rb rb VDD VDD sg13_lv_pmos w=2u l=1u ng=1 m=1
+XMQNBR rb db VSS VSS sg13_lv_nmos w=2u l=0.5u ng=1 m=1
+XMQPBS sb rb VDD VDD sg13_lv_pmos w=2u l=1u ng=1 m=1
+XMQNBS sb ob VSS VSS sg13_lv_nmos w=1.6u l=0.5u ng=1 m=1
+XSN sa sb still_n VDD VSS nand2_lv
 XSI still_n STILL VDD VSS inv_lv
 .ends
 
