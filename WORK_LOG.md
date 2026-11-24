@@ -4,6 +4,8 @@ Chronological record of merged PRs and closed issues. Maintained by the Guide ro
 
 ### 2026-11-23
 
+- **PR #194**: feat(layout): lay out cp, cp_bias and loop_filter with per-cell klt drc and klt lvs
+- **Issue #190** (closed): T1 item 2 (first slice): lay out cp, cp_bias and loop_filter with per-cell klt drc and klt lvs
 - **PR #217**: feat: grade row 7 lock time and row 12 LOCK in the benches
 - **Issue #91** (closed): Make the row 7 and row 12 verdicts grade something: dllbench computes lock time and LOCK consistency, then reports a pass without reading them
 - **PR #208**: docs(pfd-fit): drop stale --require-pass from grade usage, restate run.sh no-local-fallback as fleet policy
