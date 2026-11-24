@@ -47,7 +47,10 @@ Two ingredients per cell, both committed and re-runnable:
    a Metal2 track at a net-unique y; every vertical connection is a Metal1
    pad stub or channel run; the two layers cross freely and join only at
    drawn Via1s, so two routed nets can never short by construction, and a
-   deterministic collision self-check plus `klt drc` verify it anyway.
+   collision self-check plus `klt drc` verify it anyway. The self-check
+   compares different nets in the `m1_v` ledger (vertical overlap > 0.30 µm)
+   and the Metal2 track ledger; the directly drawn body-tie pads are outside
+   the ledger, so DRC is their check.
    Body ties: one p+ substrate island ties every nfet body to VSS, and each
    pfet block's NWell gets an n+ island tied to VDD (the curated deck
    derives taps from the nSD/pSD implant markers), so LVS reports
@@ -128,7 +131,7 @@ sets `options.flatten_reference: true`, disclosed by the report as
 `topology.flattened`). Netlist commits the layouts were checked against:
 `loop_filter.spice` at `fcb2d9b` (2026-10-27), `cp_bias.spice` and
 `cp.spice` at `1c48a42` (2026-11-06). `cp` itself is still **`adopting`**
-in `reuse.lock.json` (charge per pulse not graded; PFD fit gate #140 open):
+in `reuse.lock.json` (its remaining gate is charge-per-pulse grading, per `reuse.lock.json`):
 if a later ruling changes a CP device size, re-run `layout/build.sh` — the
 generators, not the streams, are the source of truth.
 

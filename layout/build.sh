@@ -20,8 +20,8 @@ cd "$ROOT"
 
 export PDK="${PDK:-ihp-sg13g2}"
 export PDK_ROOT="${PDK_ROOT:-$HOME/share/pdk}"
-KLT=scripts/klt.sh
-GEN="uv run --with klayout==0.30.13 python3"
+KLT="${KLT:-scripts/klt.sh}"
+GEN="${GEN:-uv run --with klayout==0.30.13 python3}"
 CELLS="loop_filter cp_bias cp"
 
 record=0
@@ -32,7 +32,49 @@ json_from_stdout() {  # strip any uvx install notices before the first '{'
 }
 
 mkdir -p layout/runs
-: > layout/runs/.current
+# Per-invocation summary: concurrent builds must never share or delete each
+# other's file, so allocate it with mktemp and remove only our own on exit.
+CURRENT=$(mktemp layout/runs/.current.XXXXXX)
+SCRATCH=""
+cleanup() { rm -f "$CURRENT" ${SCRATCH:+"$SCRATCH"}; }
+trap 'cleanup' EXIT
+
+# publish_report <cell> <name> <expected-status> <cmd...>
+# Stage the klt envelope in a temp file beside its destination and replace the
+# committed report only after the pipeline succeeded, the JSON parses and the
+# status is the expected one. On any failure the previous copy is untouched.
+publish_report() {
+    local cell=$1 name=$2 want=$3; shift 3
+    local dest="layout/$cell/${name}_report.json" status
+    SCRATCH=$(mktemp "$dest.XXXXXX")
+    "$@" 2>/dev/null | json_from_stdout > "$SCRATCH" \
+        || { echo "FAIL: $name command failed" >&2; exit 1; }
+    # Validate inside Python so the decoded value is compared exactly (shell
+    # command substitution would strip a trailing newline from the verdict),
+    # and give the validated file the destination's mode before the rename.
+    status=$(python3 -c '
+import json, os, stat, sys
+scratch, want, dest = sys.argv[1:4]
+try:
+    status = json.load(open(scratch))["status"]
+except Exception:
+    sys.exit(2)
+sys.stderr.write("  %s: %r\n" % (os.path.basename(dest), status))
+if not isinstance(status, str) or status != want:
+    sys.exit(1)
+mode = stat.S_IMODE(os.stat(dest).st_mode) if os.path.exists(dest) else 0o644
+os.chmod(scratch, mode)
+print(status)
+' "$SCRATCH" "$want" "$dest") || {
+        rc=$?
+        if [ "$rc" = 2 ]; then echo "FAIL: $name report is not valid JSON" >&2
+        else echo "FAIL: $name status is not exactly '$want'" >&2; fi
+        exit 1
+    }
+    mv -f "$SCRATCH" "$dest"
+    SCRATCH=""
+    REPORT_STATUS=$status
+}
 
 for cell in $CELLS; do
     echo "== $cell"
@@ -61,19 +103,12 @@ for cell in $CELLS; do
 
     $GEN layout/check_psd.py "layout/$cell/$cell.gds"
 
-    "$KLT" drc --deck sg13g2 --format json "layout/$cell/$cell.gds" 2>/dev/null \
-        | json_from_stdout > "layout/$cell/drc_report.json"
-    drc_status=$(python3 -c "import json;print(json.load(open('layout/$cell/drc_report.json'))['status'])")
-    echo "  drc sg13g2: $drc_status"
-    [ "$drc_status" = "clean" ] || { echo "FAIL: drc not clean" >&2; exit 1; }
+    publish_report "$cell" drc clean "$KLT" drc --deck sg13g2 --format json "layout/$cell/$cell.gds"
+    drc_status=$REPORT_STATUS
+    publish_report "$cell" lvs match "$KLT" lvs "layout/$cell/lvs_request.json" --format json
+    lvs_status=$REPORT_STATUS
 
-    "$KLT" lvs "layout/$cell/lvs_request.json" --format json 2>/dev/null \
-        | json_from_stdout > "layout/$cell/lvs_report.json"
-    lvs_status=$(python3 -c "import json;print(json.load(open('layout/$cell/lvs_report.json'))['status'])")
-    echo "  lvs: $lvs_status"
-    [ "$lvs_status" = "match" ] || { echo "FAIL: lvs not match" >&2; exit 1; }
-
-    echo "$cell gds=$built drc=$drc_status lvs=$lvs_status" >> layout/runs/.current
+    echo "$cell gds=$built drc=$drc_status lvs=$lvs_status" >> "$CURRENT"
 done
 
 if [ "$record" = 1 ]; then
@@ -93,10 +128,9 @@ if [ "$record" = 1 ]; then
         echo "next to each GDS are this run's envelopes; the sha256 below binds"
         echo "them to the stream that produced them."
         echo
-        cat layout/runs/.current
+        cat "$CURRENT"
     } > "$dir/record.md"
     echo "run record: $dir/record.md"
 fi
 
-rm -f layout/runs/.current
 echo "OK"
