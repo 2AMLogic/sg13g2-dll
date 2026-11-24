@@ -405,6 +405,12 @@ class Grading(unittest.TestCase):
         f = dllbench.grade_corner("predicate", self.T, self.st(), self.vals(perr=0.5, lock_end=1.0), 0.02)
         self.assertFalse(f["lock_ok"])
 
+    def test_a_missing_lock_end_is_no_lock_evidence(self):
+        vals = self.vals()
+        del vals["lock_end"]
+        f = dllbench.grade_corner("predicate", self.T, self.st(), vals, 0.02)
+        self.assertIsNone(f["lock_ok"])
+
     def test_rail_park_fails(self):
         f = dllbench.grade_corner("predicate", self.T, self.st(), self.vals(rail_hi=0.01), 0.02)
         self.assertTrue(f["on_rail"])
@@ -426,20 +432,28 @@ class Grading(unittest.TestCase):
 class LockRows(unittest.TestCase):
     """Rows 7 and 12 reach the verdict and the exit code (issue #91)."""
     T = 1e-9
+    END_OF_RUN = "- row 12 end-of-run LOCK on this DUT: "
+    INCONSISTENT = "corner(s) with LOCK inconsistent with the row-8 result at the end of the run"
+    ABSENT = "corner(s) with no lock_end measurement"
 
     def corner_vals(self, req, lock_at, lock_rise, perr=0.001, d8=None, lock_end=1.0):
         """Sampled values: delay settles at cycle `lock_at`, LOCK rises at
         cycle `lock_rise` (None: never)."""
         j_end = req["window"]["j_end"]
         v = {"perr": perr, "vcpp": 1e-6, "d8_64": req["period_s"] if d8 is None else d8,
-             "rail_hi": 0.3, "rail_lo": 0.4, "lock_end": lock_end}
+             "rail_hi": 0.3, "rail_lo": 0.4}
+        if lock_end is not None:
+            v["lock_end"] = lock_end
         for j in range(16, j_end + 1, 16):
             v[f"te_{j}"] = (j + 0.5) * req["period_s"]
             v[f"ds_{j}"] = req["period_s"] if lock_at is not None and j >= lock_at else 0.5 * req["period_s"]
             v[f"ls_{j}"] = 1.0 if lock_rise is not None and j >= lock_rise else 0.0
         return v
 
-    def record(self, bench, **kw):
+    def end_of_run_line(self, text):
+        return next(l for l in text.splitlines() if l.startswith(self.END_OF_RUN))
+
+    def record(self, bench, per_corner=None, **kw):
         d = tempfile.mkdtemp()
         out = os.path.join(d, "o")
         dllbench.build(os.path.join(SIM, bench), out, DUT, 1e9, 0.02, 5.0, "/osdi")
@@ -447,7 +461,8 @@ class LockRows(unittest.TestCase):
         for req in man["requests"]:
             corners = []
             for i, st in enumerate(req["states"]):
-                meas = [{"name": k, "value": v} for k, v in self.corner_vals(req, **kw).items()]
+                vals = self.corner_vals(req, **dict(kw, **(per_corner(i, st) if per_corner else {})))
+                meas = [{"name": k, "value": v} for k, v in vals.items()]
                 meas += [{"name": "ic_seen", "value": st["ic"]["vic"]},
                          {"name": "tclk_edge", "value": max(st["ic"]["vtclk"], 0.0) * 1e-9}]
                 meas += [{"name": f"{a}_seen", "value": st["ic"][a]} for a in dllbench.AXES[1:]]
@@ -501,8 +516,26 @@ class LockRows(unittest.TestCase):
     def test_false_lock_bench_grades_end_of_run_and_says_latency_is_not_graded(self):
         status, text = self.record("false-lock", lock_at=160, lock_rise=160, lock_end=0.0)
         self.assertEqual(status, 6, text)
-        self.assertRegex(text, r"row 12 end-of-run LOCK .*NOT all corners pass")
+        self.assertIn("- harness: PASS", text)
         self.assertRegex(text, r"row 12 128-cycle LOCK latency on this DUT: NOT GRADED")
+        self.assertEqual(self.end_of_run_line(text),
+                         f"{self.END_OF_RUN}NOT all corners pass (45 {self.INCONSISTENT}; a result, not a harness fault)")
+
+    def test_a_missing_lock_end_fails_row_12_as_absent_evidence(self):
+        status, text = self.record("false-lock", lock_at=160, lock_rise=160, lock_end=None)
+        self.assertEqual(status, 6, text)
+        self.assertIn("- harness: PASS", text)
+        line = self.end_of_run_line(text)
+        self.assertEqual(line, f"{self.END_OF_RUN}NOT all corners pass (45 {self.ABSENT}; a result, not a harness fault)")
+        self.assertNotIn("inconsistent", line)
+
+    def test_missing_and_inconsistent_lock_are_counted_apart(self):
+        status, text = self.record("false-lock", lock_at=160, lock_rise=160,
+                                  per_corner=lambda i, st: {"lock_end": None if st["name"] == "s2_max_rail" else 0.0})
+        self.assertEqual(status, 6, text)
+        self.assertIn("- harness: PASS", text)
+        self.assertEqual(self.end_of_run_line(text),
+                         f"{self.END_OF_RUN}NOT all corners pass (40 {self.INCONSISTENT}, 5 {self.ABSENT}; a result, not a harness fault)")
 
     def test_lock_latency_unit(self):
         st = {"ref_ns": 0.0}
