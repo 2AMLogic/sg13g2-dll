@@ -89,6 +89,56 @@ loads, single-event delay, no jitter figure.
 - Only the three reduced corners were run; the 45-corner grade, mismatch and
   post-layout phase spacing remain open.
 
+# PFD: design note (issues #24/#113/#136, rewire #151)
+
+Status: see "Evidence status" below — the one statement, in this note, of what
+ran for this block and what it showed.
+
+Pins: `pfd REF FB UP DN VDD VSS`. `REF` = input clock (via the supervisor's
+`REFM` mask), `FB` = tap N; DN raises delay, UP lowers it. Topology adopted
+from `2AMLogic/sg13g2-pll@83e59fe` and redrawn on `sg13_lv_*`
+(spec/decisions/0006, 0007): 2x `edgedet` (3-stage, 0.16 µm devices, #136)
+into two SR latches, reset = AND of the two lanes delayed by NAND + 1 inverter
+(0008's polarity — the sibling's NAND + two fails C1 on these cells; the
+`ctl_1g` control arm of the bench demonstrates it).
+
+Since #151 the latch is `srlatch_buf` (spec/decisions/0015, ratified on
+PR #152): a device-level 4 µm cross-coupled NAND2 core (`XIS` `inv2x_lv`,
+`XIR` `inv4x_lv`) with the lane output behind an `inv4x_lv` driver
+(`Q = inv4x(QB)`, sized for the 4 fF bench load) and the shared reset NAND
+(`XNR nand2x_lv`) tapped on the `QN` storage nodes, so the 4 fF CP-input load
+leaves the storage node and the driver's delay stays out of the reset path.
+`edgedet`, `XNR`, `XR1` are untouched by 0015.
+
+## Evidence status
+
+Full 0006 fit gate (`sim/pfd-fit/run.sh`, criteria C1–C3 in
+`sim/pfd-fit/grade.py` — unchanged by 0015), batch fleet, reduced_set corners
+(tt/1.2 V/27 °C, ss/1.080 V/125 °C, ff/1.32 V/−40 °C), 1 GHz and the 500 MHz
+fallback, plus the `ctl_1g` sibling-polarity control at 1 GHz:
+
+- **2026-11-23, after the `srlatch_buf` rewire
+  (`sim/pfd-fit/results/20261123T001411Z/`, issue #151): C1–C3 PASS at every
+  corner at both frequencies.** ss/1 GHz — the corner every earlier run failed
+  — reads a 205.1..207.8 ps reset-pulse width against the 250 ps cap (42.2 ps
+  margin) and C1 ratios 1.050..1.161 at every graded offset ≥ 10 ps (no dead
+  zone at nonzero offset, which 0015's single-corner probe could not show).
+  The `ctl_1g` control on the same latch with the sibling polarity still
+  fails — resting stuck set at tt/ff and held in reset at ss, so it releases
+  no lane pulse at any offset (spec/decisions/0016) — isolating the polarity
+  argument on the committed cell.
+- Earlier runs: 2026-11-05 (`20261105T125120Z`), 2026-11-15
+  (`20261115T001809Z`, `20261115T124912Z`) — C1/C3 pass everywhere, C2 failing
+  at ss/1 GHz (362..370 ps); the two-knob refutation and sizing history is in
+  `spec/decisions/0011` and the 0015 record. The reconciliation probe
+  `20261123T002000Z` shows the wired-in netlist reproduces 0015's unwired
+  probe figures with 0.0 ps delta.
+- All numbers are **simulated, never measured**; ideal sources, 4 fF bench
+  loads (derived from the CP input stage in the 2026-11-23 run record:
+  true 4.37..4.97 fF across corners, kept at 4 fF with headroom argued there).
+  Only the three reduced corners were run; mismatch, the 45-corner grade and
+  post-layout effects remain open.
+
 # False-lock supervisor: design note (issue #53)
 
 Status: **drawn and smoke-simulated at one corner (tt / 1.2 V / 27 °C); not
@@ -190,14 +240,25 @@ optimum.
 - **ss / 1.080 V / 125 °C (issue #145 probe,
   `sim/supervisor-smoke/results/20261115T185844Z-probe/`): the supervisor does
   not respond.** RST never releases from power-up: the `win_det` TAPH sample
-  (`b_up`) mis-latches at ss (its stimulus margin to the REF edge is ~130 ps,
-  inside the ss `dffr_lv` setup window), `over_n` asserts permanently, `set` is
+  (`b_up`) mis-latches at ss, `over_n` asserts permanently, `set` is
   held, and the counter stays disabled — so the `to` → `pt` → `set` time-out
   path never executes and the three-stage one-shot is unexercised there. A tt
   control unit in the same probe run reproduces the full working sequence
   (one-shot 118.5 ps wide at tt on this load) on identical stimulus. This is a
   probe, not a graded ss result; the remedy needs its own decision record
   (follow-up of #145).
+- **The `b_up` mis-latch is shown, in simulation, to be a setup-margin (cell-speed)
+  failure, not a sampling-edge construction artefact (issue #189 setup probe,
+  `sim/supervisor-smoke/results/20261121T004400Z-setup/`).** Sweeping the
+  TAPH-fall to REF-rise lead across the committed sampler (same 30 ps slew,
+  same loads), ss captures low only for leads ≥ 110 ps and latches the stale
+  high through 100 ps — and the no-fault phase (d = 0.8 T) provides exactly
+  100 ps (50 % crossings), so the phase's whole margin budget is consumed by
+  the ss setup window. The tt control needs only (60, 80] ps on the identical
+  deck. This is distinct from the "near lock (d = T) every sampled tap edge
+  sits on the sampling edge by construction" note above, which is a
+  zero-lead-by-design condition; d = 0.8 T has a designed 100 ps lead and ss
+  eats exactly it. A probe, not a graded ss result; remedy with #148.
 - **Not established**: any corner other than the tt smoke corner and the ss
   probe above (no supply or temperature axis beyond those two points, no other
   frequency); the comparator threshold spread; metastability of the window
@@ -272,6 +333,29 @@ same absolute times.
   behave identically at both corners — the discriminator is the analog sensor,
   consistent with the trim-fragility noted above. A probe, not a graded ss
   result; the remedy needs its own decision record (follow-up of #145).
+- **The `vmov_cmp` ss failure is shown, in simulation, to be a static common-mode window
+  collapse (issue #189 DC probe,
+  `sim/lock-detector-smoke/results/20261121T004307Z-dcprobe/`).** A settled
+  DC sweep of VCTRL (the OTA pair's common-mode input; in DC the low-pass cap
+  is open so both copies are equal) puts the `STILL=1` quiet window at
+  [0, 0.477) V at ss — the smoke stimulus's 0.600 V (and its whole
+  0.585–0.615 V ripple band) is outside it, so `still` cannot assert at ss at
+  that operating point even in perfect quiescence: DC bias, not ripple or
+  settling. The same sweep puts tt's window edge at 0.6125 V (only 12.5 mV
+  above the nominal 0.600 V; the tt transient settles high because the 10 ns
+  low-pass attenuates the 50 MHz ripple) and ff's at 0.8523 V. Both OTA
+  outputs sit a few mV from their load inverter's trip at the smoke input —
+  the trim fragility above, simulated per corner. A probe, not a graded
+  result; remedy with #148.
+- **The one-shot/latch set path itself works at ss (issue #189 bench,
+  `sim/edgedet-srlatch-ss/results/20261121T010654Z/`).** Driven on `to` by an
+  external rising edge (the #148 acceptance-criterion-3 substitution), the
+  three-stage `edgedet` generates a 180.6 ps `pt` pulse at ss that sets the
+  plain `srlatch` (Q rises while `pt` is high, holds at the rail after `pt`
+  falls, QB complementary, under the lock detector's own output-chain loads);
+  tt control 114.5 ps, same verdict. So the ss failures above are entirely
+  upstream of the pair; the one-shot is not the ss limiter. A diagnostic
+  bench, not a graded result.
 - Not simulated: corners other than the tt smoke corner and the ss probe above
   (no supply or temperature axis beyond those two points); other frequencies;
   the real delay line, PFD and charge pump (stimulus is ideal); noise or

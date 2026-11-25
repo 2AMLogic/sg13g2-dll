@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Grade the 0006 PFD fit gate from `klt sim` envelopes (pure reduction).
 
-    grade.py --out fit-gate.md [--require-pass] ENVELOPE.json ...
+    grade.py --out fit-gate.md ENVELOPE.json ...
 
 Envelope tags are `pfd_<f>` (the DLL's pfd.sch) or `ctl_<f>` (the control: the
 sibling's reset polarity). Frequencies come from make_bench.FREQS.
@@ -12,7 +12,19 @@ Criteria, fixed before any result existed (change them only through a decision r
   C2 reset      at offset 0, min(wUP, wDN) >= 30 ps and <= 0.25 T   (reset-pulse width)
   C3 present    every offset has both an UP and a DN pulse measured, no missing series
   The +-5 ps points are reported, not graded.
-Exit 0 all graded corners pass, 1 any fail, 2 an envelope could not be read.
+The control must FAIL C1-C3 for a stated reason, read off the DUT-internal probes
+make_bench.control_probes puts in its request. Decisions 0008/0011: the sibling's
+reset, the NAND of the two latch storage nodes, has no releasing rest state, so
+each latch sits in one of two dead states, whichever the operating point picks:
+  held in reset  reset asserted at rest; each storage node follows its set pulse
+                 (QN = S under reset); no lane pulse, lanes stay low
+  stuck set      reset deasserted at rest; both storage nodes and both lanes
+                 high; no storage-node or lane crossing
+and in both the edge detectors must fire on every input edge. A contradicted
+clause, a control that passes, a missing probe or no control envelope is a bench
+defect.
+Exit 0 all graded corners pass and the control failed for that reason, 1 any fail or
+a bench defect, 2 an envelope could not be read.
 Widths are measured at VDD/2 of each corner's own supply. Simulated, never measured.
 """
 from __future__ import annotations
@@ -30,6 +42,13 @@ MIN_RESET_S = 30e-12
 MAX_RESET_FRAC = 0.25
 RESP_LO, RESP_HI = 0.5, 1.5
 GRADED_MIN_OFFSET_PS = 10
+PORTS = ("t_ref", "t_fb", "t_up", "t_dn")
+STATED_REASON = {
+    "held in reset": "edge detectors fire on every input edge, set pulses reach the latch "
+                     "storage nodes, reset is asserted at rest and no lane pulse is released",
+    "stuck set": "edge detectors fire on every input edge, both storage nodes and both lanes "
+                 "sit high with reset deasserted, and no lane pulse is released",
+}
 
 
 def series(corner, name):
@@ -37,6 +56,14 @@ def series(corner, name):
         if m.get("name") == name and m.get("crossings"):
             return m["crossings"]["times"], m["crossings"]["edges"]
     return None, None
+
+
+def scalar(corner, name):
+    """Value of a level measurement (a `.meas` card); None if the envelope does not carry it."""
+    for m in corner.get("measurements", []):
+        if m.get("name") == name and "crossings" not in m:
+            return m.get("value")
+    return None
 
 
 def pulse_width(times, edges, t_from, t_to):
@@ -90,8 +117,95 @@ def grade_corner(corner, period):
     return {"rows": rows, "reset_ps": (min(reset), max(reset)) if reset else None, "fails": fails}
 
 
+def control_defects(g, corner, period):
+    """(defects, evidence) for one control corner: why its lanes are dead.
+
+    `defects` is empty when the control failed for the stated reason (see the
+    module docstring) and otherwise names every clause the envelope contradicts,
+    a control that passed, or a probe the envelope does not carry. `evidence` is
+    what the probes read: crossing counts, the offsets at which reset deasserted,
+    the node levels and, from where the lanes rest, the dead state they sit in.
+    """
+    offs = mb.offsets()
+    names = PORTS + tuple(f"t_{n}" for n in mb.CONTROL_NODES)
+    counts = {n: None if s is None else len(s) for n, s in ((n, series(corner, n)[0]) for n in names)}
+    levels = {n: scalar(corner, n) for n in mb.CONTROL_LEVELS}
+    evidence = {"counts": counts, "levels": levels, "dip_offsets_ps": [], "reset_dips": 0, "face": None}
+    if "error" in g:
+        return [f"control corner not graded ({g['error']})"], evidence
+    missing = [n for n in names if counts[n] is None] + [n for n, v in levels.items() if v is None]
+    if missing:
+        return ["no DUT-internal probes in the envelope (" + ", ".join(missing)
+                + "); regenerate ctl_1g and re-run"], evidence
+    half = corner["supply_v"]["Vdd"] / 2
+    rs, rse = series(corner, "t_reset")
+    evidence["dip_offsets_ps"] = sorted({offs[k] for t, e in zip(rs, rse) if e == "fall"
+                                         for k in [int((t - mb.T0) // period)] if 0 <= k < len(offs)})
+    evidence["reset_dips"] = rse.count("fall")
+    defects = []
+    for set_n, n_in in (("t_set_up", counts["t_ref"]), ("t_set_dn", counts["t_fb"])):
+        if counts[set_n] < 2 * n_in:
+            defects.append(f"edge detectors did not fire: {set_n} has {counts[set_n]} crossings "
+                           f"for {n_in} input edges")
+    lanes_high = [levels[n] >= half for n in ("v_up_max", "v_dn_max")]
+    if counts["t_up"] or counts["t_dn"]:
+        defects.append(f"lane pulses were released (t_up {counts['t_up']}, t_dn {counts['t_dn']} crossings)")
+    elif lanes_high[0] != lanes_high[1]:
+        defects.append("lanes are split, one stuck high and one low "
+                       f"(UP max {levels['v_up_max']:.3f} V, DN max {levels['v_dn_max']:.3f} V)")
+    elif not any(lanes_high):
+        evidence["face"] = "held in reset"
+        if levels["v_reset_rest"] < half:
+            defects.append(f"reset not asserted at rest ({levels['v_reset_rest']:.3f} V < {half:.3f} V)")
+        for lane, qn_n, n_in in (("UP", "t_up_qn", counts["t_ref"]), ("DN", "t_dn_qn", counts["t_fb"])):
+            if counts[qn_n] < 2 * n_in:
+                defects.append(f"set pulses did not reach the {lane} latch storage node: {qn_n} has "
+                               f"{counts[qn_n]} crossings for {n_in} input edges")
+    else:
+        evidence["face"] = "stuck set"
+        if levels["v_reset_rest"] >= half:
+            defects.append("lanes are stuck high with reset asserted at rest "
+                           f"({levels['v_reset_rest']:.3f} V >= {half:.3f} V)")
+        for lane, qn_n, qn_min in (("UP", "t_up_qn", "v_up_qn_min"), ("DN", "t_dn_qn", "v_dn_qn_min")):
+            if counts[qn_n]:
+                defects.append(f"lanes are stuck high but {qn_n} crosses ({counts[qn_n]} crossings)")
+            if levels[qn_min] < half:
+                defects.append(f"lanes are stuck high but the {lane} storage node is low "
+                               f"({qn_min} {levels[qn_min]:.3f} V < {half:.3f} V)")
+    if not g["fails"]:
+        defects.insert(0, "control passed C1-C3")
+    return defects, evidence
+
+
 def tag_freq(tag):
     return mb.FREQS[tag.split("_", 1)[1]]
+
+
+def probe_line(ev):
+    c, lv = ev["counts"], ev["levels"]
+    if None in c.values() or None in lv.values():
+        return "not in the envelope"
+    dips = ev["dip_offsets_ps"]
+    if dips:
+        where = (f"at offset {dips[0]:+d} ps" if len(dips) == 1
+                 else f"at offsets {dips[0]:+d}..{dips[-1]:+d} ps")
+        reset = f"deasserted on {ev['reset_dips']} cycles {where}"
+    else:
+        reset = {"held in reset": "never deasserted", "stuck set": "never asserted"}.get(ev["face"], "no crossing")
+    return (f"set_up {c['t_set_up']}, set_dn {c['t_set_dn']} crossings ({c['t_ref']} REF, {c['t_fb']} FB edges); "
+            f"up_qn {c['t_up_qn']} crossings (min {lv['v_up_qn_min']:.3f} V), "
+            f"dn_qn {c['t_dn_qn']} (min {lv['v_dn_qn_min']:.3f} V); "
+            f"reset {lv['v_reset_rest']:.3f} V at rest, {lv['v_reset_min']:.3f}..{lv['v_reset_max']:.3f} V across "
+            f"the sweep with {c['t_reset']} crossings, {reset}; "
+            f"UP max {lv['v_up_max']:.3f} V, DN max {lv['v_dn_max']:.3f} V, "
+            f"t_up {c['t_up']}, t_dn {c['t_dn']} crossings")
+
+
+def control_line(g):
+    if g["defects"]:
+        return f"**BENCH DEFECT** -- did not fail for the stated reason: {'; '.join(g['defects'])}"
+    face = g["probes"]["face"]
+    return f"FAILS FOR THE STATED REASON -- {face} ({STATED_REASON[face]})"
 
 
 def render(results):
@@ -108,13 +222,17 @@ def render(results):
             if "error" in g:
                 out.append(f"- `{cid}`: NOT GRADED ({g['error']})")
                 ok = False
-                continue
-            verdict = "PASS" if not g["fails"] else "FAIL"
-            ok &= not g["fails"]
-            r = g["reset_ps"]
-            out.append(f"- `{cid}`: **{verdict}**; reset-pulse width {r[0]:.0f}..{r[1]:.0f} ps")
-            for f in g["fails"]:
-                out.append(f"  - {f}")
+            else:
+                verdict = "PASS" if not g["fails"] else "FAIL"
+                ok &= not g["fails"]
+                r = g["reset_ps"]
+                out.append(f"- `{cid}`: **{verdict}**; reset-pulse width {r[0]:.0f}..{r[1]:.0f} ps")
+                for f in g["fails"]:
+                    out.append(f"  - {f}")
+                if "probes" in g:
+                    out.append(f"  - internal probes: {probe_line(g['probes'])}")
+            if "defects" in g:
+                out.append(f"  - control: {control_line(g)}")
         out += ["", "| corner | offset ps | wUP ps | wDN ps | wUP-wDN ps |", "|---|---|---|---|---|"]
         for cid, g in per.items():
             for r in g.get("rows", []):
@@ -134,21 +252,33 @@ def main(argv=None):
     for path in a.envelopes:
         tag = os.path.basename(path).split(".")[0]
         try:
-            env = json.load(open(path))
+            with open(path) as fh:
+                env = json.load(fh)
             period = 1.0 / tag_freq(tag)
             if "error" in env:
                 raise ValueError(env["error"].get("message"))
             per = {c["corner_id"]: grade_corner(c, period) for c in env["corners"]}
+            if tag.startswith("ctl_"):
+                for c in env["corners"]:
+                    defects, evidence = control_defects(per[c["corner_id"]], c, period)
+                    per[c["corner_id"]]["defects"], per[c["corner_id"]]["probes"] = defects, evidence
         except (OSError, ValueError, KeyError) as e:
             print(f"grade: cannot read {path}: {e}", file=sys.stderr)
             return 2
         results[tag] = (env, per)
-    text, ok = render(results)
-    open(a.out, "w").write(text)
-    # the control is expected to FAIL; only pfd_* decide the exit status
+    text, _ = render(results)
+    with open(a.out, "w") as fh:
+        fh.write(text)
+    # the control must FAIL for the stated reason; only the pfd_* lane grades decide C1-C3
     graded = {t: v for t, v in results.items() if t.startswith("pfd_")}
     bad = any(g.get("fails") or "error" in g for _, per in graded.values() for g in per.values())
-    return 1 if bad else 0
+    controls = [per for t, (_, per) in results.items() if t.startswith("ctl_")]
+    defects = [f"control {cid}: {d}" for per in controls for cid, g in per.items() for d in g["defects"]]
+    if not controls:
+        defects.append("no control (ctl_*) envelope among the inputs")
+    for d in defects:
+        print(f"grade: BENCH DEFECT -- {d}", file=sys.stderr)
+    return 1 if bad or defects else 0
 
 
 if __name__ == "__main__":

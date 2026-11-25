@@ -16,6 +16,8 @@ sim/*/results/*/artifacts/**/.spiceinit
 flow/build/
 # local klt install, created by the setup script
 .venv/
+# layout/: klt gen intermediates (rebuilt by layout/build.sh; reports+GDS are committed)
+layout/*/parts/
 # >>> loom-managed (do not edit) >>>
 # Loom runtime state (don't commit these)
 .loom-in-use

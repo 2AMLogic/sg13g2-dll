@@ -14,9 +14,14 @@ These tests re-run `summarize` on a scratch copy of the committed
 never written) with `SG13G2_OSDI_DIR` scrubbed from the environment, and pin:
 
 - the scratch record reproduces the committed `record.md` line-for-line
-  (except the UTC stamp line, which carries the wall clock of the re-run);
+  (except the UTC stamp line, which carries the wall clock of the re-run, and
+  the PDK line, which carries the live `sim/pdk.json` pin rather than the pin
+  of the run that was committed);
 - a mutated `osdi_preload` sha256 in the envelope moves the OSDI line, the
   mutation control proving the line follows the envelope and not disk;
+- a scratch `sim/` tree whose `pdk.json` pins `vX` renders its PDK line with
+  `vX`, proving the line follows `pdk.json` and not a tag hardcoded in
+  `summarize.py`;
 - a bare `summarize.py` exits 2 with the `Usage:` text and no traceback, and
   the usage documents the real argument lists of `calibrate`/`calibrate2`.
 
@@ -40,26 +45,47 @@ SIM = os.path.dirname(os.path.dirname(HERE))
 NOISE_METHOD = os.path.join(SIM, "noise-method")
 RESULTS = os.path.join(NOISE_METHOD, "results", "20261115T041503Z")
 STAMP_LINE = 7  # 0-based index of "- Stamp: ... (UTC ...)", line 8: the re-run's wall clock
+PDK_LINE = 10  # 0-based index of "- PDK: ... (sim/pdk.json)", line 11: the live sim/pdk.json pin
 
 
-def run_summarize(*args):
+def run_summarize(*args, script=None):
     """Run summarize.py isolated, with SG13G2_OSDI_DIR scrubbed from the env."""
     env = {k: v for k, v in os.environ.items() if k != "SG13G2_OSDI_DIR"}
+    script = script or os.path.join(NOISE_METHOD, "summarize.py")
     return subprocess.run(
-        [sys.executable, "-I", os.path.join(NOISE_METHOD, "summarize.py"), *args],
+        [sys.executable, "-I", script, *args],
         capture_output=True,
         text=True,
         env=env,
     )
 
 
-def scratch_copy():
+def scratch_copy(parent=None):
     """Temp copy of the committed corpus under its own basename (the Stamp line
-    names the directory); the committed tree is never written."""
-    root = tempfile.mkdtemp()
+    names the directory); the committed tree is never written. `parent` places
+    it under that directory instead of its own temp root."""
+    root = parent or tempfile.mkdtemp()
     scratch = os.path.join(root, os.path.basename(RESULTS))
     shutil.copytree(RESULTS, scratch)
     return root, scratch
+
+
+def pinned_tree(tag):
+    """Temp `sim/` tree whose `pdk.json` pins `tag`, around a scratch copy of
+    the corpus: a copy of `summarize.py` (it reads `pdk.json` from next to its
+    own directory) and a symlink to `harness` (it imports `../harness/evidence`)."""
+    root = tempfile.mkdtemp()
+    sim = os.path.join(root, "sim")
+    noise_method = os.path.join(sim, "noise-method")
+    results = os.path.join(noise_method, "results")
+    os.makedirs(results)
+    script = os.path.join(noise_method, "summarize.py")
+    shutil.copy(os.path.join(NOISE_METHOD, "summarize.py"), script)
+    os.symlink(os.path.join(SIM, "harness"), os.path.join(sim, "harness"))
+    with open(os.path.join(sim, "pdk.json"), "w", encoding="utf-8") as fh:
+        json.dump({"release_tag": tag}, fh)
+    _, scratch = scratch_copy(results)
+    return root, script, scratch
 
 
 def record_lines(out_dir):
@@ -80,8 +106,13 @@ class RecordReproduction(unittest.TestCase):
             committed[STAMP_LINE].startswith("- Stamp: 20261115T041503Z (UTC "),
             f"line {STAMP_LINE + 1} of the committed record is not the stamp: {committed[STAMP_LINE]!r}",
         )
+        self.assertRegex(
+            committed[PDK_LINE],
+            r"^- PDK: IHP-Open-PDK \S+ \(sim/pdk\.json\)$",
+            f"line {PDK_LINE + 1} of the committed record is not the PDK line: {committed[PDK_LINE]!r}",
+        )
         for i, (want, got) in enumerate(zip(committed, produced)):
-            if i == STAMP_LINE:
+            if i in (STAMP_LINE, PDK_LINE):
                 continue
             self.assertEqual(got, want, f"record.md line {i + 1} differs")
 
@@ -102,6 +133,16 @@ class EnvelopeProvenance(unittest.TestCase):
         osdi_lines = [l for l in record_lines(scratch) if l.startswith("- OSDI")]
         self.assertEqual(len(osdi_lines), 1)
         self.assertIn("0123456789abcdef", osdi_lines[0])
+
+
+class PdkProvenance(unittest.TestCase):
+    def test_pdk_line_follows_pdk_json_not_a_hardcoded_tag(self):
+        root, script, scratch = pinned_tree("vX")
+        self.addCleanup(shutil.rmtree, root, True)
+        proc = run_summarize("summarize", scratch, script=script)
+        self.assertEqual(proc.returncode, 1, proc.stderr)
+        pdk_lines = [l for l in record_lines(scratch) if l.startswith("- PDK")]
+        self.assertEqual(pdk_lines, ["- PDK: IHP-Open-PDK vX (sim/pdk.json)"])
 
 
 class CliGuard(unittest.TestCase):

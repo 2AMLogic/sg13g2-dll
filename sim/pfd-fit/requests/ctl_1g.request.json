@@ -88,6 +88,101 @@
         "edge": "either",
         "max": 1000
       }
+    },
+    {
+      "name": "t_set_up",
+      "crossings": {
+        "signal": "v(xdut.set_up)",
+        "level": {
+          "frac_of": "Vdd",
+          "fraction": 0.5
+        },
+        "edge": "either",
+        "max": 1000
+      }
+    },
+    {
+      "name": "t_set_dn",
+      "crossings": {
+        "signal": "v(xdut.set_dn)",
+        "level": {
+          "frac_of": "Vdd",
+          "fraction": 0.5
+        },
+        "edge": "either",
+        "max": 1000
+      }
+    },
+    {
+      "name": "t_reset",
+      "crossings": {
+        "signal": "v(xdut.reset)",
+        "level": {
+          "frac_of": "Vdd",
+          "fraction": 0.5
+        },
+        "edge": "either",
+        "max": 1000
+      }
+    },
+    {
+      "name": "t_up_qn",
+      "crossings": {
+        "signal": "v(xdut.up_qn)",
+        "level": {
+          "frac_of": "Vdd",
+          "fraction": 0.5
+        },
+        "edge": "either",
+        "max": 1000
+      }
+    },
+    {
+      "name": "t_dn_qn",
+      "crossings": {
+        "signal": "v(xdut.dn_qn)",
+        "level": {
+          "frac_of": "Vdd",
+          "fraction": 0.5
+        },
+        "edge": "either",
+        "max": 1000
+      }
+    },
+    {
+      "name": "v_reset_rest",
+      "spice": ".meas tran v_reset_rest min v(xdut.reset) from=4.000n to=4.900n",
+      "unit": "V"
+    },
+    {
+      "name": "v_reset_min",
+      "spice": ".meas tran v_reset_min min v(xdut.reset) from=4.000n to=24.000n",
+      "unit": "V"
+    },
+    {
+      "name": "v_reset_max",
+      "spice": ".meas tran v_reset_max max v(xdut.reset) from=4.000n to=24.000n",
+      "unit": "V"
+    },
+    {
+      "name": "v_up_max",
+      "spice": ".meas tran v_up_max max v(up) from=4.000n to=24.000n",
+      "unit": "V"
+    },
+    {
+      "name": "v_dn_max",
+      "spice": ".meas tran v_dn_max max v(dn) from=4.000n to=24.000n",
+      "unit": "V"
+    },
+    {
+      "name": "v_up_qn_min",
+      "spice": ".meas tran v_up_qn_min min v(xdut.up_qn) from=4.000n to=24.000n",
+      "unit": "V"
+    },
+    {
+      "name": "v_dn_qn_min",
+      "spice": ".meas tran v_dn_qn_min min v(xdut.dn_qn) from=4.000n to=24.000n",
+      "unit": "V"
     }
   ],
   "options": {

@@ -83,6 +83,12 @@ not been run. The sibling's charge-pump dump buffer biases from `ICN`; the
 redraw uses `IBN`, since the follower tail needs a mirror gate voltage, not a
 cascode gate.
 
+> **2026-11-23 pointer (issue #206):** the "held in reset" reading above names one of **two**
+> dead rest states this polarity builds on these cells — the instrumented control rests
+> **stuck set** at tt and ff and held in reset at ss, and neither state releases a lane pulse
+> (`sim/pfd-fit/results/20261123T013250Z/`). The conclusion — sibling polarity unusable on
+> these cells — is unchanged. See [0016](0016-ctl-1g-rest-states.md).
+
 ## What is not established
 
 - **No simulation has been run for any part of this PR.** The batch backend

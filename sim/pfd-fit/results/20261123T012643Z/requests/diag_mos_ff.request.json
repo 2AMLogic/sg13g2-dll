@@ -1,0 +1,237 @@
+{
+  "_comment": [
+    "issue #201 diagnostic (not a gate run): storage-node levels of the ctl_1g control at one corner"
+  ],
+  "engine": "ngspice",
+  "netlist": "../decks/ctl_1g.spice",
+  "netlist_source": "schematic",
+  "models": {
+    "pdk": "ihp-sg13g2",
+    "lib": "libs.tech/ngspice/models/cornerMOSlv.lib"
+  },
+  "corners": {
+    "units": [
+      {
+        "process": "mos_ff",
+        "temperature_c": -40,
+        "supply_v": {
+          "Vdd": 1.32
+        }
+      }
+    ]
+  },
+  "analysis": {
+    "kind": "tran",
+    "args": "5p 25.000n"
+  },
+  "measurements": [
+    {
+      "name": "t_ref",
+      "crossings": {
+        "signal": "v(ref)",
+        "level": {
+          "frac_of": "Vdd",
+          "fraction": 0.5
+        },
+        "edge": "rise",
+        "max": 1000
+      }
+    },
+    {
+      "name": "t_fb",
+      "crossings": {
+        "signal": "v(fb)",
+        "level": {
+          "frac_of": "Vdd",
+          "fraction": 0.5
+        },
+        "edge": "rise",
+        "max": 1000
+      }
+    },
+    {
+      "name": "t_up",
+      "crossings": {
+        "signal": "v(up)",
+        "level": {
+          "frac_of": "Vdd",
+          "fraction": 0.5
+        },
+        "edge": "either",
+        "max": 1000
+      }
+    },
+    {
+      "name": "t_dn",
+      "crossings": {
+        "signal": "v(dn)",
+        "level": {
+          "frac_of": "Vdd",
+          "fraction": 0.5
+        },
+        "edge": "either",
+        "max": 1000
+      }
+    },
+    {
+      "name": "t_set_up",
+      "crossings": {
+        "signal": "v(xdut.set_up)",
+        "level": {
+          "frac_of": "Vdd",
+          "fraction": 0.5
+        },
+        "edge": "either",
+        "max": 1000
+      }
+    },
+    {
+      "name": "t_set_dn",
+      "crossings": {
+        "signal": "v(xdut.set_dn)",
+        "level": {
+          "frac_of": "Vdd",
+          "fraction": 0.5
+        },
+        "edge": "either",
+        "max": 1000
+      }
+    },
+    {
+      "name": "t_reset",
+      "crossings": {
+        "signal": "v(xdut.reset)",
+        "level": {
+          "frac_of": "Vdd",
+          "fraction": 0.5
+        },
+        "edge": "either",
+        "max": 1000
+      }
+    },
+    {
+      "name": "t_up_qn",
+      "crossings": {
+        "signal": "v(xdut.up_qn)",
+        "level": {
+          "frac_of": "Vdd",
+          "fraction": 0.5
+        },
+        "edge": "either",
+        "max": 1000
+      }
+    },
+    {
+      "name": "t_dn_qn",
+      "crossings": {
+        "signal": "v(xdut.dn_qn)",
+        "level": {
+          "frac_of": "Vdd",
+          "fraction": 0.5
+        },
+        "edge": "either",
+        "max": 1000
+      }
+    },
+    {
+      "name": "v_reset_rest",
+      "spice": ".meas tran v_reset_rest min v(xdut.reset) from=4.000n to=4.900n",
+      "unit": "V"
+    },
+    {
+      "name": "v_reset_min",
+      "spice": ".meas tran v_reset_min min v(xdut.reset) from=4.000n to=24.000n",
+      "unit": "V"
+    },
+    {
+      "name": "v_reset_max",
+      "spice": ".meas tran v_reset_max max v(xdut.reset) from=4.000n to=24.000n",
+      "unit": "V"
+    },
+    {
+      "name": "v_up_max",
+      "spice": ".meas tran v_up_max max v(up) from=4.000n to=24.000n",
+      "unit": "V"
+    },
+    {
+      "name": "v_dn_max",
+      "spice": ".meas tran v_dn_max max v(dn) from=4.000n to=24.000n",
+      "unit": "V"
+    },
+    {
+      "name": "v_up_qn_min",
+      "spice": ".meas tran v_up_qn_min min v(xdut.up_qn) from=4.000n to=24.000n",
+      "unit": "V"
+    },
+    {
+      "name": "v_up_qn_max",
+      "spice": ".meas tran v_up_qn_max max v(xdut.up_qn) from=4.000n to=24.000n",
+      "unit": "V"
+    },
+    {
+      "name": "v_dn_qn_min",
+      "spice": ".meas tran v_dn_qn_min min v(xdut.dn_qn) from=4.000n to=24.000n",
+      "unit": "V"
+    },
+    {
+      "name": "v_dn_qn_max",
+      "spice": ".meas tran v_dn_qn_max max v(xdut.dn_qn) from=4.000n to=24.000n",
+      "unit": "V"
+    },
+    {
+      "name": "v_up_qb_min",
+      "spice": ".meas tran v_up_qb_min min v(xdut.up_qb) from=4.000n to=24.000n",
+      "unit": "V"
+    },
+    {
+      "name": "v_up_qb_max",
+      "spice": ".meas tran v_up_qb_max max v(xdut.up_qb) from=4.000n to=24.000n",
+      "unit": "V"
+    },
+    {
+      "name": "v_dn_qb_min",
+      "spice": ".meas tran v_dn_qb_min min v(xdut.dn_qb) from=4.000n to=24.000n",
+      "unit": "V"
+    },
+    {
+      "name": "v_dn_qb_max",
+      "spice": ".meas tran v_dn_qb_max max v(xdut.dn_qb) from=4.000n to=24.000n",
+      "unit": "V"
+    },
+    {
+      "name": "v_reset_rest_max",
+      "spice": ".meas tran v_reset_rest_max max v(xdut.reset) from=4.000n to=4.900n",
+      "unit": "V"
+    },
+    {
+      "name": "v_up_rest_min",
+      "spice": ".meas tran v_up_rest_min min v(up) from=4.000n to=4.900n",
+      "unit": "V"
+    },
+    {
+      "name": "v_dn_rest_min",
+      "spice": ".meas tran v_dn_rest_min min v(dn) from=4.000n to=4.900n",
+      "unit": "V"
+    },
+    {
+      "name": "v_reset_raw_rest",
+      "spice": ".meas tran v_reset_raw_rest find v(xdut.reset_raw) at=4n",
+      "unit": "V"
+    },
+    {
+      "name": "v_reset_d1_rest",
+      "spice": ".meas tran v_reset_d1_rest find v(xdut.reset_d1) at=4n",
+      "unit": "V"
+    }
+  ],
+  "options": {
+    "osdi_preload": [
+      "/home/ubuntu/share/pdk/ihp-sg13g2/libs.tech/ngspice/osdi/psp103.osdi",
+      "/home/ubuntu/share/pdk/ihp-sg13g2/libs.tech/ngspice/osdi/psp103_nqs.osdi",
+      "/home/ubuntu/share/pdk/ihp-sg13g2/libs.tech/ngspice/osdi/r3_cmc.osdi",
+      "/home/ubuntu/share/pdk/ihp-sg13g2/libs.tech/ngspice/osdi/mosvar.osdi"
+    ],
+    "stage_model_inputs": true,
+    "keep_artifacts": true
+  }
+}

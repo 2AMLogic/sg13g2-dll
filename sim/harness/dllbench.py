@@ -49,6 +49,8 @@ import gridspec  # noqa: E402
 # Column f0 (Hz) -> lock-time limit (s): 1 GHz target 1 us, 500 MHz fallback 5 us, 2 GHz stretch 1 us.
 LOCK_LIMIT = {1e9: 1e-6, 5e8: 5e-6, 2e9: 1e-6}
 WINDOW = 64
+# Spec row 12: LOCK asserts within this many input cycles of lock.
+LOCK_LATENCY_CYCLES = 128
 # The window ends TAIL_CYCLES input cycles before the end of the run so that the
 # tap-N edge paired with the last input edge (one period later) is inside the run.
 TAIL_CYCLES = 2
@@ -79,12 +81,17 @@ def fnum(x):
     return f"{x:.9g}"
 
 
-def run_length(f0):
-    """Run length (s) of the column named by f0: 2 x its lock-time limit."""
+def lock_limit(f0):
+    """Row-7 lock-time limit (s) of the column named by f0."""
     for col, limit in LOCK_LIMIT.items():
         if abs(f0 - col) <= 1e-6 * col:
-            return 2 * limit
+            return limit
     raise BenchError(f"--f0 {f0:g} matches no column ({', '.join(f'{c:g}' for c in LOCK_LIMIT)} Hz)")
+
+
+def run_length(f0):
+    """Run length (s) of the column named by f0: 2 x its lock-time limit."""
+    return 2 * lock_limit(f0)
 
 
 def window_end(period, run):
@@ -350,8 +357,36 @@ def lock_time(period, st, vals, j_end):
     return tail[1] - st["ref_ns"] * 1e-9
 
 
-def grade_corner(profile, period, st, vals, tol, j_end=None):
-    """Per-corner facts: predicate, delay in periods, rails, LOCK, lock time."""
+def lock_latency_ok(period, st, vals, j_end, row8_pass, lock_time_s):
+    """Row 12 from the ls_<j> LOCK samples (resolution SAMPLE_STEP cycles).
+    A run that fails row 8 must read LOCK low at every sample. A run that
+    passes must read LOCK high at the first sample at or after the lock time
+    plus LOCK_LATENCY_CYCLES input cycles.
+
+    Three outcomes, like `lock_ok`: True (pass), False (a measured sample
+    shows the wrong level) and None (insufficient evidence: a missing sample,
+    no lock time, or no timestamped sample at or after the deadline)."""
+    samples = []
+    for j in range(SAMPLE_STEP, j_end + 1, SAMPLE_STEP):
+        samples.append((vals.get(f"te_{j}"), vals.get(f"ls_{j}")))
+    if not row8_pass:
+        if any(ls is not None and ls > 0.5 for _, ls in samples):
+            return False
+        if samples and all(ls is not None for _, ls in samples):
+            return True
+        return None
+    if lock_time_s is None:
+        return None
+    deadline = lock_time_s + st["ref_ns"] * 1e-9 + LOCK_LATENCY_CYCLES * period
+    for te, ls in samples:
+        if te is not None and te >= deadline:
+            return None if ls is None else ls > 0.5
+    return None
+
+
+def grade_corner(profile, period, st, vals, tol, j_end=None, limit=None):
+    """Per-corner facts: predicate, delay in periods, rails, LOCK, lock time
+    (row 7 against `limit` when given) and the row-12 LOCK latency."""
     f = {"state": st["name"]}
     perr, vcpp = vals.get("perr"), vals.get("vcpp")
     f["locked"] = perr is not None and vcpp is not None and perr <= tol and vcpp <= VC_PP_MAX
@@ -365,6 +400,8 @@ def grade_corner(profile, period, st, vals, tol, j_end=None):
     f["lock_ok"] = None if lk is None else (lk > 0.5) == f["row8_pass"]
     if profile == "samples":
         f["lock_time_s"] = lock_time(period, st, dict(vals, _tol=tol), j_end)
+        f["lock_time_ok"] = f["lock_time_s"] is not None and (limit is None or f["lock_time_s"] <= limit)
+        f["lock_latency_ok"] = lock_latency_ok(period, st, vals, j_end, f["row8_pass"], f["lock_time_s"])
     return f
 
 
@@ -401,6 +438,7 @@ def grade(bench_dir, out):
     tol = manifest["tol"]
     problems, items, lines = [], [], []
     summary = {}
+    limit = lock_limit(manifest["f0_hz"])
     for req in manifest["requests"]:
         path = os.path.join(out, f"{req['tag']}.envelope.json")
         if not os.path.isfile(path):
@@ -421,15 +459,18 @@ def grade(bench_dir, out):
             st = state_of(req, c)
             if st is None:
                 continue
-            f = grade_corner(manifest["profile"], req["period_s"], st, evidence.mvals(c), tol, req["window"]["j_end"])
+            f = grade_corner(manifest["profile"], req["period_s"], st, evidence.mvals(c), tol, req["window"]["j_end"], limit)
             key = (req["tag"], st["name"])
             s = summary.setdefault(key, {"n": 0, "locked": 0, "one_period": 0, "row8": 0, "lock_ok": 0,
-                                         "lock_time_max": None, "no_lock_time": 0, "multi": 0})
+                                         "lock_time_max": None, "no_lock_time": 0, "multi": 0,
+                                         "lock_late": 0, "lock_bad": 0, "lock_absent": 0, "latency_bad": 0, "latency_absent": 0, "sampled": 0})
             s["n"] += 1
             s["locked"] += f["locked"]
             s["one_period"] += f["one_period"]
             s["row8"] += f["row8_pass"]
             s["lock_ok"] += bool(f["lock_ok"])
+            s["lock_bad"] += f["lock_ok"] is False
+            s["lock_absent"] += f["lock_ok"] is None
             if f["locked"] and f["delay_periods"] not in (None, 1):
                 s["multi"] += 1
             if "lock_time_s" in f:
@@ -437,6 +478,10 @@ def grade(bench_dir, out):
                     s["no_lock_time"] += 1
                 else:
                     s["lock_time_max"] = max(s["lock_time_max"] or 0.0, f["lock_time_s"])
+                s["lock_late"] += not f["lock_time_ok"]
+                s["sampled"] += 1
+                s["latency_bad"] += f["lock_latency_ok"] is False
+                s["latency_absent"] += f["lock_latency_ok"] is None
     standin = manifest["stand_in"]
     lines += [f"# {cfg['bench']} bench record", "", "SIMULATED results, never measured.", ""]
     if standin:
@@ -465,32 +510,82 @@ def grade(bench_dir, out):
     # violation with no individual sample failing. The token alone decides.
     failing = [env.get("failed", 0) or (1 if env.get("status") == "fail" else 0)
                for _, env in items if "error" not in env]
-    rows_ok = not problems and not any(failing)
+    rows = list(cfg["rows"])
+    sampled = manifest["profile"] == "samples"
+    # lock_late already counts the no-lock-time corners (lock_time_ok is False for them)
+    r7_bad = sum(v["lock_late"] for v in summary.values())
+    r12_end_bad = sum(v["lock_bad"] for v in summary.values())
+    r12_end_absent = sum(v["lock_absent"] for v in summary.values())
+    r12_lat_bad = sum(v["latency_bad"] for v in summary.values())
+    r12_lat_absent = sum(v["latency_absent"] for v in summary.values())
+    rows_ok = (not problems and not any(failing) and not (7 in rows and sampled and r7_bad)
+               and not (12 in rows and (r12_end_bad or r12_end_absent or r12_lat_bad or r12_lat_absent)))
     graded = rows_graded(manifest)
-    if not graded:
-        rows_verdict = ("NOT GRADED on this DUT -- it does not declare `supply_current: true`, so the deck's "
-                        "v(pw) is identically zero: `pavg` carries no limit and is recorded, not graded")
-    elif rows_ok:
-        rows_verdict = "all corners pass"
-    elif problems:
-        # a fault outranks the row verdict: an errored corner, an unreadable
-        # coverage token or a missing envelope leaves the rows without a
-        # verdict at all. "inconclusive"/"pass_partial" land here too -- #74
-        # owns whether they become row verdicts.
-        rows_verdict = "NO VERDICT -- a harness fault above outranks the row limits"
-    else:
-        rows_verdict = "NOT all corners pass (a result, not a harness fault)"
-    rows_name = ", ".join(str(r) for r in cfg["rows"])
+
+    def result(bad, what):
+        if problems:
+            return "NO VERDICT -- a harness fault above outranks the row limits"
+        return "all corners pass" if not bad else f"NOT all corners pass ({what}; a result, not a harness fault)"
+
+    row_lines = []
+    limit_rows = [r for r in rows if r not in (7, 12)]
+    if limit_rows:
+        if not graded:
+            rows_verdict = ("NOT GRADED on this DUT -- it does not declare `supply_current: true`, so the deck's "
+                            "v(pw) is identically zero: `pavg` carries no limit and is recorded, not graded")
+        elif not problems and not any(failing):
+            rows_verdict = "all corners pass"
+        elif problems:
+            # a fault outranks the row verdict: an errored corner, an unreadable
+            # coverage token or a missing envelope leaves the rows without a
+            # verdict at all. "inconclusive"/"pass_partial" land here too -- #74
+            # owns whether they become row verdicts.
+            rows_verdict = "NO VERDICT -- a harness fault above outranks the row limits"
+        else:
+            rows_verdict = "NOT all corners pass (a result, not a harness fault)"
+        row_lines.append(f"- rows {', '.join(str(r) for r in limit_rows)} on this DUT: {rows_verdict}")
+    elif any(failing) and not problems:
+        row_lines.append(f"- {sum(failing)} corner(s) failed the predicate limits every profile carries "
+                         f"(rows 2, 8, 12 measurements)")
+    if 7 in rows:
+        if sampled:
+            row_lines.append(f"- row 7 on this DUT (lock time <= {limit:.4g} s at f0 {manifest['f0_hz']:.6g} Hz, "
+                             f"{SAMPLE_STEP}-cycle resolution): "
+                             + result(r7_bad, f"{r7_bad} corner(s) with no lock time or a lock time over the limit"))
+        else:
+            row_lines.append("- row 7 on this DUT: NOT GRADED -- this bench records no lock-time samples")
+    if 12 in rows:
+        end_why = []
+        if r12_end_bad:
+            end_why.append(f"{r12_end_bad} corner(s) with LOCK inconsistent with the row-8 result at the end of the run")
+        if r12_end_absent:
+            end_why.append(f"{r12_end_absent} corner(s) with no lock_end measurement")
+        end = result(r12_end_bad + r12_end_absent, ", ".join(end_why))
+        row_lines.append(f"- row 12 end-of-run LOCK on this DUT: {end}")
+        if sampled:
+            lat_why = []
+            if r12_lat_bad:
+                lat_why.append(f"{r12_lat_bad} corner(s) with the wrong LOCK timing")
+            if r12_lat_absent:
+                lat_why.append(f"{r12_lat_absent} corner(s) with insufficient LOCK evidence "
+                               "(missing ls_* sample or no lock time)")
+            row_lines.append(f"- row 12 {LOCK_LATENCY_CYCLES}-cycle LOCK latency on this DUT ({SAMPLE_STEP}-cycle sample "
+                             "resolution; LOCK low at every sample of a run failing row 8, high at the first sample "
+                             f"at or after lock time + {LOCK_LATENCY_CYCLES} cycles of a passing run): "
+                             + result(r12_lat_bad + r12_lat_absent, ", ".join(lat_why)))
+        else:
+            row_lines.append(f"- row 12 {LOCK_LATENCY_CYCLES}-cycle LOCK latency on this DUT: NOT GRADED -- this bench "
+                             "takes no ls_* samples; sim/lock-time grades it")
     lines += ["", "## Verdict", "",
-              f"- harness: {'FAIL' if problems else 'PASS'}",
-              f"- rows {rows_name} on this DUT: {rows_verdict}"]
+              f"- harness: {'FAIL' if problems else 'PASS'}"] + row_lines
     if not graded and any(failing):
         lines.append(f"- {sum(failing)} corner(s) failed on the limits every profile carries "
-                     f"(rows 2, 8, 12); that is not a row-{rows_name} verdict")
+                     f"(rows 2, 8, 12); that is not a row-{', '.join(str(r) for r in limit_rows)} verdict")
     if problems:
         lines += [""] + [f"- {p}" for p in problems]
     with open(os.path.join(out, "record.md"), "w", encoding="utf-8") as fh:
         fh.write("\n".join(lines) + "\n")
+    rows_name = ", ".join(str(r) for r in limit_rows)
     if not graded:
         print(f"dllbench: rows {rows_name} are NOT GRADED on DUT {manifest['dut']!r} "
               f"(no `supply_current: true`); see {os.path.join(out, 'record.md')}", file=sys.stderr)

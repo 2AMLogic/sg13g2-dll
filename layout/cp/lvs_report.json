@@ -1,0 +1,237 @@
+{
+  "schema_version": 2,
+  "engine": "klayout",
+  "layout": {
+    "path": "layout/cp/cp.gds",
+    "scope": "repo"
+  },
+  "reference": "../../design/netlist/cp.spice",
+  "top": "cp",
+  "reference_top": "CP",
+  "reference_conversion": {
+    "form": "subckt-call",
+    "deck": "sg13g2",
+    "device_map": null
+  },
+  "parameter_tolerance": null,
+  "options": {
+    "combine_devices": false,
+    "combine_devices_per_circuit": null,
+    "combine_devices_max_attempts": 5,
+    "flatten_layout": false,
+    "flatten_reference": true,
+    "netgen_setup": null,
+    "parameter_tolerance": null,
+    "compare_parameters": null,
+    "power_connectivity": null,
+    "anchor_top_level_pins": null,
+    "strict_top_level_pin_count": false,
+    "compare_mos_flavour": false,
+    "supply_nets": [
+      "GND",
+      "VCC",
+      "VDD",
+      "VGND",
+      "VPWR",
+      "VSS"
+    ],
+    "finfet_bulk": null
+  },
+  "hints_applied": null,
+  "constant_nets_applied": null,
+  "status": "match",
+  "power_connectivity": {
+    "status": "unchecked",
+    "reason": "reference.form is 'subckt-call', whose reference netlist carries its own power/ground pins and nets -- they take part in the ordinary compare, so this check (which exists to cover the signal-only 'gate-level-verilog' form) does not apply",
+    "power_pins": [],
+    "power_pins_derivation": null,
+    "instance_count": 0,
+    "expected_nets": null,
+    "unchecked_expected_pins": [],
+    "findings": [],
+    "finding_count": 0
+  },
+  "body_verification": {
+    "status": "verified",
+    "reason": null,
+    "device_classes": [],
+    "device_count": 0,
+    "findings": [],
+    "finding_count": 0
+  },
+  "device_parameter_coverage": [],
+  "mismatch_count": 1,
+  "error_count": 0,
+  "category_counts": {
+    "topology.flattened": 1
+  },
+  "category_error_counts": {},
+  "counts": {
+    "nets": {
+      "layout": 20,
+      "reference": 20,
+      "matched": 20
+    },
+    "devices": {
+      "layout": 24,
+      "reference": 24,
+      "matched": 24
+    },
+    "pins": {
+      "layout": 9,
+      "reference": 9,
+      "matched": 10
+    }
+  },
+  "device_classes": [
+    "nfet",
+    "pfet",
+    "cap_cmim",
+    "rfcmim",
+    "cap_cmomi",
+    "cap_cmomf",
+    "resistor",
+    "dantenna",
+    "dpantenna"
+  ],
+  "environment": {
+    "engine": "klayout",
+    "engine_version": "0.30.14",
+    "netgen_binary": null,
+    "layout_sha256": "f966413f72392c1697ef5b5ef5baac173e55dde29387ffc8ab2bbf1d328c0c08",
+    "reference_sha256": "48eb02dff91c5f314f09c1f408536fc51f01b2ac450ab0807efe06bae03c6a4a",
+    "extracted_netlist": null
+  },
+  "provenance": {
+    "klt_version": "0.8.0",
+    "klayout_version": "0.30.14",
+    "pdk": null,
+    "deck": {
+      "name": "sg13g2",
+      "content_hash": "sha256:1c95db40596afc5412e216009bcf0b775d1d74895b32738447eccbc76336dd15",
+      "released": true
+    },
+    "input": {
+      "content_hash": "sha256:f966413f72392c1697ef5b5ef5baac173e55dde29387ffc8ab2bbf1d328c0c08",
+      "role": "layout"
+    },
+    "klayout_version_mismatch": true
+  },
+  "mismatches": [
+    {
+      "category": "topology.flattened",
+      "severity": "warning",
+      "description": "options.flatten_reference flattened the reference netlist before comparing: 5 circuit(s) were collapsed into 1 top-level circuit(s), substituting every subcircuit-call instance in place -- this compare verified topology only after removing the original hierarchy boundaries on this side (see docs/cli/lvs.md, \"topology.flattened\")",
+      "side": "reference",
+      "net": null,
+      "device": null,
+      "property": null,
+      "details": null,
+      "circuit": null,
+      "instance": null,
+      "subcircuit": null
+    }
+  ],
+  "net_correspondence": [
+    {
+      "layout": "\\$71",
+      "reference": "BUF_DA",
+      "pin": false
+    },
+    {
+      "layout": "\\$11",
+      "reference": "BUF_DP",
+      "pin": false
+    },
+    {
+      "layout": "\\$1",
+      "reference": "BUF_TN",
+      "pin": false
+    },
+    {
+      "layout": "\\$47",
+      "reference": "BUF_TP",
+      "pin": false
+    },
+    {
+      "layout": "\\$16",
+      "reference": "DN",
+      "pin": false
+    },
+    {
+      "layout": "\\$7",
+      "reference": "DNB",
+      "pin": false
+    },
+    {
+      "layout": "IBN",
+      "reference": "IBN",
+      "pin": true
+    },
+    {
+      "layout": "IBP",
+      "reference": "IBP",
+      "pin": true
+    },
+    {
+      "layout": "ICN",
+      "reference": "ICN",
+      "pin": true
+    },
+    {
+      "layout": "ICP",
+      "reference": "ICP",
+      "pin": true
+    },
+    {
+      "layout": "\\$3",
+      "reference": "LEGN_SW",
+      "pin": false
+    },
+    {
+      "layout": "\\$2",
+      "reference": "LEGN_TAIL",
+      "pin": false
+    },
+    {
+      "layout": "\\$45",
+      "reference": "LEGP_SW",
+      "pin": false
+    },
+    {
+      "layout": "\\$44",
+      "reference": "LEGP_TAIL",
+      "pin": false
+    },
+    {
+      "layout": "UP",
+      "reference": "UP",
+      "pin": true
+    },
+    {
+      "layout": "UPB",
+      "reference": "UPB",
+      "pin": true
+    },
+    {
+      "layout": "VDD",
+      "reference": "VDD",
+      "pin": true
+    },
+    {
+      "layout": "\\$5",
+      "reference": "VDUMP",
+      "pin": false
+    },
+    {
+      "layout": "VOUT",
+      "reference": "VOUT",
+      "pin": true
+    },
+    {
+      "layout": "VSS",
+      "reference": "VSS",
+      "pin": true
+    }
+  ]
+}

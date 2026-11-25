@@ -2,6 +2,52 @@
 
 Chronological record of merged PRs and closed issues. Maintained by the Guide role.
 
+### 2026-11-24
+
+- **PR #237**: refactor: route delay-sanity corner headings through evidence.corners_of
+- **Issue #236** (closed): Remove corner_of() in sim/delay-sanity/summarize.py: route through evidence.corners_of()
+- **PR #234**: refactor: remove the unwired srlatch_fast cell
+- **Issue #203** (closed): Remove srlatch_fast: unwired since the srlatch_buf rewire (#151)
+- **PR #232**: refactor: route loop_filter layout through common.Cell
+- **PR #228**: test: run overlapping build.sh invocations in concurrent summary test
+- **PR #227**: fix: report missing LOCK latency samples apart from wrong LOCK timing
+- **PR #225**: fix: report a missing lock_end as such in the row-12 verdict
+- **PR #222**: layout: publish DRC/LVS reports atomically, guard stub window and part dbu
+- **Issue #231** (closed): Remove inline klayout.db boilerplate in layout/loop_filter/generate.py: route through common.Cell
+- **Issue #226** (closed): layout/tests: test_concurrent_summary_isolated passes on the pre-fix build.sh, so it does not guard the clobber it names
+- **Issue #224** (closed): dllbench row-12 latency verdict: missing ls_* samples are reported as 'wrong LOCK timing'
+- **Issue #221** (closed): layout/: build-script hardening and two disclosure corrections carried over from #194 review
+- **Issue #219** (closed): dllbench row-12 verdict: a missing lock_end is reported as 'LOCK inconsistent', and has no regression test
+
+### 2026-11-23
+
+- **PR #194**: feat(layout): lay out cp, cp_bias and loop_filter with per-cell klt drc and klt lvs
+- **Issue #190** (closed): T1 item 2 (first slice): lay out cp, cp_bias and loop_filter with per-cell klt drc and klt lvs
+- **PR #217**: feat: grade row 7 lock time and row 12 LOCK in the benches
+- **Issue #91** (closed): Make the row 7 and row 12 verdicts grade something: dllbench computes lock time and LOCK consistency, then reports a pass without reading them
+- **PR #208**: docs(pfd-fit): drop stale --require-pass from grade usage, restate run.sh no-local-fallback as fleet policy
+- **Issue #207** (closed): pfd-fit bench: grade.py documents a --require-pass flag that does not exist, plus three retained-record/comment inaccuracies
+- **PR #215**: docs: index decisions 0015 and 0016 in spec/README.md
+- **Issue #212** (closed): spec/README.md index is missing rows for decisions 0015 and 0016
+- **PR #209**: docs: correct the ctl_1g rest-state record to two states (0016)
+- **PR #202**: fix: make the pfd-fit control state why its lanes are dead
+- **PR #205**: test: decouple the noise-method record reproduction test from the live PDK pin
+- **PR #193**: sim: diagnose the ss failures of win_det and vmov_cmp (setup margin, DC quiet window, one-shot/latch pair)
+- **PR #200**: feat: rewire the PFD latch to srlatch_buf per 0015 and close the ss/1 GHz fit gate
+- **Issue #204** (closed): Decisions 0008/0011 describe the sibling-polarity control as "held in reset"; the probed run shows two dead rest states (stuck set at tt and ff)
+- **Issue #206** (closed): Decisions 0008/0011 and design/NOTES.md call the pfd-fit control "held in reset"; the probes show two dead rest states
+- **Issue #201** (closed): pfd-fit control arm (ctl_1g) produces zero crossings on both lanes — a broken deck and the documented polarity failure are indistinguishable
+- **Issue #199** (closed): noise-method record reproduction test couples a committed record to the live sim/pdk.json pin
+- **Issue #189** (closed): Diagnose the ss failures of supervisor win_det and lock-detector vmov_cmp: measurement-only slice of #148
+- **Issue #151** (closed): Redesign the PFD latch to srlatch_buf per 0015 and re-run the full fit gate
+
+### 2026-11-22
+
+- **PR #198**: fix: read noise-method record provenance from the envelope, not host disk
+- **PR #152**: spec(0015): ratifiable buffered-lane-output PFD latch record with retained ss headroom probe
+- **Issue #197** (closed): Remove disk OSDI re-hashing and duplicate envelope helpers in sim/noise-method
+- **Issue #140** (closed): Operator ruling: closing the PFD fit gate at ss/1 GHz (C2, issue #136)
+
 ### 2026-11-19
 
 - **PR #176**: docs: index decision records 0008-0012 and 0014 in spec README

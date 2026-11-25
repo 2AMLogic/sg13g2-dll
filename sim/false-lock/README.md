@@ -8,7 +8,7 @@ Start states (`sim/harness/dllbench.py`, `STATES`): 1 min-delay rail, 2 max-dela
 
 Rows 1 and 2 read the Locked predicate (last 64 input cycles each within tol*T of one period, control voltage moving < 5 mV; `perr`, `vcpp`) from the same units; `record.md` tabulates locked corners per frequency and start state. The spec grades row 2 from these start states, so one grid serves both (the former `sim/lock-range` bench was this grid run twice).
 
-A run passes row 8 only if the last-64-cycle predicate holds at a delay of **exactly one period** (`round(d/T) == 1`) and the control voltage stays > 50 mV from both rails. LOCK (row 12) is sampled at the end of the run and must equal that verdict; the 128-cycle rise/fall latency is graded only through `sim/lock-time` (16-cycle resolution). `record.md` counts, per request and start state, locked, exactly-one-period, row-8-pass, LOCK-consistent and multi-period corners.
+A run passes row 8 only if the last-64-cycle predicate holds at a delay of **exactly one period** (`round(d/T) == 1`) and the control voltage stays > 50 mV from both rails. LOCK (row 12) is sampled at the end of the run and must equal that verdict; a corner where it does not makes the row-12 end-of-run verdict fail (exit 6). This bench takes no `ls_*` samples, so its record says the 128-cycle latency is "NOT GRADED" here; `sim/lock-time` grades it (16-cycle resolution). `record.md` counts, per request and start state, locked, exactly-one-period, row-8-pass, LOCK-consistent and multi-period corners.
 
 On the stand-in the 0005 part-3 supervisor is not modelled, so start states 2-4 are expected to show lock at 2 T and LOCK asserted there: the bench is meant to show that, not hide it.
 

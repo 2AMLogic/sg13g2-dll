@@ -68,6 +68,12 @@ failing C1 on insensitivity. The widened `srlatch_fast` NANDs hold the latch res
 set pulse under the sibling's active-low polarity. It is still a C1 failure (AC3's revised requirement
 holds); it demonstrates a stuck-reset corner, not a dead zone, and is not a broken deck.
 
+> **2026-11-23 pointer (issue #206):** the mechanism sentence above ("hold the latch reset")
+> is now probed and refuted: run 2's control rested **stuck set** at tt — `reset` deasserted
+> at rest, both lanes at VDD, no crossing ever (`sim/pfd-fit/results/20261123T045102Z/`, on
+> the retained run-2 deck byte-identical). The zero-width-pulse observation and the C1-failure
+> conclusion stand. See [0016](0016-ctl-1g-rest-states.md) for the two-state correction.
+
 ### Why the two criteria fight (simulated anchors, no new model)
 
 The UP/DN pulse ends when both the lane's own set pulse has ended *and* the shared reset has propagated.

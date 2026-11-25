@@ -10,9 +10,9 @@
 *.iopin VSS
 XED_UP REF set_up VDD VSS edgedet
 XED_DN FB set_dn VDD VSS edgedet
-XLU set_up reset UP upb_n VDD VSS srlatch_fast
-XLD set_dn reset DN dnb_n VDD VSS srlatch_fast
-XNR UP DN reset_n0 VDD VSS nand2x_lv
+XLU set_up reset UP up_qb up_qn VDD VSS srlatch_buf
+XLD set_dn reset DN dn_qb dn_qn VDD VSS srlatch_buf
+XNR up_qn dn_qn reset_n0 VDD VSS nand2x_lv
 XR1 reset_n0 reset VDD VSS inv4x_lv
 .ends
 
@@ -35,26 +35,28 @@ XOUT ntmp OUT VDD VSS inv_lv
 .ends
 
 
-* expanding   symbol:  srlatch_fast.sym # of pins=6
-** sym_path: design/srlatch_fast.sym
-** sch_path: design/srlatch_fast.sch
-.subckt srlatch_fast S R Q QB VDD VSS
+* expanding   symbol:  srlatch_buf.sym # of pins=7
+** sym_path: design/srlatch_buf.sym
+** sch_path: design/srlatch_buf.sch
+.subckt srlatch_buf S R Q QB QN VDD VSS
 *.ipin S
 *.ipin R
 *.opin Q
 *.opin QB
+*.opin QN
 *.iopin VDD
 *.iopin VSS
 XIS S SB VDD VSS inv2x_lv
 XIR R RB VDD VSS inv4x_lv
-XMPQ1 Q SB VDD VDD sg13_lv_pmos w=4u l=0.13u ng=1 m=1
-XMPQ2 Q QB VDD VDD sg13_lv_pmos w=4u l=0.13u ng=1 m=1
-XMNQ1 Q SB midq VSS sg13_lv_nmos w=4u l=0.13u ng=1 m=1
+XMPQ1 QN SB VDD VDD sg13_lv_pmos w=4u l=0.13u ng=1 m=1
+XMPQ2 QN QB VDD VDD sg13_lv_pmos w=4u l=0.13u ng=1 m=1
+XMNQ1 QN SB midq VSS sg13_lv_nmos w=4u l=0.13u ng=1 m=1
 XMNQ2 midq QB VSS VSS sg13_lv_nmos w=4u l=0.13u ng=1 m=1
 XMPB1 QB RB VDD VDD sg13_lv_pmos w=4u l=0.13u ng=1 m=1
-XMPB2 QB Q VDD VDD sg13_lv_pmos w=4u l=0.13u ng=1 m=1
+XMPB2 QB QN VDD VDD sg13_lv_pmos w=4u l=0.13u ng=1 m=1
 XMNB1 QB RB midb VSS sg13_lv_nmos w=4u l=0.13u ng=1 m=1
-XMNB2 midb Q VSS VSS sg13_lv_nmos w=4u l=0.13u ng=1 m=1
+XMNB2 midb QN VSS VSS sg13_lv_nmos w=4u l=0.13u ng=1 m=1
+XOQ QB Q VDD VSS inv4x_lv
 .ends
 
 
