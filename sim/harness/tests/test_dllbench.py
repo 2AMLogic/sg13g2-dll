@@ -144,7 +144,7 @@ class Build(unittest.TestCase):
         d = tempfile.mkdtemp()
         out = os.path.join(d, "o")
         dllbench.build(os.path.join(SIM, bench), out, kw.get("dut", DUT),
-                       kw.get("f0", 1e9), kw.get("tol", 0.02), 5.0, "/osdi")
+                       kw.get("f0", 1e9), kw.get("tol", 0.02), 5.0, kw.get("osdi_dir", "/osdi"))
         return out
 
     def pavg_limits(self, out, tag="f100"):
@@ -202,6 +202,24 @@ class Build(unittest.TestCase):
         self.assertAlmostEqual(dllbench.run_length(5e8), 10e-6)
         with self.assertRaises(dllbench.BenchError):
             dllbench.run_length(7e8)
+
+    def test_osdi_dir_is_serialized_by_json_not_a_post_write_rewrite(self):
+        """osdi_dir goes into the request dict; json.dump() escapes it.
+
+        build() used to write "@OSDI_DIR@" and then rewrite the serialized
+        JSON files as raw text. That second pass mangled _comment's
+        placeholder prose into "<path> is substituted by run.sh." and
+        corrupted the file on disk for any osdi_dir needing a JSON escape
+        (backslash, quote), so json.load() -- and dllbench.check() -- failed.
+        """
+        osdi = r'C:\pdk\osdi"quoted'
+        out = self.build("phase", osdi_dir=osdi)
+        models = ("psp103.osdi", "psp103_nqs.osdi", "r3_cmc.osdi", "mosvar.osdi")
+        for rel in ("base/f100.base.request.json", "requests/f100.request.json"):
+            req = jload(os.path.join(out, rel))  # raises on invalid JSON
+            self.assertEqual(req["options"]["osdi_preload"], [f"{osdi}/{m}" for m in models], rel)
+            self.assertTrue(all(osdi not in c for c in req["_comment"]), rel)
+            self.assertNotIn("is substituted by run.sh", " ".join(req["_comment"]), rel)
 
     def test_manifest_and_request_carry_the_column_run(self):
         for f0, run in ((5e8, 10e-6), (1e9, 2e-6)):
