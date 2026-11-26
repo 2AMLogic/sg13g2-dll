@@ -2,6 +2,11 @@
 
 Chronological record of merged PRs and closed issues. Maintained by the Guide role.
 
+### 2026-11-26
+
+- **PR #243**: fix: serialize osdi_dir in dllbench base_request, drop the post-write JSON rewrite
+- **Issue #242** (closed): Remove post-write @OSDI_DIR@ rewrite loops in sim/harness/dllbench.py: pass osdi_dir into base_request()
+
 ### 2026-11-24
 
 - **PR #237**: refactor: route delay-sanity corner headings through evidence.corners_of
