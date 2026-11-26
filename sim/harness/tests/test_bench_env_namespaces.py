@@ -12,7 +12,7 @@ Scans every sim/<bench>/run.sh plus every shell helper under sim/harness/
 reads -- ${NAME:-default} including a guarded knob nested inside a default,
 ${NAME}, and $NAME -- and asserts that no knob in the collision families
 (*_RESULTS_DIR, *_CAPACITY_WAIT_S, and the swept-axis knobs *_VC, *_B_SCALE,
-*_MC_*) is read from more than one bench directory. A shared helper counts
+*_MC_*) is read from more than one shell file. A shared helper counts
 as one reader: bench-run.sh's BENCH_RESULTS_DIR and smoke-run.sh's
 UNITSMOKE_RESULTS_DIR are invocation-scoped, the ratified pattern of
 sim/harness/bench-run.sh.
@@ -116,19 +116,24 @@ def harness_helpers(harness=HARNESS):
 
 
 def bench_runners(sim=SIM, harness=HARNESS):
-    """(reader id, path) for every bench run.sh and each shared helper."""
+    """Paths of every bench run.sh and each shared helper."""
     for entry in sorted(os.listdir(sim)):
         path = os.path.join(sim, entry, "run.sh")
         if os.path.isfile(path):
-            yield entry, path
-    for path in harness_helpers(harness):
-        yield "harness:" + os.path.splitext(os.path.basename(path))[0], path
+            yield path
+    yield from harness_helpers(harness)
+
+
+def reader_id(path, sim):
+    """Use sim-relative paths with the same separators as the anchor table."""
+    return os.path.relpath(path, sim).replace(os.sep, "/")
 
 
 def knob_readers(sim=SIM, harness=HARNESS):
     """Guarded knob -> set of reader ids, across the given roots."""
     readers = {}
-    for reader, path in bench_runners(sim, harness):
+    for path in bench_runners(sim, harness):
+        reader = reader_id(path, sim)
         with open(path) as fh:
             text = fh.read()
         for m in KNOB_READ.finditer(text):
@@ -147,9 +152,9 @@ def collisions(readers):
 # mechanism, so renaming either fails loudly. Benches themselves are covered
 # structurally, never listed.
 ANCHORED_NAMESPACES = {
-    "BENCH_RESULTS_DIR": "harness:bench-run",
-    "BENCH_CAPACITY_WAIT_S": "harness:bench-run",
-    "UNITSMOKE_RESULTS_DIR": "harness:smoke-run",
+    "BENCH_RESULTS_DIR": "harness/bench-run.sh",
+    "BENCH_CAPACITY_WAIT_S": "harness/bench-run.sh",
+    "UNITSMOKE_RESULTS_DIR": "harness/smoke-run.sh",
 }
 
 
@@ -198,7 +203,8 @@ def undocumented_env_knobs(sim=SIM, harness=HARNESS):
     """
     readers = knob_readers(sim, harness)
     undocumented = {}
-    for reader, path in bench_runners(sim, harness):
+    for path in bench_runners(sim, harness):
+        reader = reader_id(path, sim)
         mine = {k for k, rs in readers.items() if reader in rs}
         if not mine:
             continue
@@ -213,11 +219,11 @@ def undocumented_env_knobs(sim=SIM, harness=HARNESS):
 class OneNamespacePerBench(unittest.TestCase):
     """The live sim/ tree: no collision, coverage that cannot shrink silently."""
 
-    def test_no_knob_is_read_from_two_benches(self):
+    def test_no_knob_is_read_from_two_files(self):
         shared = collisions(knob_readers())
         self.assertEqual(
             shared, {},
-            "env knobs read from more than one bench directory: one namespace "
+            "env knobs read from more than one shell file: one namespace "
             "per bench (issue #120); a shared helper counts as one reader")
 
     def test_known_namespaces_are_seen_exactly_once(self):
@@ -246,7 +252,8 @@ class OneNamespacePerBench(unittest.TestCase):
 
     def test_every_file_mentioning_a_guarded_knob_is_parsed(self):
         found = knob_readers()
-        for reader, path in bench_runners():
+        for path in bench_runners():
+            reader = reader_id(path, SIM)
             with open(path) as fh:
                 text = fh.read()
             mentioned = guarded_mentions(text)
@@ -292,25 +299,26 @@ class FixtureGuardTests(unittest.TestCase):
 
     def test_guarded_knob_nested_singly_in_a_default_is_seen(self):
         self.write("bench-a/run.sh", 'out="${OUT:-${DSIZ_VC}}"\n')
-        self.assertEqual(self.found(), {"DSIZ_VC": {"bench-a"}})
+        self.assertEqual(self.found(), {"DSIZ_VC": {"bench-a/run.sh"}})
 
     def test_bare_name_nested_in_a_default_is_seen(self):
         self.write("bench-a/run.sh", 'out="${OUT:-$DSIZ_VC}"\n')
-        self.assertEqual(self.found(), {"DSIZ_VC": {"bench-a"}})
+        self.assertEqual(self.found(), {"DSIZ_VC": {"bench-a/run.sh"}})
 
     def test_double_nesting_is_seen(self):
         self.write("bench-a/run.sh", 'out="${OUT:-${A:-${DSIZ_VC}}}"\n')
-        self.assertEqual(self.found(), {"DSIZ_VC": {"bench-a"}})
+        self.assertEqual(self.found(), {"DSIZ_VC": {"bench-a/run.sh"}})
 
     def test_nested_and_plain_reads_of_one_knob_are_one_reader(self):
         self.write("bench-a/run.sh",
                    'out="${OUT:-${DSIZ_VC}}"\ncd "$DSIZ_VC"\n')
-        self.assertEqual(self.found(), {"DSIZ_VC": {"bench-a"}})
+        self.assertEqual(self.found(), {"DSIZ_VC": {"bench-a/run.sh"}})
 
     def test_two_knobs_in_one_default_are_both_seen(self):
         self.write("bench-a/run.sh", 'out="${OUT:-${DSIZ_VC}/${DSAN_VC}}"\n')
-        self.assertEqual(self.found(),
-                         {"DSIZ_VC": {"bench-a"}, "DSAN_VC": {"bench-a"}})
+        self.assertEqual(
+            self.found(),
+            {"DSIZ_VC": {"bench-a/run.sh"}, "DSAN_VC": {"bench-a/run.sh"}})
 
     def test_lowercase_names_in_a_default_stay_unmatched(self):
         self.write("bench-a/run.sh", 'out="${out:-$dsiz_vc}"\n')
@@ -321,12 +329,18 @@ class FixtureGuardTests(unittest.TestCase):
         self.write("harness/new-helper.sh", 'cd "$FOO_RESULTS_DIR"\n')
         self.assertEqual(
             collisions(self.found()),
-            {"FOO_RESULTS_DIR": ["bench-a", "harness:new-helper"]})
+            {"FOO_RESULTS_DIR": ["bench-a/run.sh", "harness/new-helper.sh"]})
+
+    def test_same_named_helpers_in_different_directories_collide(self):
+        paths = ["harness/a/check.sh", "harness/b/check.sh"]
+        for path in paths:
+            self.write(path, '# Env: FOO_RESULTS_DIR\ncd "$FOO_RESULTS_DIR"\n')
+        self.assertEqual(collisions(self.found()), {"FOO_RESULTS_DIR": paths})
 
     def test_helper_with_no_guarded_knob_is_not_a_reader(self):
         self.write("bench-a/run.sh", 'mkdir -p "${FOO_RESULTS_DIR:-/tmp/fx}"\n')
         self.write("harness/quiet.sh", 'cd "$SIM_DIR"\n')
-        self.assertEqual(self.found(), {"FOO_RESULTS_DIR": {"bench-a"}})
+        self.assertEqual(self.found(), {"FOO_RESULTS_DIR": {"bench-a/run.sh"}})
 
     def test_renaming_an_anchored_helper_away_fails_the_anchor(self):
         self.write("bench-a/run.sh", 'echo hi\n')
@@ -337,7 +351,7 @@ class FixtureGuardTests(unittest.TestCase):
         os.rename(helper, os.path.join(self.harness, "moved.sh"))
         self.assertEqual(
             anchored_namespace_violations(self.found()).get("BENCH_RESULTS_DIR"),
-            ["harness:moved"])
+            ["harness/moved.sh"])
 
     def test_knob_on_an_env_continuation_line_is_documented(self):
         self.write(
@@ -363,7 +377,7 @@ class FixtureGuardTests(unittest.TestCase):
             "set -euo pipefail\n"
             'mkdir -p "${FOO_RESULTS_DIR:-/tmp/fx}"\n')
         self.assertEqual(undocumented_env_knobs(self.sim, self.harness),
-                         {"bench-a": ["FOO_RESULTS_DIR"]})
+                         {"bench-a/run.sh": ["FOO_RESULTS_DIR"]})
 
     def test_env_block_silent_on_the_read_knob_fails(self):
         self.write(
@@ -372,7 +386,7 @@ class FixtureGuardTests(unittest.TestCase):
             "set -euo pipefail\n"
             'mkdir -p "${FOO_RESULTS_DIR:-/tmp/fx}"\n')
         self.assertEqual(undocumented_env_knobs(self.sim, self.harness),
-                         {"bench-a": ["FOO_RESULTS_DIR"]})
+                         {"bench-a/run.sh": ["FOO_RESULTS_DIR"]})
 
     def test_knob_named_only_under_a_following_label_fails(self):
         self.write(
@@ -383,7 +397,7 @@ class FixtureGuardTests(unittest.TestCase):
             "set -euo pipefail\n"
             'mkdir -p "${FOO_RESULTS_DIR:-/tmp/fx}"\n')
         self.assertEqual(undocumented_env_knobs(self.sim, self.harness),
-                         {"bench-a": ["FOO_RESULTS_DIR"]})
+                         {"bench-a/run.sh": ["FOO_RESULTS_DIR"]})
 
 
 if __name__ == "__main__":
