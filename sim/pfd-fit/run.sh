@@ -8,8 +8,10 @@
 #   sim/pfd-fit/run.sh
 #
 # Every request goes through `klt sim`; multi-unit requests ride the batch fleet
-# and there is NO local fallback: a failed submit fails this script (the local
-# ngspice cannot load the OSDI models anyway). Writes
+# and there is NO local fallback: a failed submit fails this script. That is
+# policy, not a tool limit: the multi-unit grid belongs on the batch fleet, and
+# a single-corner local run is a diagnostic only, never part of this gate
+# (local diag envelopes: results/20261123T012643Z/). Writes
 # sim/pfd-fit/results/<UTC stamp>/ (decks incl. the pfd.spice copy that ran,
 # requests, envelopes, fit-gate.md) and refuses an existing directory.
 # Exit: 0 gate passes, 1 gate fails or a run failed, 3 prerequisite missing.

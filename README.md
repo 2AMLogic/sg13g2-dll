@@ -7,13 +7,15 @@ clock, producing evenly spaced output phases — designed by AI agents driving
 [klayout-tools](https://github.com/2AMLogic/klayout-tools) and the
 open-source xschem + ngspice flow.
 
-**Status: schematic phase.** The spec is proposed (ratification pending, issue #41).
+**Schematics and initial cell layouts.** The spec is proposed (ratification pending, issue #41).
 `design/` holds the xschem schematics and exported netlists for the delay
 line, delay cell, tap buffer, PFD, charge pump, bias and loop filter. `sim/`
 holds the PVT corner set, the PDK smoke and delay-sanity benches, and the
 row benches (false lock, lock range, lock time, jitter, phase, power) over a
-shared harness. There is no layout yet, and nothing here is measured: every
-number is simulated.
+shared harness. The charge pump, its bias circuit and the loop filter each have
+a committed GDS, a clean per-cell DRC report and a matching LVS report. See
+[the layout records and deck coverage](layout/README.md). The full DLL layout
+is pending (#25). Performance figures come from simulation.
 
 **Built agent-native.** Every specification, decision record, testbench, and
 line of documentation here is produced by AI agents working from a ratified

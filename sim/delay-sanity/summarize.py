@@ -18,32 +18,6 @@ CORNERS = ("ss", "tt", "ff")
 RAIL_MARGIN = 0.1  # decision 0004: locked Vc at least 100 mV from either rail
 
 
-def corner_of(env):
-    """Process/supply/temperature as the envelope recorded them, not as named here.
-
-    The Vc sweep varies supply_v.VC within one PVT corner, so everything except
-    VC is shared; anything that is not shared is reported as a range so a record
-    can never quote a corner the run did not use.
-    """
-    cs = env.get("corners") or []
-    if not cs:
-        return "corner not recorded"
-
-    def spread(vals):
-        u = sorted({v for v in vals if v is not None}, key=float)
-        return None if not u else (f"{u[0]:g}" if len(u) == 1 else f"{u[0]:g}..{u[-1]:g}")
-
-    bits = sorted({str(c["process"]) for c in cs if c.get("process")})
-    vdd = spread([(c.get("supply_v") or {}).get("Vdd") for c in cs])
-    temp = spread([c.get("temperature_c") for c in cs])
-    out = ["/".join(bits)] if bits else []
-    if vdd:
-        out.append(f"{vdd} V")
-    if temp:
-        out.append(f"{temp} C")
-    return ", ".join(out) if out else "corner not recorded"
-
-
 def main(out):
     lines = ["# delay-sanity record", "", "SIMULATED results, never measured. Reduced corner set "
              "(`sim/corners.json` reduced_set; each section below states the corner its own "
@@ -72,7 +46,7 @@ def main(out):
                 rows.append((cr["supply_v"].get("VC"), vdd, m))
             e = env.get("environment") or {}
             backend = evidence.backend_of(e) or "?"
-            lines += [f"### corner {c} ({corner_of(env)}; status {env.get('status')}, "
+            lines += [f"### corner {c} ({evidence.corners_of(env)}; status {env.get('status')}, "
                       f"{env.get('passed')}/{env.get('corner_count')} pass; "
                       f"backend {backend}; "
                       f"job {(e.get('remote') or {}).get('job_id', '-')})", "",

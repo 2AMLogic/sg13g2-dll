@@ -212,7 +212,7 @@ def corners_of(env):
     combination it did not run. A Monte Carlo or Vc-sweep envelope collapses to
     one group; a reduced-set envelope renders each of its corners. A missing
     component is omitted and the rest kept; no corners at all reads as
-    "corner not recorded", the fallback corner_of() already uses.
+    "corner not recorded".
     """
     groups = []
     for c in (env or {}).get("corners") or []:

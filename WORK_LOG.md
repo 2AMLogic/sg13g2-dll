@@ -2,8 +2,38 @@
 
 Chronological record of merged PRs and closed issues. Maintained by the Guide role.
 
+### 2026-11-26
+
+- **PR #243**: fix: serialize osdi_dir in dllbench base_request, drop the post-write JSON rewrite
+- **Issue #242** (closed): Remove post-write @OSDI_DIR@ rewrite loops in sim/harness/dllbench.py: pass osdi_dir into base_request()
+
+### 2026-11-24
+
+- **PR #237**: refactor: route delay-sanity corner headings through evidence.corners_of
+- **Issue #236** (closed): Remove corner_of() in sim/delay-sanity/summarize.py: route through evidence.corners_of()
+- **PR #234**: refactor: remove the unwired srlatch_fast cell
+- **Issue #203** (closed): Remove srlatch_fast: unwired since the srlatch_buf rewire (#151)
+- **PR #232**: refactor: route loop_filter layout through common.Cell
+- **PR #228**: test: run overlapping build.sh invocations in concurrent summary test
+- **PR #227**: fix: report missing LOCK latency samples apart from wrong LOCK timing
+- **PR #225**: fix: report a missing lock_end as such in the row-12 verdict
+- **PR #222**: layout: publish DRC/LVS reports atomically, guard stub window and part dbu
+- **Issue #231** (closed): Remove inline klayout.db boilerplate in layout/loop_filter/generate.py: route through common.Cell
+- **Issue #226** (closed): layout/tests: test_concurrent_summary_isolated passes on the pre-fix build.sh, so it does not guard the clobber it names
+- **Issue #224** (closed): dllbench row-12 latency verdict: missing ls_* samples are reported as 'wrong LOCK timing'
+- **Issue #221** (closed): layout/: build-script hardening and two disclosure corrections carried over from #194 review
+- **Issue #219** (closed): dllbench row-12 verdict: a missing lock_end is reported as 'LOCK inconsistent', and has no regression test
+
 ### 2026-11-23
 
+- **PR #194**: feat(layout): lay out cp, cp_bias and loop_filter with per-cell klt drc and klt lvs
+- **Issue #190** (closed): T1 item 2 (first slice): lay out cp, cp_bias and loop_filter with per-cell klt drc and klt lvs
+- **PR #217**: feat: grade row 7 lock time and row 12 LOCK in the benches
+- **Issue #91** (closed): Make the row 7 and row 12 verdicts grade something: dllbench computes lock time and LOCK consistency, then reports a pass without reading them
+- **PR #208**: docs(pfd-fit): drop stale --require-pass from grade usage, restate run.sh no-local-fallback as fleet policy
+- **Issue #207** (closed): pfd-fit bench: grade.py documents a --require-pass flag that does not exist, plus three retained-record/comment inaccuracies
+- **PR #215**: docs: index decisions 0015 and 0016 in spec/README.md
+- **Issue #212** (closed): spec/README.md index is missing rows for decisions 0015 and 0016
 - **PR #209**: docs: correct the ctl_1g rest-state record to two states (0016)
 - **PR #202**: fix: make the pfd-fit control state why its lanes are dead
 - **PR #205**: test: decouple the noise-method record reproduction test from the live PDK pin
