@@ -201,18 +201,14 @@ c.mos("MN3", "n", "3u", L, D="m2", G="A3", S="VSS", B="VSS")
 # setup race at ss (needs > 100 ps lead where the d=0.8 T no-fault phase
 # provides exactly 100 ps, sim/supervisor-smoke/results/20261121T004400Z-setup),
 # so exactly its stages are scaled: XID inv_lv -> inv2x_lv, XRM/XQM nand2_lv ->
-# nand2x_lv, XQMB nand3_lv -> nand3x_lv. The clock-facing gates (XIC, XSM's
-# ckb input) keep the shared sizes, so hold stays structural (the ckb series
-# devices cut D off) and CLRB behaviour and the port list are dffr_lv's. The
-# slave is clocked through one inv_lv pair (XD1/XD2 -> ckd): the master's
-# cut-off instant (ckb via XIC) is what defines the sampled value and the
-# (1.5 T, 2 T) window, and it is unchanged -- the pair only lets the master
-# finish resolving before the slave clocks, so b_up does not double-cross on a
-# race the master wins late (the scaled path alone settled capture-low at the
-# nominal 100 ps lead but with a 0.92 V b_up excursion that pulsed `set` every
-# REF cycle at ss without flipping the reset latch; measured, then removed
-# here). Every other dffr_lv consumer (timeout_cnt, refmask, lock_detector,
-# win_det's own a_up/a_dn) keeps the characterized shared cell.
+# nand2x_lv, XQMB nand3_lv -> nand3x_lv. XIC and XSM keep the shared sizes.
+# When ckb is low, the series devices in XSM and XRM cut D off. The
+# slave clock passes through one inv_lv pair (XD1/XD2 -> ckd) to delay
+# slave enable on REF rise. XBUP and XAUP share that nominal REF edge.
+# Each XIC drives its own ckb, with a wider XRM input in XBUP, so their
+# physical master cut-off times can differ. DR-0017 gives the final-cell
+# setup and excursion results. Every other dffr_lv consumer keeps the
+# characterized shared cell.
 c = add(Cell("dffr_fast", "D:i:l CK:i:l CLRB:i:l Q:o:r QB:o:r VDD:io:t VSS:io:b",
              "rising-edge D flip-flop, win_det-local fast variant of dffr_lv (spec/decisions/0017, issue #195): same topology and cell edges, D-path and master-loop gates scaled 2x (XID inv2x, XRM/XQM nand2x, XQMB nand3x) so the TAPH-fall setup race closes at ss, and the slave clocked through an inv_lv pair (ckd) so a race won late does not double-cross b_up; XIC, XSM and the slave gates keep dffr_lv's sizes"))
 c.sub("XIC", "inv_lv", A="CK", Y="ckb", VDD="VDD", VSS="VSS")

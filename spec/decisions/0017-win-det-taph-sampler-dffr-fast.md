@@ -1,4 +1,4 @@
-# 0017 — `win_det`'s TAPH sampler moves to a local `dffr_fast`; the shared `dffr_lv`, the sampling instants and the window stay
+# 0017 — Use a local `dffr_fast` for the `win_det` TAPH sampler
 
 - **Status**: proposed — becomes ratified only by the operator's approval and merge of the PR that carries this record. Agents do not approve it or mark anything ratified.
 - **Date**: 2026-11-23
@@ -30,43 +30,45 @@ same locality pattern as `srlatch_fast`/`srlatch_buf` (0011/0015): a shared
 cell is never resized in place for one consumer; a named variant is.
 
 `dffr_fast` (defined in `design/tools/cells.py`, generated, not hand-drawn) is
-the `dffr_lv` topology with the same port list and the same cell edges, and
-two changes, each answering one measured failure mode:
+the `dffr_lv` master/slave topology with the same ports and rising-edge
+assignment. It combines two changes.
 
 1. **The D=0 (TAPH-fall) master path is scaled 2x.** The path that lost the
    ss race is `D -> XID -> XRM -> XQMB -> XQM` (+ master-loop regen) racing
    the cut-off `CK -> XIC -> ckb-side`: exactly its stages are scaled — `XID`
    `inv_lv` -> `inv2x_lv`, `XRM`/`XQM` `nand2_lv` -> `nand2x_lv`, `XQMB`
    `nand3_lv` -> the new `nand3x_lv` (P 2 µm / N 3 µm, beside the issue #113
-   2x family). The clock-facing gates (`XIC`, `XSM`'s ckb input) and the
-   slave gates keep `dffr_lv`'s sizes, so hold stays structural (the ckb
-   series devices cut `D` off; widening the D side cannot leak an opaque
-   latch) and CLRB behaviour is unchanged.
+   2x family). `XIC`, `XSM` and the slave gates keep their original sizes.
+   When `ckb` is low, the series devices in `XSM` and `XRM` isolate the
+   opaque master from `D`. As in `dffr_lv`, `CLRB` clears both latches.
 2. **The slave is clocked through one `inv_lv` pair (`XD1`/`XD2` -> `ckd`).**
-   The master's cut-off instant — `ckb` via `XIC`, which is what defines the
-   sampled value — is untouched; the pair only delays when the slave copies
-   the held master state, letting a race the master wins late resolve before
-   `b_up` moves. Without it (measured, intermediate sizing): the scaled path
-   settled capture-low at the 100 ps lead but `b_up` double-crossed — 0.92 V
-   peak, propagating to `over` (0.62 V peak) and pulsing `set` every REF cycle
-   at ss in the full supervisor (144 crossings; the reset latch did not flip,
-   5 RST crossings). With the pair, `b_up` peaks at 8.7 mV, `over` stays at
-   0.5 mV, and `set` crosses exactly once per stimulus event.
+   The pair delays slave enable on REF rise to give the master time to resolve.
+   The figures reported for the intermediate sizing without the pair are
+   **unverified design observations**, including the comparison in the
+   [setup record](../../sim/supervisor-smoke/results/20261123T101910Z-setup/record.md).
+   No intermediate deck, request or result accompanies the reported ss peaks
+   of 0.92 V at `b_up` and 0.62 V at `over` at 100 ps lead, or the 144
+   `set` crossings in the full supervisor. The committed
+   replays below exercise both changes together. At ss and 100 ps lead,
+   `b_up` peaks at 8.7 mV and `over` at 0.51 mV. In the full-supervisor probe,
+   `set` crosses once per stimulus event.
 
-### Why the over-delay window (0005 part 3) is preserved
+### Nominal over-delay window and tested phases (0005 part 3)
 
-The window `OVER = b_up & a_up & ~a_dn` true for d in (1.5 T, 2 T) is defined
-by the three sampling instants: `a_up`/`b_up` on the REF rise, `a_dn` on the
-REF fall (`refb`). The remedy moves none of them. The master cut-off (what
-freezes the sampled value) is `XIC`'s ckb edge on the shared REF net — `a_up`
-and `b_up` see the same net, so no differential skew exists between them by
-construction; `a_dn`'s `refb` path is untouched; the slave-clock pair changes
-when the already-frozen sample appears at `b_up`, not what was sampled. The
-1.8 T over-delay fault response is re-measured on the full supervisor at both
-corners (evidence below). The cost is latency: `b_up`'s CK-to-Q grows by two
-`inv_lv` delays and the master-loop resizing, shifting the tt over-delay
-assert by +68 ps and its release by +34 ps against the #145 tt control — all
-inside the committed smoke-gate windows, which pass unchanged.
+The predicate `OVER = b_up & a_up & ~a_dn` gives the ideal window
+d in (1.5 T, 2 T). `a_up` and `b_up` use the rising REF edge, and `a_dn`
+uses the falling REF edge via `refb`. Although `XAUP` and `XBUP` share REF at
+their clock pins, each has its own `XIC` inverter and local `ckb` net.
+Upsizing `XBUP.XRM` raises the summed gate width on that `ckb` from 4.5 to
+6.5 µm. Its `XIC` can therefore close the master at a different time from
+`XAUP.XIC`.
+
+At ss and tt the full-supervisor probes release RST at d = 0.8 T and assert
+it for the fault at d = 1.8 T. The setup sweep brackets capture for a
+**falling** TAPH. The effective aperture for a **rising** TAPH near 2 T and
+the physical window boundaries remain uncharacterized. Relative to the #145
+tt control, RST asserts 68 ps later for the over-delay fault and releases
+34 ps later. Both times fall within the committed smoke-gate limits.
 
 ### Why first-edge masking (0008) is preserved
 
@@ -99,8 +101,8 @@ batch fleet, ngspice 47, reduced-set corners only (never a graded result; the
    `klt-sim-dd632feb59ff` ss / `klt-sim-45666f940182` tt): the ss bracket
    moves from (100, 110] ps to **(70, 80] ps** — largest failing 70 ps,
    smallest passing 80 ps — so the committed 100 ps no-fault lead clears the
-   ss requirement by ≥ 20 ps at the sweep's 10 ps resolution instead of
-   failing it by ≤ 10 ps. tt moves from (60, 80] to (40, 60] ps. At the
+   ss requirement by ≥ 20 ps with the bench's ideal 30 ps edges and loads
+   (10 ps sweep resolution). tt moves from (60, 80] to (40, 60] ps. At the
    100 ps operating point: capture low at both corners with no half-rail
    excursion (`bup_max` 8.7 mV ss / 10.6 mV tt; `over_pk` 0.51 / 0.68 mV).
    The -50 ps control (TAPH falls after the edge) still captures high at both
@@ -120,12 +122,21 @@ batch fleet, ngspice 47, reduced-set corners only (never a graded result; the
 
 ## Costs and what is not established
 
-- Area/load: one `dffr_fast` (12 leaf instances against `dffr_lv`'s 10, wider
-  D-path gates) for `XBUP` only. The TAPH pin load grows by the `XID` 2x +
-  `nand3x_lv`-scaled input (~2.5 µm of gate width); the REF net inside
-  `win_det` gains the two `inv_lv` clock-pair pins. In the smoke bench both
-  are driven by ideal sources; the tap-buffer drive strength for the real
-  line is re-graded with #41.
+`XBUP` grows from 10 to 12 leaf instances. The following sums count transistor
+gate widths driven directly by each `XBUP` input in `design/netlist/supervisor.spice`.
+
+| Input | `dffr_lv` | `dffr_fast` |
+|---|---|---|
+| TAPH (`D`) | `XID` 1.5 + `XSM` 2.5 = **4.0 µm** | `XID` 3.0 + `XSM` 2.5 = **5.5 µm** |
+| REF (`CK`) | `XIC` 1.5 + `XSS` 2.5 + `XRS` 2.0 = **6.0 µm** | `XIC` 1.5 + `XD1` 1.5 = **3.0 µm** |
+
+`XID` accounts for the entire 1.5 µm increase on TAPH. The wider `XQMB`
+(`nand3x_lv`) sits inside the master. On the clock path, `ckd1` drives
+`XD2`, and `ckd` drives `XSS` and `XRS`. Effective input capacitance and
+slew with a real tap buffer require separate characterization. The smoke
+bench drives TAPH and REF with ideal sources. The real-line tap-buffer
+drive is part of #41.
+
 - **Not established**: mismatch spread (no Monte Carlo run — the bracket is a
   nominal-corner bracket); hold-time behaviour of `b_up` (TAPH rising through
   the REF edge — the direction the window needs at d near 2 T); the ff

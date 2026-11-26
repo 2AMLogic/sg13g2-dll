@@ -269,18 +269,17 @@ optimum.
   now sampled by `dffr_fast`, and the supervisor responds at ss.** The remedy
   is confined to `win_det.XBUP` — the shared `dffr_lv` and its other consumers
   (the two TAPN window samples, the timeout counter, the first-edge mask, the
-  lock-detector sampling and counting logic) keep the characterized cell, and
-  the three sampling instants are unchanged (the slave-clock `inv_lv` pair
-  delays only when the already-frozen sample appears at `b_up`). Replay of
-  the issue #189 sweep on the revised netlist
-  (`sim/supervisor-smoke/results/20261123T101910Z-setup/`): the ss bracket
-  moves to (70, 80] ps — the no-fault 100 ps lead clears it by ≥ 20 ps — with
-  **no half-rail excursion** at the capture-low leads (`b_up` peaks at
-  8.7 mV, `over` at 0.5 mV, so no transient reaches `set`; the intermediate
-  scaled-path-only sizing double-crossed `b_up` at 0.92 V and pulsed `set`
-  every REF cycle at ss, which is why the pair is in the cell). Replay of the
-  issue #145 two-unit probe on the revised full supervisor
-  (`sim/supervisor-smoke/results/20261123T101910Z-probe/`): at ss RST runs
+  lock-detector sampling and counting logic) keep the characterized cell.
+  `XAUP` and `XBUP` still use rising REF, and `XADN` uses falling REF.
+  Each rising-edge sampler generates its own `ckb`. The wider `XBUP.XRM`
+  loads that local clock more heavily, so the two masters can close at
+  different times. The rising-TAPH aperture near 2 T is uncharacterized.
+  In the [#189 setup sweep replay](../sim/supervisor-smoke/results/20261123T101910Z-setup/record.md),
+  the ss falling-TAPH bracket moves to (70, 80] ps with the bench's ideal
+  30 ps edges and loads. The no-fault 100 ps lead clears it by ≥ 20 ps.
+  At that lead `b_up` peaks at 8.7 mV and `over` at 0.51 mV.
+  In the [#145 full-supervisor probe replay](../sim/supervisor-smoke/results/20261123T101910Z-probe/record.md),
+  RST at ss runs
   the full expected sequence — release 3.817 ns, over-delay assert 26.160 ns
   at the 1.8 T fault, release 51.802 ns, low-rail time-out through
   `to` (82.729) → `pt` (82.852, 189 ps wide) → `set` → RST (83.137/83.257) —
