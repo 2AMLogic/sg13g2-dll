@@ -4,6 +4,8 @@ Chronological record of merged PRs and closed issues. Maintained by the Guide ro
 
 ### 2026-11-26
 
+- **Issue #245** (closed): Use the deck calibration calculation in the noise-method report
+- **PR #246**: fix: use staged deck amplitudes in the noise-method report
 - **PR #243**: fix: serialize osdi_dir in dllbench base_request, drop the post-write JSON rewrite
 - **Issue #242** (closed): Remove post-write @OSDI_DIR@ rewrite loops in sim/harness/dllbench.py: pass osdi_dir into base_request()
 
