@@ -238,12 +238,11 @@ def render_deck(template, period, dut, include_rel):
     return text
 
 
-def base_request(deck_rel, profile, period, tol, pmax_mw, run, supply_current):
+def base_request(deck_rel, profile, period, tol, pmax_mw, run, supply_current, osdi_dir="@OSDI_DIR@"):
     return {
         "_comment": [
             "DLL row bench base request (issue #28), written by sim/harness/dllbench.py.",
             "Limits are the spec's target-column pass windows; a stand-in DUT result is a result about the stand-in only. Simulated, never measured.",
-            "@OSDI_DIR@ is substituted by run.sh.",
         ],
         "engine": "ngspice",
         "netlist": deck_rel,
@@ -252,7 +251,7 @@ def base_request(deck_rel, profile, period, tol, pmax_mw, run, supply_current):
         "analysis": {"kind": "tran", "args": f"{fnum(5e-12)} {fnum(run)} 0 {fnum(1e-11)}"},
         "measurements": measurements(profile, period, tol, pmax_mw, run, supply_current),
         "options": {
-            "osdi_preload": [f"@OSDI_DIR@/{m}" for m in ("psp103.osdi", "psp103_nqs.osdi", "r3_cmc.osdi", "mosvar.osdi")],
+            "osdi_preload": [f"{osdi_dir}/{m}" for m in ("psp103.osdi", "psp103_nqs.osdi", "r3_cmc.osdi", "mosvar.osdi")],
             "stage_model_inputs": True,
             "keep_artifacts": True,
         },
@@ -285,7 +284,7 @@ def build(bench_dir, out, dut_path, f0, tol, pmax_mw, osdi_dir, corners=None):
         with open(os.path.join(out, deck_rel), "w", encoding="utf-8") as fh:
             fh.write(render_deck(template, period, dut, f"dut/{dut['netlist']}"))
         axes = [state_axes(s, period, dut) for s in states]
-        base = base_request(f"../{deck_rel}", cfg["profile"], period, tol, pmax_mw, run, supply_current)
+        base = base_request(f"../{deck_rel}", cfg["profile"], period, tol, pmax_mw, run, supply_current, osdi_dir)
         base_path = os.path.join(out, "base", f"{tag}.base.request.json")
         gridspec.write_request(base, base_path)
         ic = {a: [row[a] for row in axes] for a in AXES}
@@ -300,18 +299,6 @@ def build(bench_dir, out, dut_path, f0, tol, pmax_mw, osdi_dir, corners=None):
     with open(os.path.join(out, "manifest.json"), "w", encoding="utf-8") as fh:
         json.dump(manifest, fh, indent=2)
         fh.write("\n")
-    for r in os.listdir(os.path.join(out, "base")):
-        p = os.path.join(out, "base", r)
-        with open(p, encoding="utf-8") as fh:
-            text = fh.read().replace("@OSDI_DIR@", osdi_dir)
-        with open(p, "w", encoding="utf-8") as fh:
-            fh.write(text)
-    for r in os.listdir(os.path.join(out, "requests")):
-        p = os.path.join(out, "requests", r)
-        with open(p, encoding="utf-8") as fh:
-            text = fh.read().replace("@OSDI_DIR@", osdi_dir)
-        with open(p, "w", encoding="utf-8") as fh:
-            fh.write(text)
     return manifest
 
 
