@@ -17,6 +17,8 @@ never written) with `SG13G2_OSDI_DIR` scrubbed from the environment, and pin:
   (except the UTC stamp line, which carries the wall clock of the re-run, and
   the PDK line, which carries the live `sim/pdk.json` pin rather than the pin
   of the run that was committed);
+- the final amplitude in the scratch record matches the staged calibration
+  commands when rounding the first amplitude affects the second;
 - a mutated `osdi_preload` sha256 in the envelope moves the OSDI line, the
   mutation control proving the line follows the envelope and not disk;
 - a scratch `sim/` tree whose `pdk.json` pins `vX` renders its PDK line with
@@ -115,6 +117,34 @@ class RecordReproduction(unittest.TestCase):
             if i in (STAMP_LINE, PDK_LINE):
                 continue
             self.assertEqual(got, want, f"record.md line {i + 1} differs")
+
+    def test_final_amplitude_matches_staged_deck_calibration(self):
+        root, scratch = scratch_copy()
+        self.addCleanup(shutil.rmtree, root, True)
+        probe_path = os.path.join(scratch, "sigma-probe.envelope.json")
+        with open(probe_path, encoding="utf-8") as fh:
+            probe = json.load(fh)
+        readings = probe["corners"][0]["measurements"]
+        vmrms = next(reading for reading in readings if reading["name"] == "vmrms")
+        vmrms["value"] = 6.78455e-6
+        with open(probe_path, "w", encoding="utf-8") as fh:
+            json.dump(probe, fh)
+
+        first = run_summarize("calibrate", scratch, "sigma-probe", "1e-9")
+        self.assertEqual(first.returncode, 0, first.stderr)
+        self.assertEqual(first.stdout.strip(), "1.015447e-06")
+        final = run_summarize("calibrate2", scratch, first.stdout.strip())
+        self.assertEqual(final.returncode, 0, final.stderr)
+        self.assertEqual(final.stdout.strip(), "1.046149e-06")
+
+        report = run_summarize("summarize", scratch)
+        self.assertEqual(report.returncode, 1, report.stderr)  # graded jitter failure
+        line = next(
+            line
+            for line in record_lines(scratch)
+            if line.startswith("- Final amplitude:")
+        )
+        self.assertEqual(line.rsplit(" = ", 1)[-1], f"{final.stdout.strip()} A")
 
 
 class EnvelopeProvenance(unittest.TestCase):

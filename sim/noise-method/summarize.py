@@ -136,28 +136,44 @@ def derive(out):
         sys.exit(1)
 
 
-def calibrate(out, tag, ia_current):
-    probe = measurements(envelope(out, tag))
-    sv = measurements(envelope(out, "noise"))["sv_band"]
-    sigma_probe = noise_sigma(probe)
+def scaled_amplitude(ia_current, sv, sigma):
+    """Return the deck literal so the next stage uses the current actually applied."""
+    return fmt(float(ia_current) * sv / sigma)
+
+
+def probe_sigma(out, tag):
+    sigma_probe = noise_sigma(measurements(envelope(out, tag)))
     if not sigma_probe or sigma_probe <= 0:
-        print(f"summarize: calibration probe measured no noise: {sigma_probe}", file=sys.stderr)
+        print(
+            f"summarize: calibration probe measured no noise: {sigma_probe}",
+            file=sys.stderr,
+        )
         sys.exit(1)
-    ia = float(ia_current) * sv / sigma_probe
-    print(f"{ia:.6e}")
+    return sigma_probe
 
 
-def calibrate2(out, ia_1):
-    sv = measurements(envelope(out, "noise"))["sv_band"]
+def refinement_mean(out):
     sigmas = []
     for tag in ("sigma-refine1", "sigma-refine2"):
         m = noise_sigma(measurements(envelope(out, tag)))
         if not m or m <= 0:
-            print(f"summarize: refinement run {tag} measured no noise: {m}", file=sys.stderr)
+            print(
+                f"summarize: refinement run {tag} measured no noise: {m}",
+                file=sys.stderr,
+            )
             sys.exit(1)
         sigmas.append(m)
-    ia = float(ia_1) * sv / (sum(sigmas) / len(sigmas))
-    print(f"{ia:.6e}")
+    return sum(sigmas) / len(sigmas)
+
+
+def calibrate(out, tag, ia_current):
+    sv = measurements(envelope(out, "noise"))["sv_band"]
+    print(scaled_amplitude(ia_current, sv, probe_sigma(out, tag)))
+
+
+def calibrate2(out, ia_1):
+    sv = measurements(envelope(out, "noise"))["sv_band"]
+    print(scaled_amplitude(ia_1, sv, refinement_mean(out)))
 
 
 def summarize(out):
@@ -169,13 +185,10 @@ def summarize(out):
     sigma_t_expected = sv / sr2
     sr3 = 0.1 / (sr["t55_3"] - sr["t65_3"])
 
-    probe = measurements(envelope(out, "sigma-probe"))
-    sigma_probe = noise_sigma(probe)
-    ia_1 = IA_PROBE * sv / sigma_probe
-    cal = measurements(envelope(out, "sigma-refine1"))
-    cal2 = measurements(envelope(out, "sigma-refine2"))
-    sigma_cal = (noise_sigma(cal) + noise_sigma(cal2)) / 2
-    ia_cal = ia_1 * sv / sigma_cal
+    sigma_probe = probe_sigma(out, "sigma-probe")
+    ia_1 = scaled_amplitude(IA_PROBE, sv, sigma_probe)
+    sigma_cal = refinement_mean(out)
+    ia_cal = scaled_amplitude(ia_1, sv, sigma_cal)
     sr605 = 0.01 / (sr["t595_2"] - sr["t605_2"])
 
     sigmas = sigma_runs(out)
@@ -294,12 +307,14 @@ def summarize(out):
         "## Injection calibration (this stamp)",
         "",
         f"- Probe run (IA = {IA_PROBE:g} A): delivered output rms = {fmt(sigma_probe)} V.",
-        f"- First amplitude: IA_1 = IA_probe * sigma_v / sigma_probe = {fmt(ia_1)} A.",
-        f"- Two refinement runs at IA_1 = {fmt(ia_1)} A deliver {fmt(sigma_cal)} V mean"
-        f"  ({(sigma_cal / sv - 1):+.2%} against target; per-run readings are averaged -- a single",
+        f"- First amplitude: IA_1 = IA_probe * sigma_v / sigma_probe = {ia_1} A.",
+        (
+            f"- Two refinement runs at IA_1 = {ia_1} A deliver {fmt(sigma_cal)} V mean"
+            f"  ({(sigma_cal / sv - 1):+.2%} against target; per-run readings are averaged -- a single"
+        ),
         "  85 ns window carries ~5 independent correlation times of the process, so one",
         "  reading scatters by several percent).",
-        f"- Final amplitude: IA = IA_1 * sigma_v / mean(sigma_refine) = {fmt(ia_cal)} A",
+        f"- Final amplitude: IA = IA_1 * sigma_v / mean(sigma_refine) = {ia_cal} A",
         f"  (target sigma_v = {fmt(EXPECTED['sv_band'])} V).",
         "- Linear-scaling check: the seeded runs below deliver sigma_v at IA, verifying the",
         "  proportionality end-to-end over the calibration ratio (~1e3).",
