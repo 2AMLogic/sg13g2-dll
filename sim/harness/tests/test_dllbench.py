@@ -139,9 +139,18 @@ def powered_dut(tmpdir, **over):
     return path
 
 
+def scratch_dir(case):
+    """A fresh directory removed when `case` finishes (issue #254). Every call
+    is a new directory: build() refuses an output path that already exists,
+    and several tests build more than once."""
+    tmp = tempfile.TemporaryDirectory()
+    case.addCleanup(tmp.cleanup)
+    return tmp.name
+
+
 class Build(unittest.TestCase):
     def build(self, bench, **kw):
-        d = tempfile.mkdtemp()
+        d = scratch_dir(self)
         out = os.path.join(d, "o")
         dllbench.build(os.path.join(SIM, bench), out, kw.get("dut", DUT),
                        kw.get("f0", 1e9), kw.get("tol", 0.02), 5.0, kw.get("osdi_dir", "/osdi"))
@@ -157,7 +166,7 @@ class Build(unittest.TestCase):
         self.assertFalse(jload(os.path.join(out, "manifest.json"))["supply_current"])
 
     def test_power_limit_is_attached_when_the_dut_draws_supply_current(self):
-        d = tempfile.mkdtemp()
+        d = scratch_dir(self)
         out = self.build("power", dut=powered_dut(d, supply_current=True))
         self.assertEqual(self.pavg_limits(out), {"max": 5.0})
         self.assertTrue(jload(os.path.join(out, "manifest.json"))["supply_current"])
@@ -252,7 +261,7 @@ class PowerVerdict(unittest.TestCase):
         all, which is the harness-problem case. `full=True` returns the whole
         record.md text as a third element, for assertions that must hold
         beyond the verdict line."""
-        d = tempfile.mkdtemp()
+        d = scratch_dir(self)
         out = os.path.join(d, "o")
         dut = powered_dut(d, **dut_over) if dut_over else DUT
         dllbench.build(os.path.join(SIM, "power"), out, dut, 1e9, 0.02, 5.0, "/osdi")
@@ -475,7 +484,7 @@ class LockRows(unittest.TestCase):
     def saved_run(self, bench, per_corner=None, **kw):
         """Build `bench` into a fresh directory and write its synthetic
         envelopes; returns the output directory, ungraded."""
-        d = tempfile.mkdtemp()
+        d = scratch_dir(self)
         out = os.path.join(d, "o")
         dllbench.build(os.path.join(SIM, bench), out, DUT, 1e9, 0.02, 5.0, "/osdi")
         man = jload(os.path.join(out, "manifest.json"))
@@ -669,7 +678,7 @@ class HarnessArity(unittest.TestCase):
     def graded(self, bench, states=None, **over):
         """Build `bench`, write one synthetic envelope per request (one corner per
         start state, `states` to restrict which), grade it, return (rc, record)."""
-        out = os.path.join(tempfile.mkdtemp(), "o")
+        out = os.path.join(scratch_dir(self), "o")
         dllbench.build(os.path.join(SIM, bench), out, DUT, 1e9, 0.02, 5.0, "/osdi")
         man = jload(os.path.join(out, "manifest.json"))
         for req in man["requests"]:
@@ -722,7 +731,7 @@ class HarnessArity(unittest.TestCase):
         self.assertEqual(rc, 1)
 
     def test_declared_arity_is_per_axis_not_the_state_count(self):
-        out = os.path.join(tempfile.mkdtemp(), "o")
+        out = os.path.join(scratch_dir(self), "o")
         dllbench.build(os.path.join(SIM, "false-lock"), out, DUT, 1e9, 0.02, 5.0, "/osdi")
         req = jload(os.path.join(out, "manifest.json"))["requests"][0]
         self.assertEqual(len(req["states"]), 9)
