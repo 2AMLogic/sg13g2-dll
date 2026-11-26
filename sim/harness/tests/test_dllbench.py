@@ -472,7 +472,9 @@ class LockRows(unittest.TestCase):
     def end_of_run_line(self, text):
         return next(l for l in text.splitlines() if l.startswith(self.END_OF_RUN))
 
-    def record(self, bench, per_corner=None, **kw):
+    def saved_run(self, bench, per_corner=None, **kw):
+        """Build `bench` into a fresh directory and write its synthetic
+        envelopes; returns the output directory, ungraded."""
         d = tempfile.mkdtemp()
         out = os.path.join(d, "o")
         dllbench.build(os.path.join(SIM, bench), out, DUT, 1e9, 0.02, 5.0, "/osdi")
@@ -491,6 +493,10 @@ class LockRows(unittest.TestCase):
                    "environment": {"engine": "ngspice", "engine_version": "44"}, "corners": corners}
             with open(os.path.join(out, f"{req['tag']}.envelope.json"), "w", encoding="utf-8") as fh:
                 json.dump(env, fh)
+        return out
+
+    def record(self, bench, per_corner=None, **kw):
+        out = self.saved_run(bench, per_corner, **kw)
         status = dllbench.grade(os.path.join(SIM, bench), out)
         with open(os.path.join(out, "record.md"), encoding="utf-8") as fh:
             return status, fh.read()
@@ -619,6 +625,40 @@ class LockRows(unittest.TestCase):
         self.assertTrue(dllbench.lock_latency_ok(self.T, st, v, j_end, True, 160.5 * self.T))
         self.assertFalse(dllbench.lock_latency_ok(self.T, st, v, j_end, False, None))
         self.assertFalse(dllbench.lock_latency_ok(self.T, st, v, j_end, True, None))
+
+    def test_the_graded_rows_come_from_the_saved_run_not_the_bench_directory(self):
+        """One saved slow-lock run, graded with every bench directory (issue #252).
+
+        grade() took the report heading and the graded rows from the live
+        bench.json next to the saved manifest, so handed sim/power this run --
+        lock-time samples and no power measurement -- reported "rows 10 ...
+        all corners pass" and exited 0. The bench and the rows are the ones
+        the manifest recorded; the record does not depend on the directory."""
+        out = self.saved_run("lock-time", lock_at=1200, lock_rise=1328)
+        records = set()
+        for name in (*BENCHES, "no-such-bench"):
+            status = dllbench.grade(os.path.join(SIM, name), out)
+            with open(os.path.join(out, "record.md"), encoding="utf-8") as fh:
+                text = fh.read()
+            self.assertEqual(status, 6, name)
+            self.assertIn("# lock-time bench record", text, name)
+            self.assertIn("- spec rows: 7, 12; profile `samples`;", text, name)
+            self.assertRegex(text, r"row 7 on this DUT .*NOT all corners pass", name)
+            self.assertNotIn("rows 10 on this DUT", text, name)
+            records.add(text)
+        self.assertEqual(len(records), 1)
+
+    def test_grade_cli_keeps_taking_the_bench_directory(self):
+        """`dllbench.py grade BENCH_DIR OUT` is the call bench-run.sh makes: the
+        first argument is still accepted, and -- as above -- not read."""
+        out = self.saved_run("lock-time", lock_at=1200, lock_rise=1328)
+        dllbench_py = os.path.join(HARNESS, "dllbench.py")
+        p = subprocess.run([sys.executable, "-I", dllbench_py, "grade",
+                            os.path.join(SIM, "power"), out],
+                           capture_output=True, text=True, check=False)
+        self.assertEqual(p.returncode, 6, p.stderr)
+        with open(os.path.join(out, "record.md"), encoding="utf-8") as fh:
+            self.assertIn("# lock-time bench record", fh.read())
 
 
 class HarnessArity(unittest.TestCase):
