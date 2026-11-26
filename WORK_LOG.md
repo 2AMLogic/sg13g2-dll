@@ -4,6 +4,12 @@ Chronological record of merged PRs and closed issues. Maintained by the Guide ro
 
 ### 2026-11-26
 
+- **Issue #254** (closed): Clean up temporary directories created by DLL bench tests
+- **PR #255**: test: clean up DLL bench test scratch directories with addCleanup
+- **Issue #252** (closed): Grade DLL bench rows from the saved run manifest
+- **PR #253**: fix: grade DLL benches from the saved manifest, not live bench.json
+- **Issue #247** (closed): Use relative paths to identify readers in the bench namespace guard
+- **PR #249**: fix: identify bench namespace readers by their sim-relative paths
 - **Issue #245** (closed): Use the deck calibration calculation in the noise-method report
 - **PR #246**: fix: use staged deck amplitudes in the noise-method report
 - **PR #243**: fix: serialize osdi_dir in dllbench base_request, drop the post-write JSON rewrite
