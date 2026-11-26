@@ -420,7 +420,12 @@ def axis_problems(name, env, manifest_req):
 
 
 def grade(bench_dir, out):
-    cfg = load(os.path.join(bench_dir, "bench.json"))
+    """Grade the run saved in `out` by its manifest and envelopes alone: the
+    bench named in the record heading and the rows that get a verdict are the
+    ones the manifest recorded, so another bench directory, or a bench.json
+    edited since the run, cannot change the verdict on the same evidence
+    (issue #252). `bench_dir` is accepted only to keep `grade BENCH_DIR OUT`
+    working; it is not read."""
     manifest = load(os.path.join(out, "manifest.json"))
     tol = manifest["tol"]
     problems, items, lines = [], [], []
@@ -470,11 +475,11 @@ def grade(bench_dir, out):
                 s["latency_bad"] += f["lock_latency_ok"] is False
                 s["latency_absent"] += f["lock_latency_ok"] is None
     standin = manifest["stand_in"]
-    lines += [f"# {cfg['bench']} bench record", "", "SIMULATED results, never measured.", ""]
+    lines += [f"# {manifest['bench']} bench record", "", "SIMULATED results, never measured.", ""]
     if standin:
         lines += ["**DUT is the behavioural STAND-IN, not the item-1 netlist.** These numbers describe the model "
                   "in `sim/standin/`; they do not grade the block and do not satisfy T1 item 9.", ""]
-    lines += [f"- spec rows: {', '.join(str(r) for r in cfg['rows'])}; profile `{manifest['profile']}`; "
+    lines += [f"- spec rows: {', '.join(str(r) for r in manifest['rows'])}; profile `{manifest['profile']}`; "
               f"tolerance {tol:g} of T; f0 {manifest['f0_hz']:.6g} Hz; DUT `{manifest['dut']}`",
               f"- run {manifest['run_s']:.6g} s (2 x the column lock-time limit); window: the 64 input cycles ending {TAIL_CYCLES} cycles before the end of the run (edge indices, rising edges at Vdd/2 of each corner's own supply)", ""]
     lines += ["| request | start state | corners | locked | exactly 1 T | row-8 pass | LOCK consistent | delay != 1 T | lock time max (s) | no lock time |",
@@ -497,7 +502,7 @@ def grade(bench_dir, out):
     # violation with no individual sample failing. The token alone decides.
     failing = [env.get("failed", 0) or (1 if env.get("status") == "fail" else 0)
                for _, env in items if "error" not in env]
-    rows = list(cfg["rows"])
+    rows = list(manifest["rows"])
     sampled = manifest["profile"] == "samples"
     # lock_late already counts the no-lock-time corners (lock_time_ok is False for them)
     r7_bad = sum(v["lock_late"] for v in summary.values())
