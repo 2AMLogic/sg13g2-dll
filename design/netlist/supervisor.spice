@@ -41,7 +41,7 @@ XMSK REF RSTB REFM VDD VSS refmask
 XIREF REF refb VDD VSS inv_lv
 XAUP TAPN REF VDD a_up a_up_n VDD VSS dffr_lv
 XADN TAPN refb VDD a_dn a_dn_n VDD VSS dffr_lv
-XBUP TAPH REF VDD b_up b_up_n VDD VSS dffr_lv
+XBUP TAPH REF VDD b_up b_up_n VDD VSS dffr_fast
 XNO b_up a_up a_dn_n over_n VDD VSS nand3_lv
 XIO over_n OVER VDD VSS inv_lv
 .ends
@@ -247,5 +247,79 @@ XSS qm CK CLRB ss VDD VSS nand3_lv
 XRS qmb CK rs VDD VSS nand2_lv
 XQ ss QB Q VDD VSS nand2_lv
 XQB rs Q CLRB QB VDD VSS nand3_lv
+.ends
+
+
+* expanding   symbol:  dffr_fast.sym # of pins=7
+** sym_path: design/dffr_fast.sym
+** sch_path: design/dffr_fast.sch
+.subckt dffr_fast D CK CLRB Q QB VDD VSS
+*.ipin D
+*.ipin CK
+*.ipin CLRB
+*.opin Q
+*.opin QB
+*.iopin VDD
+*.iopin VSS
+XIC CK ckb VDD VSS inv_lv
+XID D dn VDD VSS inv2x_lv
+XSM D ckb CLRB sm VDD VSS nand3_lv
+XRM dn ckb rm VDD VSS nand2x_lv
+XQM sm qmb qm VDD VSS nand2x_lv
+XQMB rm qm CLRB qmb VDD VSS nand3x_lv
+XD1 CK ckd1 VDD VSS inv_lv
+XD2 ckd1 ckd VDD VSS inv_lv
+XSS qm ckd CLRB ss VDD VSS nand3_lv
+XRS qmb ckd rs VDD VSS nand2_lv
+XQ ss QB Q VDD VSS nand2_lv
+XQB rs Q CLRB QB VDD VSS nand3_lv
+.ends
+
+
+* expanding   symbol:  inv2x_lv.sym # of pins=4
+** sym_path: design/inv2x_lv.sym
+** sch_path: design/inv2x_lv.sch
+.subckt inv2x_lv A Y VDD VSS
+*.ipin A
+*.opin Y
+*.iopin VDD
+*.iopin VSS
+XMP Y A VDD VDD sg13_lv_pmos w=2u l=0.13u ng=1 m=1
+XMN Y A VSS VSS sg13_lv_nmos w=1u l=0.13u ng=1 m=1
+.ends
+
+
+* expanding   symbol:  nand2x_lv.sym # of pins=5
+** sym_path: design/nand2x_lv.sym
+** sch_path: design/nand2x_lv.sch
+.subckt nand2x_lv A1 A2 Y VDD VSS
+*.ipin A1
+*.ipin A2
+*.opin Y
+*.iopin VDD
+*.iopin VSS
+XMP1 Y A1 VDD VDD sg13_lv_pmos w=2u l=0.13u ng=1 m=1
+XMP2 Y A2 VDD VDD sg13_lv_pmos w=2u l=0.13u ng=1 m=1
+XMN1 Y A1 mid VSS sg13_lv_nmos w=2u l=0.13u ng=1 m=1
+XMN2 mid A2 VSS VSS sg13_lv_nmos w=2u l=0.13u ng=1 m=1
+.ends
+
+
+* expanding   symbol:  nand3x_lv.sym # of pins=6
+** sym_path: design/nand3x_lv.sym
+** sch_path: design/nand3x_lv.sch
+.subckt nand3x_lv A1 A2 A3 Y VDD VSS
+*.ipin A1
+*.ipin A2
+*.ipin A3
+*.opin Y
+*.iopin VDD
+*.iopin VSS
+XMP1 Y A1 VDD VDD sg13_lv_pmos w=2u l=0.13u ng=1 m=1
+XMP2 Y A2 VDD VDD sg13_lv_pmos w=2u l=0.13u ng=1 m=1
+XMP3 Y A3 VDD VDD sg13_lv_pmos w=2u l=0.13u ng=1 m=1
+XMN1 Y A1 m1 VSS sg13_lv_nmos w=3u l=0.13u ng=1 m=1
+XMN2 m1 A2 m2 VSS sg13_lv_nmos w=3u l=0.13u ng=1 m=1
+XMN3 m2 A3 VSS VSS sg13_lv_nmos w=3u l=0.13u ng=1 m=1
 .ends
 

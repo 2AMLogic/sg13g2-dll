@@ -19,6 +19,7 @@
 | [`decisions/0014-row-6-noise-method.md`](decisions/0014-row-6-noise-method.md) | Row 6 noise method: one thermal `trnoise` equivalent per delay stage, calibrated per deck, validated on a known case (proposed) |
 | [`decisions/0015-pfd-buffered-lane-output.md`](decisions/0015-pfd-buffered-lane-output.md) | PFD latch output moves behind a driver (`srlatch_buf`); the latch family and the gate are unchanged (proposed) |
 | [`decisions/0016-ctl-1g-rest-states.md`](decisions/0016-ctl-1g-rest-states.md) | The sibling-polarity `ctl_1g` control has two dead rest states; 0008/0011 named one (proposed) |
+| [`decisions/0017-win-det-taph-sampler-dffr-fast.md`](decisions/0017-win-det-taph-sampler-dffr-fast.md) | Local `dffr_fast` for the `win_det` TAPH sampler. In simulation the ss falling-TAPH setup bracket moves from (100, 110] to (70, 80] ps. The supervisor releases RST at 0.8 T and asserts it at 1.8 T at ss and tt (proposed). |
 
 Machine-readable corner set: [`../sim/corners.json`](../sim/corners.json)
 (schema 1, consumed by `../sim/harness/gridspec.py`).

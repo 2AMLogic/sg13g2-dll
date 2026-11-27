@@ -141,8 +141,10 @@ fallback, plus the `ctl_1g` sibling-polarity control at 1 GHz:
 
 # False-lock supervisor: design note (issue #53)
 
-Status: **drawn and smoke-simulated at one corner (tt / 1.2 V / 27 °C); not
-characterised across PVT, not part of any false-lock proof.** Requirements are
+Status: **drawn, smoke-simulated at tt / 1.2 V / 27 °C, and responding at the
+ss / 1.080 V / 125 °C probe corner since the `dffr_fast` sampler remedy
+(spec/decisions/0017); not characterised across PVT, not part of any
+false-lock proof.** Requirements are
 in `spec/decisions/0005` parts 1 and 3 and `0008` "Start-up requirement"; no spec
 row or record is edited here. Every number below that a record leaves open is a
 **design choice, not a spec row**.
@@ -157,7 +159,8 @@ VCTRL high), `VCTRL` is the loop-filter node the pull-up acts on.
 | Cell | What |
 |---|---|
 | `dffr_lv` | rising-edge D flip-flop from NAND2/NAND3, active-low asynchronous clear of both latches |
-| `win_det` | three samples of the taps (see below) → `OVER` |
+| `dffr_fast` | `win_det`-local fast variant of `dffr_lv` for the TAPH sampler (spec/decisions/0017): same topology, D-path and master-loop gates 2x, slave clocked through an `inv_lv` pair |
+| `win_det` | three samples of the taps (see below) → `OVER`; `b_up` sampled by `dffr_fast`, `a_up`/`a_dn` keep `dffr_lv` |
 | `rail_cmp` | resistor ladder + two OTA comparators → `NHI`, `NLO`, `NEAR` |
 | `timeout_cnt` | 5-stage ripple counter of REF rises, cleared while its enable is low |
 | `refmask` | `dffr_lv` clocked on falling REF, cleared by `RSTB`, gates REF |
@@ -219,7 +222,10 @@ VCTRL high), `VCTRL` is the loop-filter node the pull-up acts on.
 ## Sizing (first pass, not justified by a result)
 
 Logic cells reuse `inv_lv`, `nand2_lv`, `edgedet`, `srlatch`; `nand3_lv` P 1 µm /
-N 1.5 µm. OTAs: pair 4 µm / 1 µm (HI) and 4 µm / 0.5 µm (LO), tails 0.5-1.5 µm /
+N 1.5 µm. The `b_up` sampler is the exception (spec/decisions/0017):
+`dffr_fast`, whose D-path and master-loop gates are the 2x leaves
+(`XID` `inv2x_lv`, `XRM`/`XQM` `nand2x_lv`, `XQMB` `nand3x_lv` P 2 µm /
+N 3 µm) with the slave clocked through an `inv_lv` pair. OTAs: pair 4 µm / 1 µm (HI) and 4 µm / 0.5 µm (LO), tails 0.5-1.5 µm /
 1 µm with gate at the opposite rail, mirror loads 1-2 µm / 0.5-1 µm. All
 `sg13_lv_*` (0007) plus `rppd`. The OTA sizes were changed twice during the
 smoke work (headroom, then settling time); they are a working point, not an
@@ -259,10 +265,35 @@ optimum.
   sits on the sampling edge by construction" note above, which is a
   zero-lead-by-design condition; d = 0.8 T has a designed 100 ps lead and ss
   eats exactly it. A probe, not a graded ss result; remedy with #148.
+- **The ss sampler remedy landed (spec/decisions/0017, issue #195): `b_up` is
+  now sampled by `dffr_fast`, and the supervisor responds at ss.** The remedy
+  is confined to `win_det.XBUP` — the shared `dffr_lv` and its other consumers
+  (the two TAPN window samples, the timeout counter, the first-edge mask, the
+  lock-detector sampling and counting logic) keep the characterized cell.
+  `XAUP` and `XBUP` still use rising REF, and `XADN` uses falling REF.
+  Each rising-edge sampler generates its own `ckb`. The wider `XBUP.XRM`
+  loads that local clock more heavily, so the two masters can close at
+  different times. The rising-TAPH aperture near 2 T is uncharacterized.
+  In the [#189 setup sweep replay](../sim/supervisor-smoke/results/20261123T101910Z-setup/record.md),
+  the ss falling-TAPH bracket moves to (70, 80] ps with the bench's ideal
+  30 ps edges and loads. The no-fault 100 ps lead clears it by ≥ 20 ps.
+  At that lead `b_up` peaks at 8.7 mV and `over` at 0.51 mV.
+  In the [#145 full-supervisor probe replay](../sim/supervisor-smoke/results/20261123T101910Z-probe/record.md),
+  RST at ss runs
+  the full expected sequence — release 3.817 ns, over-delay assert 26.160 ns
+  at the 1.8 T fault, release 51.802 ns, low-rail time-out through
+  `to` (82.729) → `pt` (82.852, 189 ps wide) → `set` → RST (83.137/83.257) —
+  with the tt control reproducing its committed sequence in the same run. The
+  tt smoke gates all six pass on the revised netlist
+  (`sim/supervisor-smoke/results/20261123T103022Z-smoke/`), including both
+  first-edge-mask gates. Still probes, not graded results; the 45-corner
+  grade is #41's.
 - **Not established**: any corner other than the tt smoke corner and the ss
-  probe above (no supply or temperature axis beyond those two points, no other
-  frequency); the comparator threshold spread; metastability of the window
-  samples near lock; the (2 T, 3.5 T) coverage gap; that the supervisor never
+  probes above (no supply or temperature axis beyond those two points, no other
+  frequency); the comparator threshold spread; mismatch spread of the new
+  sampler (no Monte Carlo); `b_up` hold-time behaviour (TAPH rising through
+  the REF edge, the direction the window needs at d near 2 T); metastability of the
+  window samples near lock; the (2 T, 3.5 T) coverage gap; that the supervisor never
   fires during a normal lock (needs the closed loop, the `sim/false-lock`
   bench); the 0008 claim that the mask makes FB_0 meet REF_1. The smoke bench
   has no negative control (a run with the mask removed was not made), so it
