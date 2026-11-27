@@ -321,27 +321,22 @@ def state_of(manifest_req, corner):
     return None
 
 
-def lock_time(period, st, vals, j_end):
+def lock_time(period, st, vals, tol, j_end):
     """First sampled time at which the predicate holds and keeps holding to the
     end, counted from the later of enable and the first input edge. Resolution
     is SAMPLE_STEP cycles. None when it never settles."""
-    tol = vals["_tol"]
-    samples = []
-    for j in range(SAMPLE_STEP, j_end + 1, SAMPLE_STEP):
-        te, ds = vals.get(f"te_{j}"), vals.get(f"ds_{j}")
-        if te is None or ds is None:
-            samples.append((j, None, False))
-        else:
-            samples.append((j, te, abs(ds - period) <= tol * period))
+    ref = st["ref_ns"] * 1e-9
     tail = None
-    for j, te, ok in reversed(samples):
-        if not ok:
+    for j in reversed(range(SAMPLE_STEP, j_end + 1, SAMPLE_STEP)):
+        te, ds = vals.get(f"te_{j}"), vals.get(f"ds_{j}")
+        settled = te is not None and ds is not None and abs(ds - period) <= tol * period
+        if not settled:
             break
-        if te is not None and te >= st["ref_ns"] * 1e-9:
-            tail = (j, te)
+        if te >= ref:
+            tail = te
     if tail is None or vals.get("perr") is None or vals["perr"] > tol:
         return None
-    return tail[1] - st["ref_ns"] * 1e-9
+    return tail - ref
 
 
 def lock_latency_ok(period, st, vals, j_end, row8_pass, lock_time_s):
@@ -386,7 +381,7 @@ def grade_corner(profile, period, st, vals, tol, j_end=None, limit=None):
     lk = vals.get("lock_end")
     f["lock_ok"] = None if lk is None else (lk > 0.5) == f["row8_pass"]
     if profile == "samples":
-        f["lock_time_s"] = lock_time(period, st, dict(vals, _tol=tol), j_end)
+        f["lock_time_s"] = lock_time(period, st, vals, tol, j_end)
         f["lock_time_ok"] = f["lock_time_s"] is not None and (limit is None or f["lock_time_s"] <= limit)
         f["lock_latency_ok"] = lock_latency_ok(period, st, vals, j_end, f["row8_pass"], f["lock_time_s"])
     return f

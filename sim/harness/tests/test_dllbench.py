@@ -22,6 +22,8 @@ import dllbench  # noqa: E402
 
 BENCHES = ("phase", "lock-time", "false-lock", "power")
 DUT = os.path.join(SIM, "standin", "dut.json")
+# Lock times are seconds; the default 7-place tolerance would admit a whole 16 ns sample step.
+TIME_DELTA = 1e-15
 
 
 def jload(path):
@@ -417,6 +419,15 @@ class Grading(unittest.TestCase):
     def st(self):
         return {"name": "s1_min_rail", "ic": {}, "ref_ns": 0.0}
 
+    def samples(self, j_end, lock_at=0):
+        """Sampled te_j / ds_j of a run whose delay settles at cycle `lock_at`
+        (half a period before it), with the final window inside tolerance."""
+        v = {"perr": 0.001}
+        for j in range(16, j_end + 1, 16):
+            v[f"te_{j}"] = j * self.T
+            v[f"ds_{j}"] = self.T if j >= lock_at else 0.5 * self.T
+        return v
+
     def test_one_period_lock_passes(self):
         f = dllbench.grade_corner("predicate", self.T, self.st(), self.vals(), 0.02)
         self.assertTrue(f["row8_pass"])
@@ -445,15 +456,51 @@ class Grading(unittest.TestCase):
 
     def test_lock_time_needs_settled_tail(self):
         j_end = dllbench.window_end(self.T, dllbench.run_length(1e9))
-        vals = {"perr": 0.001, "_tol": 0.02}
-        for j in range(16, j_end + 1, 16):
-            ok = j >= 400
-            vals[f"te_{j}"] = j * self.T
-            vals[f"ds_{j}"] = self.T if ok else 0.5 * self.T
-        t = dllbench.lock_time(self.T, {"ref_ns": 0.0}, vals, j_end)
-        self.assertAlmostEqual(t, 400 * self.T)
+        vals = self.samples(j_end, lock_at=400)
+        f = lambda v: dllbench.lock_time(self.T, {"ref_ns": 0.0}, v, 0.02, j_end)
+        self.assertAlmostEqual(f(vals), 400 * self.T, delta=TIME_DELTA)
         vals[f"ds_{j_end - j_end % 16}"] = 0.5 * self.T  # a late slip: not settled
-        self.assertIsNone(dllbench.lock_time(self.T, {"ref_ns": 0.0}, vals, j_end))
+        self.assertIsNone(f(vals))
+
+    def test_lock_time_unaligned_last_cycle(self):
+        j_end = 55
+        f = lambda v: dllbench.lock_time(self.T, {"ref_ns": 0.0}, v, 0.02, j_end)
+        vals = self.samples(j_end)
+        self.assertEqual(f(vals), 16 * self.T)
+        vals["ds_16"] = 0.5 * self.T
+        self.assertEqual(f(vals), 32 * self.T)
+
+    def test_lock_time_counts_from_a_reference_inside_the_settled_run(self):
+        vals = self.samples(320)
+        f = lambda ref_ns, v: dllbench.lock_time(self.T, {"ref_ns": ref_ns}, v, 0.02, 320)
+        self.assertAlmostEqual(f(205.0, vals), (208 - 205.0) * self.T, delta=TIME_DELTA)
+        self.assertAlmostEqual(f(205.0, dict(vals, ds_192=0.5 * self.T)), (208 - 205.0) * self.T, delta=TIME_DELTA)
+        self.assertAlmostEqual(f(205.0, dict(vals, ds_208=0.5 * self.T)), (224 - 205.0) * self.T, delta=TIME_DELTA)
+        self.assertEqual(f(208.0, vals), 0.0)
+
+    def test_lock_time_missing_sample_breaks_the_settled_run(self):
+        f = lambda v: dllbench.lock_time(self.T, {"ref_ns": 0.0}, v, 0.02, 48)
+        vals = self.samples(48)
+        for name in ("te_32", "ds_32"):
+            v = dict(vals)
+            del v[name]
+            self.assertEqual(f(v), 48 * self.T, name)
+        for name in ("te_48", "ds_48"):
+            v = dict(vals)
+            del v[name]
+            self.assertIsNone(f(v), name)
+
+    def test_lock_time_applies_its_tolerance_to_the_samples_and_the_final_window(self):
+        f = lambda v, tol: dllbench.lock_time(self.T, {"ref_ns": 0.0}, v, tol, 48)
+        vals = self.samples(48)
+        vals.update({f"ds_{j}": 1.03 * self.T for j in (16, 32, 48)})
+        self.assertEqual(f(vals, 0.05), 16 * self.T)
+        self.assertEqual(f(dict(vals, perr=0.05), 0.05), 16 * self.T)
+        self.assertIsNone(f(vals, 0.02))
+        self.assertIsNone(f(dict(vals, perr=0.06), 0.05))
+        v = dict(vals)
+        del v["perr"]
+        self.assertIsNone(f(v, 0.05))
 
 
 class LockRows(unittest.TestCase):
