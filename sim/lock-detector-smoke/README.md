@@ -61,3 +61,20 @@ is static common-mode bias, not ripple or settling), [0, 0.6125) V at tt
 (12.5 mV above the nominal 0.600 V) and [0, 0.8523) V at ff. See that
 directory's `record.md`. The isolated one-shot/latch set path the ss probe
 left unexercised is covered by `sim/edgedet-srlatch-ss/` (it works at ss).
+
+## Evidence currency after the `vmov_cmp` remedy (issue #196, decision 0017)
+
+The three records above describe the **previous** `vmov_cmp` (width trim + inverter trip). Against the replica-referenced
+sensor of [decision 0017](../../spec/decisions/0017-vmov-cmp-replica-threshold.md), the current records are:
+
+- `results/20261124T023824Z-smoke/` -- the tt smoke bench on the regenerated netlist, batch backend (this host's local
+  ngspice does not finish the 800 ns transient inside the request's 900 s timeout, so `run.sh`, which forces
+  `--backend local`, was not used; the request is byte-identical): **PASS**, all five gates.
+- `results/20261124T023824Z-probe/` -- the #145 two-unit ss/tt probe, request byte-identical: `LOCK` rises / falls / reacquires
+  at 356.95 / 521.42 / 711.95 ns at ss and 353.08 / 521.10 / 710.08 ns at tt.
+- `results/20261124T025009Z-dcprobe/` -- the quiet-input DC sweep at tt/ss/ff: `STILL` high over the whole 0-1.32 V.
+  `results/20261124T023824Z-dcprobe/` is its first, errored submission (the `WHEN` transition cards found no transition)
+  and is kept as evidence of that.
+- `results/20261124T024845Z-stepprobe/` -- VCTRL steps of +/-3, 5, 8 mV at tt/ss/ff: held at 3 mV, dropped at 5 mV.
+
+All are probes at the reduced-set corner points, not graded results (#41). Simulated, never measured.

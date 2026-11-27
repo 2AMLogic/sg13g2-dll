@@ -1,0 +1,42 @@
+* klt sim -- generated corner deck, do not edit
+.lib /var/tmp/eda-job-klt-sim-9a2a88a9b045/inputs/cornerMOSlv.lib mos_ss
+.lib /var/tmp/eda-job-klt-sim-9a2a88a9b045/inputs/cornerRES.lib res_typ
+.lib /var/tmp/eda-job-klt-sim-9a2a88a9b045/inputs/cornerCAP.lib cap_typ
+.include /var/tmp/eda-job-klt-sim-9a2a88a9b045/inputs/netlist.cir
+.temp 125
+.meas tran still_quiet_95n find v(still) at=95n
+.meas tran still_min_s01_up3mV min v(still) from=101n to=160n
+.meas tran still_end_s01 find v(still) at=195n
+.meas tran still_min_s02_dn3mV min v(still) from=201n to=260n
+.meas tran still_end_s02 find v(still) at=295n
+.meas tran still_min_s03_dn3mV min v(still) from=301n to=360n
+.meas tran still_end_s03 find v(still) at=395n
+.meas tran still_min_s04_up3mV min v(still) from=401n to=460n
+.meas tran still_end_s04 find v(still) at=495n
+.meas tran still_min_s05_up5mV min v(still) from=501n to=560n
+.meas tran still_end_s05 find v(still) at=595n
+.meas tran still_min_s06_dn5mV min v(still) from=601n to=660n
+.meas tran still_end_s06 find v(still) at=695n
+.meas tran still_min_s07_dn5mV min v(still) from=701n to=760n
+.meas tran still_end_s07 find v(still) at=795n
+.meas tran still_min_s08_up5mV min v(still) from=801n to=860n
+.meas tran still_end_s08 find v(still) at=895n
+.meas tran still_min_s09_up8mV min v(still) from=901n to=960n
+.meas tran still_end_s09 find v(still) at=995n
+.meas tran still_min_s10_dn8mV min v(still) from=1001n to=1060n
+.meas tran still_end_s10 find v(still) at=1095n
+.meas tran still_min_s11_dn8mV min v(still) from=1101n to=1160n
+.meas tran still_end_s11 find v(still) at=1195n
+.meas tran still_min_s12_up8mV min v(still) from=1201n to=1260n
+.meas tran still_end_s12 find v(still) at=1295n
+.control
+pre_osdi /var/tmp/eda-job-klt-sim-9a2a88a9b045/inputs/psp103.osdi
+pre_osdi /var/tmp/eda-job-klt-sim-9a2a88a9b045/inputs/psp103_nqs.osdi
+pre_osdi /var/tmp/eda-job-klt-sim-9a2a88a9b045/inputs/r3_cmc.osdi
+pre_osdi /var/tmp/eda-job-klt-sim-9a2a88a9b045/inputs/mosvar.osdi
+save all
+alter Vdd=1.08
+tran 20p 1300n
+quit
+.endc
+.end

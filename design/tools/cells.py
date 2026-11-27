@@ -277,8 +277,8 @@ c.sub("XMSK", "refmask", REF="REF", RSTB="RSTB", REFM="REFM", VDD="VDD", VSS="VS
 # vmov_cmp: VCTRL ripple sensor. Two matched NMOS source followers copy VCTRL; one copy
 # goes through an R-C low-pass (R 5 x 4.2 kohm rppd, C 20 um x 20 um MIM, tau ~ 10 ns),
 # so the other copy minus the low-passed copy is the movement of VCTRL. Two OTAs, one
-# per sign, each with a small deliberate input offset so the output only flips when
-# the difference exceeds it (target about 5 mV on VCTRL). STILL = 1 when neither OTA has flipped.
+# per sign, each followed by a replica-referenced threshold stage so the flag only drops
+# when the difference exceeds the threshold (held at 3 mV, dropped at 5 mV on VCTRL, tt/ss/ff; decision 0017). STILL = 1 when neither OTA has flipped.
 c = add(Cell("vmov_cmp", "VCTRL:i:l STILL:o:r VDD:io:t VSS:io:b",
              "VCTRL movement sensor: STILL = 1 while |VCTRL - lowpass(VCTRL)| is below the offset-set threshold"))
 c.mos("MFA", "n", "2u", "1u", D="VDD", G="VCTRL", S="vsa", B="VSS")
@@ -290,29 +290,41 @@ for i in range(5):
 c.cap("CL", "20u", "20u", "vsb", "VSS")
 # The follower outputs sit about one NMOS Vgs below VCTRL, so the comparators use
 # PMOS input pairs (valid while VCTRL is below roughly 0.85 V; above that the pair
-# turns off and STILL is not meaningful). The output flips when in2 falls below in1 by
-# a small offset: the mirror-diode device (in1) is made narrower (3.59 um against 4 um
-# for in2) to move the flip point to the target. A step test of the whole cell at tt
-# (vmov_cmp alone, 0.6 V, 20 fF-free) held STILL at 1 for a 4 mV VCTRL step up and 5 mV
-# down and dropped it at 5 mV up and 8 mV down. The flip point moves from "never"
-# to "always" over about 0.1 um of this width, so it is a trim, not a robust number:
-# random mismatch (not simulated) is larger than the window. See design/NOTES.md.
+# turns off and STILL is not meaningful). Each OTA is a balanced pair (4 um / 4 um):
+# its output oa/ob rests at the mirror-diode node da/db when the inputs are equal.
+# The deliberate threshold is NOT a width trim of the pair and NOT the trip of a
+# following inverter (issue #196: at ss the OTA output sat a few mV above the
+# inverter trip for any input, so STILL never asserted). Each output instead drives
+# a replica-referenced stage: MQNxS (gate = OTA output) against a replica MQNxR
+# (gate = the same OTA's mirror-diode node), both loaded by a PMOS mirror of the
+# replica branch (MQPxR diode, MQPxS mirror). The stage flips where its NMOS passes
+# the replica's current, i.e. where the OTA output has moved off the diode node by a
+# set amount, and both sides come from the same corner, so the flip tracks process,
+# supply and temperature. The threshold is the width ratio MQNxS : MQNxR (1.6 u : 2 u,
+# a ratio of two same-L devices, not a 0.1 um trim). sa/sb are active-high stillness
+# flags: high while the OTA output has not moved. Decision 0017.
 # OTA A: out high when vsa < vsb - offset
 c.mos("MTA", "p", "1.5u", "1u", D="tla", G="VSS", S="VDD", B="VDD")
-c.mos("MA1", "p", "3.59u", "1u", D="da", G="vsb", S="tla", B="VDD")
+c.mos("MA1", "p", "4u", "1u", D="da", G="vsb", S="tla", B="VDD")
 c.mos("MA2", "p", "4u", "1u", D="oa", G="vsa", S="tla", B="VDD")
 c.mos("MLA1", "n", "1u", "0.5u", D="da", G="da", S="VSS", B="VSS")
 c.mos("MLA2", "n", "1u", "0.5u", D="oa", G="da", S="VSS", B="VSS")
-c.sub("XA1", "inv_lv", A="oa", Y="oab", VDD="VDD", VSS="VSS")
+c.mos("MQPAR", "p", "2u", "1u", D="ra", G="ra", S="VDD", B="VDD")
+c.mos("MQNAR", "n", "2u", "0.5u", D="ra", G="da", S="VSS", B="VSS")
+c.mos("MQPAS", "p", "2u", "1u", D="sa", G="ra", S="VDD", B="VDD")
+c.mos("MQNAS", "n", "1.6u", "0.5u", D="sa", G="oa", S="VSS", B="VSS")
 # OTA B: out high when vsb > vsa + offset
 c.mos("MTB", "p", "1.5u", "1u", D="tlb", G="VSS", S="VDD", B="VDD")
-c.mos("MB1", "p", "3.59u", "1u", D="db", G="vsa", S="tlb", B="VDD")
+c.mos("MB1", "p", "4u", "1u", D="db", G="vsa", S="tlb", B="VDD")
 c.mos("MB2", "p", "4u", "1u", D="ob", G="vsb", S="tlb", B="VDD")
 c.mos("MLB1", "n", "1u", "0.5u", D="db", G="db", S="VSS", B="VSS")
 c.mos("MLB2", "n", "1u", "0.5u", D="ob", G="db", S="VSS", B="VSS")
-c.sub("XB1", "inv_lv", A="ob", Y="obb", VDD="VDD", VSS="VSS")
-# oab/obb are active-low "moved" flags: STILL = oab AND obb
-c.sub("XSN", "nand2_lv", A1="oab", A2="obb", Y="still_n", VDD="VDD", VSS="VSS")
+c.mos("MQPBR", "p", "2u", "1u", D="rb", G="rb", S="VDD", B="VDD")
+c.mos("MQNBR", "n", "2u", "0.5u", D="rb", G="db", S="VSS", B="VSS")
+c.mos("MQPBS", "p", "2u", "1u", D="sb", G="rb", S="VDD", B="VDD")
+c.mos("MQNBS", "n", "1.6u", "0.5u", D="sb", G="ob", S="VSS", B="VSS")
+# sa/sb are active-high stillness flags: STILL = sa AND sb
+c.sub("XSN", "nand2_lv", A1="sa", A2="sb", Y="still_n", VDD="VDD", VSS="VSS")
 c.sub("XSI", "inv_lv", A="still_n", Y="STILL", VDD="VDD", VSS="VSS")
 
 # Delay-error window: with refd = REF delayed by d (2 inverters) and tapd = TAPN delayed by
