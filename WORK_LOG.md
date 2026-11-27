@@ -2,6 +2,11 @@
 
 Chronological record of merged PRs and closed issues. Maintained by the Guide role.
 
+### 2026-11-27
+
+- **Issue #257** (closed): Compute row 7 lock time directly from the final settled samples
+- **PR #258**: refactor: derive row 7 lock time by a reverse scan of the samples
+
 ### 2026-11-26
 
 - **Issue #254** (closed): Clean up temporary directories created by DLL bench tests
