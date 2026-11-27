@@ -19,6 +19,7 @@
 | [`decisions/0014-row-6-noise-method.md`](decisions/0014-row-6-noise-method.md) | Row 6 noise method: one thermal `trnoise` equivalent per delay stage, calibrated per deck, validated on a known case (proposed) |
 | [`decisions/0015-pfd-buffered-lane-output.md`](decisions/0015-pfd-buffered-lane-output.md) | PFD latch output moves behind a driver (`srlatch_buf`); the latch family and the gate are unchanged (proposed) |
 | [`decisions/0016-ctl-1g-rest-states.md`](decisions/0016-ctl-1g-rest-states.md) | The sibling-polarity `ctl_1g` control has two dead rest states; 0008/0011 named one (proposed) |
+| [`decisions/0017-row-4-monte-carlo-limit-commit-later.md`](decisions/0017-row-4-monte-carlo-limit-commit-later.md) | Commit to a Monte Carlo phase-spacing limit on row 4, value set later by a record once a post-layout locked-loop result exists; sets no number, edits no row; auto-selected, not an operator ruling (proposed) |
 
 Machine-readable corner set: [`../sim/corners.json`](../sim/corners.json)
 (schema 1, consumed by `../sim/harness/gridspec.py`).
